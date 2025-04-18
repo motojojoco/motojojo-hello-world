@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FadeIn } from "@/components/ui/motion";
@@ -41,6 +40,7 @@ import { createEvent, updateEvent, deleteEvent, subscribeToEvents } from "@/serv
 import { getEvents } from "@/services/eventService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LogOut, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { experiences, banners } from "@/data/mockData";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
