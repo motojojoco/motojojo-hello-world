@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Dialog, 
@@ -18,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
 interface RazorpayButtonProps {
-  eventId: string; // Changed to string only since we're using UUIDs
+  eventId: number;
   eventName: string;
   amount: number;
   onSuccess?: () => void;
@@ -45,31 +45,6 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
   const { toast } = useToast();
   const { user, isSignedIn } = useAuth();
   const navigate = useNavigate();
-
-  // Subscribe to real-time booking updates
-  useEffect(() => {
-    const channel = supabase
-      .channel('bookings-channel')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'bookings',
-          filter: `event_id=eq.${eventId}`
-        },
-        (payload) => {
-          console.log('New booking:', payload);
-          // Refresh event details if needed
-          if (onSuccess) onSuccess();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [eventId, onSuccess]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -124,7 +99,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
               .from('bookings')
               .insert({
                 user_id: user?.id,
-                event_id: eventId,
+                event_id: eventId.toString(),
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,

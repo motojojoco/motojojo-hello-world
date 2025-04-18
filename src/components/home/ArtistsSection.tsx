@@ -1,74 +1,15 @@
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { artists } from "@/data/mockData";
 import { FadeIn } from "@/components/ui/motion";
 import { ChevronLeft, ChevronRight, Music } from "lucide-react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-
-interface Artist {
-  id: string;
-  name: string;
-  genre: string;
-  image: string;
-}
 
 const ArtistsSection = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [artists, setArtists] = useState<Artist[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const fetchArtists = async () => {
-      try {
-        // For now, we'll use an empty array since we don't have an artists table yet
-        // This can be implemented when you add the artists table to Supabase
-        setArtists([]);
-        
-        // Uncomment and use this when you create an artists table
-        // const { data, error } = await supabase.from('artists').select('*');
-        // if (error) throw error;
-        // setArtists(data || []);
-      } catch (error) {
-        console.error("Error fetching artists:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load artists. Please try again later.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArtists();
-
-    // Setup real-time subscription when artists table is created
-    // const channel = supabase
-    //   .channel('artists-changes')
-    //   .on(
-    //     'postgres_changes',
-    //     {
-    //       event: '*',
-    //       schema: 'public',
-    //       table: 'artists'
-    //     },
-    //     async (payload) => {
-    //       console.log('Real-time update received:', payload);
-    //       const { data } = await supabase.from('artists').select('*');
-    //       setArtists(data || []);
-    //     }
-    //   )
-    //   .subscribe();
-
-    // return () => {
-    //   supabase.removeChannel(channel);
-    // };
-  }, [toast]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -81,38 +22,6 @@ const ArtistsSection = () => {
       }
     }
   };
-
-  if (loading) {
-    return (
-      <section className="py-16 bg-muted/5">
-        <div className="container-padding">
-          <h2 className="section-title">Featured Artists</h2>
-          <div className="flex justify-center py-16">
-            <div className="animate-pulse flex space-x-4">
-              <div className="h-12 w-12 bg-slate-200 rounded-full"></div>
-              <div className="space-y-4 flex-1">
-                <div className="h-4 bg-slate-200 rounded"></div>
-                <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (artists.length === 0) {
-    return (
-      <section className="py-16 bg-muted/5">
-        <div className="container-padding">
-          <h2 className="section-title">Featured Artists</h2>
-          <div className="flex justify-center py-16">
-            <p className="text-muted-foreground">No artists available at this time. Please check back later.</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="py-16 bg-muted/5">
