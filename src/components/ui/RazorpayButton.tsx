@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -18,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
 interface RazorpayButtonProps {
-  eventId: number;
+  eventId: number | string;
   eventName: string;
   amount: number;
   onSuccess?: () => void;
@@ -94,12 +95,14 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
         image: "https://your-logo-url.png", // Replace with your logo
         handler: async function(response: any) {
           try {
+            console.log("Saving booking with event_id:", eventId);
+            
             // Save booking to Supabase
             const { data: booking, error: bookingError } = await supabase
               .from('bookings')
               .insert({
                 user_id: user?.id,
-                event_id: eventId.toString(),
+                event_id: eventId.toString(), // Ensure it's a string
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
