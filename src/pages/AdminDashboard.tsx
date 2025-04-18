@@ -1,8 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FadeIn } from "@/components/ui/motion";
 import { Button } from "@/components/ui/button";
+import EventForm from "@/components/admin/EventForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Card,
   CardContent,
@@ -24,33 +31,93 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { events, experiences, artists, banners } from "@/data/mockData";
+import { Event } from "@/services/eventService";
+import { createEvent, updateEvent, deleteEvent, subscribeToEvents } from "@/services/adminEventService";
+import { getEvents } from "@/services/eventService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LogOut, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  // State for pagination
+  const queryClient = useQueryClient();
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  
+
+  // Fetch events using React Query
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: getEvents
+  });
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    const unsubscribe = subscribeToEvents((event) => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast({
+        title: "Event Updated",
+        description: "The events list has been updated.",
+      });
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [queryClient, toast]);
+
+  const handleCreateEvent = async (data: Omit<Event, "id" | "created_at" | "updated_at">) => {
+    await createEvent(data);
+    queryClient.invalidateQueries({ queryKey: ['events'] });
+    toast({
+      title: "Success",
+      description: "Event created successfully",
+    });
+  };
+
+  const handleUpdateEvent = async (data: Omit<Event, "id" | "created_at" | "updated_at">) => {
+    if (!selectedEvent?.id) return;
+    await updateEvent(selectedEvent.id, data);
+    setIsEditDialogOpen(false);
+    setSelectedEvent(null);
+    queryClient.invalidateQueries({ queryKey: ['events'] });
+    toast({
+      title: "Success",
+      description: "Event updated successfully",
+    });
+  };
+
+  const handleDeleteEvent = async (id: string) => {
+    if (confirm("Are you sure you want to delete this event?")) {
+      await deleteEvent(id);
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast({
+        title: "Success",
+        description: "Event deleted successfully",
+      });
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  // Get current items for pagination
+  const getCurrentItems = (items: any[]) => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return items.slice(indexOfFirstItem, indexOfLastItem);
+  };
+
   // Auth check
   useEffect(() => {
     // In a real app, you would check if the user is authenticated
     // For demo purposes, we'll just assume they are
     console.log("Admin authenticated");
   }, []);
-  
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
-  };
   
   // Handle logout
   const handleLogout = () => {
@@ -71,13 +138,6 @@ const AdminDashboard = () => {
     { id: 6, eventId: 1, eventName: "Sunburn Festival 2025", userName: "Kavita Gupta", email: "kavita@example.com", tickets: 1, amount: 2499, date: "2025-01-25" },
     { id: 7, eventId: 6, eventName: "Divine: Gully Fest", userName: "Vikram Reddy", email: "vikram@example.com", tickets: 3, amount: 4497, date: "2025-02-01" }
   ];
-  
-  // Calculate the items to show for the current page
-  const getCurrentItems = (items: any[]) => {
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    return items.slice(indexOfFirstItem, indexOfLastItem);
-  };
   
   // Calculate total pages
   const totalPages = (items: any[]) => Math.ceil(items.length / itemsPerPage);
@@ -122,13 +182,13 @@ const AdminDashboard = () => {
           </Button>
         </div>
       </header>
-      
+
       <main className="flex-grow py-8">
         <div className="container-padding">
           <FadeIn>
             <h2 className="text-3xl font-bold mb-8">Admin Dashboard</h2>
           </FadeIn>
-          
+
           <Tabs defaultValue="events" className="w-full">
             <TabsList className="grid grid-cols-4 mb-8">
               <TabsTrigger value="events">Manage Events</TabsTrigger>
@@ -136,154 +196,109 @@ const AdminDashboard = () => {
               <TabsTrigger value="banners">Manage Banners</TabsTrigger>
               <TabsTrigger value="bookings">View Bookings</TabsTrigger>
             </TabsList>
-            
-            {/* Events Tab */}
+
             <TabsContent value="events">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="md:col-span-2">
-                  <FadeIn delay={100}>
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex justify-between items-center">
-                          <span>All Events</span>
-                          <Button size="sm">
-                            <Plus className="mr-1 h-4 w-4" />
-                            Add New
-                          </Button>
-                        </CardTitle>
-                        <CardDescription>
-                          Manage your events and their details
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="rounded-md border">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Category</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Price</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+              <div className="grid grid-cols-1 gap-8">
+                <FadeIn delay={100}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex justify-between items-center">
+                        <span>All Events</span>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add New Event
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Create New Event</DialogTitle>
+                            </DialogHeader>
+                            <EventForm onSubmit={handleCreateEvent} />
+                          </DialogContent>
+                        </Dialog>
+                      </CardTitle>
+                      <CardDescription>
+                        Manage your events and their details
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Name</TableHead>
+                              <TableHead>Category</TableHead>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Price</TableHead>
+                              <TableHead>Seats</TableHead>
+                              <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {getCurrentItems(events).map((event) => (
+                              <TableRow key={event.id}>
+                                <TableCell className="font-medium">{event.title}</TableCell>
+                                <TableCell>{event.category}</TableCell>
+                                <TableCell>{formatDate(event.date)}</TableCell>
+                                <TableCell>₹{event.price}</TableCell>
+                                <TableCell>{event.seats_available}</TableCell>
+                                <TableCell className="text-right space-x-2">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      setSelectedEvent(event);
+                                      setIsEditDialogOpen(true);
+                                    }}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => handleDeleteEvent(event.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </TableCell>
                               </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {getCurrentItems(events).map((event) => (
-                                <TableRow key={event.id}>
-                                  <TableCell className="font-medium">{event.title}</TableCell>
-                                  <TableCell>{event.category}</TableCell>
-                                  <TableCell>{formatDate(event.date)}</TableCell>
-                                  <TableCell>₹{event.price}</TableCell>
-                                  <TableCell className="text-right space-x-2">
-                                    <Button size="icon" variant="ghost">
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button size="icon" variant="ghost">
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </div>
-                        
+                            ))}
+                          </TableBody>
+                        </Table>
+
                         {/* Pagination Controls */}
-                        {totalPages(events) > 1 && (
-                          <div className="flex justify-end items-center space-x-2 mt-4">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                              disabled={currentPage === 1}
-                            >
-                              <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <span className="text-sm text-muted-foreground">
-                              Page {currentPage} of {totalPages(events)}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages(events)))}
-                              disabled={currentPage === totalPages(events)}
-                            >
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </FadeIn>
-                </div>
-                
-                <div>
-                  <FadeIn delay={200}>
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Add New Event</CardTitle>
-                        <CardDescription>
-                          Create a new event for your platform
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <form onSubmit={handleAddEvent} className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="event-title">Event Title</Label>
-                            <Input id="event-title" placeholder="Enter event title" />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="event-subtitle">Subtitle</Label>
-                            <Input id="event-subtitle" placeholder="Enter event subtitle" />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="event-description">Description</Label>
-                            <Textarea id="event-description" placeholder="Enter event description" />
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="event-category">Category</Label>
-                              <Input id="event-category" placeholder="Select category" />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="event-price">Price (₹)</Label>
-                              <Input id="event-price" type="number" placeholder="Enter price" />
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="event-date">Date</Label>
-                              <Input id="event-date" type="date" />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="event-time">Time</Label>
-                              <Input id="event-time" type="time" />
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="event-image">Event Image</Label>
-                            <Input id="event-image" type="file" />
-                          </div>
-                          
-                          <Button type="submit" className="w-full">
-                            Create Event
+                        <div className="flex justify-end items-center space-x-2 p-4">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                          >
+                            <ChevronLeft className="h-4 w-4" />
                           </Button>
-                        </form>
-                      </CardContent>
-                    </Card>
-                  </FadeIn>
-                </div>
+                          <span className="text-sm text-muted-foreground">
+                            Page {currentPage} of {Math.ceil(events.length / itemsPerPage)}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setCurrentPage(prev => 
+                              Math.min(prev + 1, Math.ceil(events.length / itemsPerPage))
+                            )}
+                            disabled={currentPage === Math.ceil(events.length / itemsPerPage)}
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </FadeIn>
               </div>
             </TabsContent>
-            
-            {/* Experiences Tab */}
+
             <TabsContent value="experiences">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-2">
@@ -312,6 +327,7 @@ const AdminDashboard = () => {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
+                              {/* @ts-expect-error */}
                               {experiences.map((experience) => (
                                 <TableRow key={experience.id}>
                                   <TableCell className="font-medium">{experience.name}</TableCell>
@@ -370,8 +386,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </TabsContent>
-            
-            {/* Banners Tab */}
+
             <TabsContent value="banners">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-2">
@@ -401,6 +416,7 @@ const AdminDashboard = () => {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
+                              {/* @ts-expect-error */}
                               {banners.map((banner) => (
                                 <TableRow key={banner.id}>
                                   <TableCell className="font-medium">{banner.title}</TableCell>
@@ -468,8 +484,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </TabsContent>
-            
-            {/* Bookings Tab */}
+
             <TabsContent value="bookings">
               <FadeIn delay={100}>
                 <Card>
@@ -538,6 +553,22 @@ const AdminDashboard = () => {
           </Tabs>
         </div>
       </main>
+
+      {/* Edit Event Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Event</DialogTitle>
+          </DialogHeader>
+          {selectedEvent && (
+            <EventForm
+              initialData={selectedEvent}
+              onSubmit={handleUpdateEvent}
+              isEditing
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
