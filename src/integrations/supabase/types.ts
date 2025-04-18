@@ -62,6 +62,30 @@ export type Database = {
           },
         ]
       }
+      event_types: {
+        Row: {
+          created_at: string
+          deletable: boolean
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          deletable?: boolean
+          icon?: string | null
+          id: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          deletable?: boolean
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           category: string
@@ -156,6 +180,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      users: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          preferences: Json | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          preferences?: Json | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          preferences?: Json | null
+        }
+        Relationships: []
       }
     }
     Views: {

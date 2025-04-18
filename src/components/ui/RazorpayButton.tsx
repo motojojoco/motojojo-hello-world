@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,7 +13,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Check } from "lucide-react"; // Added import for the Check icon
+import { Check } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface RazorpayButtonProps {
   eventId: number;
@@ -36,17 +40,37 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: ""
+    phone: "",
+    tickets: 1
   });
   const { toast } = useToast();
+  const { user, isSignedIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      if (name === 'tickets') {
+        const ticketCount = parseInt(value) || 1;
+        return { ...prev, [name]: Math.max(1, Math.min(10, ticketCount)) };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Redirect to login if not signed in
+    if (!isSignedIn) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to book tickets.",
+        variant: "destructive"
+      });
+      setIsFormOpen(false);
+      return;
+    }
     
     // Validate form
     if (!formData.name || !formData.email || !formData.phone) {
@@ -60,18 +84,70 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
     
     // Load Razorpay script and open payment
     loadRazorpayScript(() => {
+      const totalAmount = amount * formData.tickets;
+      
       const options = {
         key: "rzp_test_kXdvIUTOdIictY", // Test key from prompt
-        amount: amount * 100, // Amount in paise
+        amount: totalAmount * 100, // Amount in paise
         currency: "INR",
         name: "Motojojo",
-        description: `Ticket for ${eventName}`,
+        description: `${formData.tickets} Ticket(s) for ${eventName}`,
         image: "https://your-logo-url.png", // Replace with your logo
-        handler: function() {
-          // On successful payment
-          setIsFormOpen(false);
-          setIsSuccessOpen(true);
-          if (onSuccess) onSuccess();
+        handler: async function(response: any) {
+          try {
+            // Save booking to Supabase
+            const { data: booking, error: bookingError } = await supabase
+              .from('bookings')
+              .insert({
+                user_id: user?.id,
+                event_id: eventId,
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                tickets: formData.tickets,
+                amount: totalAmount,
+                status: 'confirmed',
+                payment_id: response.razorpay_payment_id,
+                order_id: response.razorpay_order_id || null,
+                booking_date: new Date().toISOString()
+              })
+              .select('id')
+              .single();
+
+            if (bookingError) {
+              console.error("Error saving booking:", bookingError);
+              toast({
+                title: "Booking Error",
+                description: "There was an error saving your booking. Please contact support.",
+                variant: "destructive"
+              });
+              return;
+            }
+
+            // Generate tickets
+            for (let i = 0; i < formData.tickets; i++) {
+              const ticketNumber = `MJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+              await supabase
+                .from('tickets')
+                .insert({
+                  booking_id: booking.id,
+                  ticket_number: ticketNumber,
+                  qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`
+                });
+            }
+
+            // Show success dialog
+            setIsFormOpen(false);
+            setIsSuccessOpen(true);
+            if (onSuccess) onSuccess();
+          } catch (err) {
+            console.error("Error processing payment:", err);
+            toast({
+              title: "Payment Error",
+              description: "There was an error processing your payment. Please try again.",
+              variant: "destructive"
+            });
+          }
         },
         prefill: {
           name: formData.name,
@@ -88,11 +164,22 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
     });
   };
 
+  const handleButtonClick = () => {
+    if (!isSignedIn) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to book tickets.",
+      });
+      return;
+    }
+    setIsFormOpen(true);
+  };
+
   return (
     <>
       <Button 
         className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity"
-        onClick={() => setIsFormOpen(true)}
+        onClick={handleButtonClick}
       >
         Book Now
       </Button>
@@ -147,8 +234,23 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
                 />
               </div>
               
+              <div className="grid gap-2">
+                <Label htmlFor="tickets">Number of Tickets</Label>
+                <Input
+                  id="tickets"
+                  name="tickets"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={formData.tickets}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              
               <div className="mt-2 text-right font-semibold">
-                Amount: ₹{amount.toLocaleString()}
+                <div>Price: ₹{amount.toLocaleString()} x {formData.tickets}</div>
+                <div className="text-lg">Total: ₹{(amount * formData.tickets).toLocaleString()}</div>
               </div>
             </div>
             
@@ -173,16 +275,26 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="h-8 w-8 text-green-500" />
             </div>
-            <p className="text-lg mb-2">Your seat is booked!</p>
+            <p className="text-lg mb-2">Your seats are booked!</p>
             <p className="text-muted-foreground">Can't wait to see you there!</p>
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
             <Button 
+              className="w-full"
+              onClick={() => {
+                setIsSuccessOpen(false);
+                navigate("/profile");
+              }}
+            >
+              View My Tickets
+            </Button>
+            <Button 
+              variant="outline"
               className="w-full"
               onClick={() => setIsSuccessOpen(false)}
             >
-              Done
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

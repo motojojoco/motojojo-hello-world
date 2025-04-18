@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import RazorpayButton from "@/components/ui/RazorpayButton";
@@ -28,48 +28,40 @@ import {
   DollarSign,
   Star 
 } from "lucide-react";
-import { events, artists } from "@/data/mockData";
+import { getEventById, getEventsByCategory, Event } from "@/services/eventService";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [event, setEvent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [eventArtists, setEventArtists] = useState<any[]>([]);
-  const [similarEvents, setSimilarEvents] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   // Fetch event details
-  useEffect(() => {
-    if (id) {
-      // Simulate API call with setTimeout
-      setTimeout(() => {
-        const eventId = parseInt(id);
-        const foundEvent = events.find(e => e.id === eventId);
-        
-        if (foundEvent) {
-          setEvent(foundEvent);
-          
-          // Get event artists
-          if (foundEvent.artistIds && foundEvent.artistIds.length > 0) {
-            const relatedArtists = artists.filter(artist => 
-              foundEvent.artistIds.includes(artist.id)
-            );
-            setEventArtists(relatedArtists);
-          }
-          
-          // Get similar events (same category)
-          const related = events
-            .filter(e => e.categoryId === foundEvent.categoryId && e.id !== foundEvent.id)
-            .slice(0, 3);
-          setSimilarEvents(related);
-        }
-        
-        setLoading(false);
-      }, 500);
-    }
-  }, [id]);
+  const { 
+    data: event, 
+    isLoading: eventLoading, 
+    error: eventError 
+  } = useQuery({
+    queryKey: ['event', id],
+    queryFn: () => getEventById(id || ''),
+    enabled: !!id
+  });
+  
+  // Fetch similar events
+  const { 
+    data: similarEvents = [], 
+    isLoading: similarEventsLoading 
+  } = useQuery({
+    queryKey: ['similarEvents', event?.category],
+    queryFn: () => getEventsByCategory(event?.category || ''),
+    enabled: !!event?.category,
+    select: (data) => data.filter(e => e.id !== event?.id).slice(0, 3)
+  });
 
   // Format date for display
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const options: Intl.DateTimeFormatOptions = { 
       weekday: 'long',
       year: 'numeric', 
@@ -82,10 +74,9 @@ const EventDetail = () => {
   // Handle successful booking
   const handleBookingSuccess = () => {
     console.log("Booking successful for event:", id);
-    // In a real app, you would update the user's bookings in the database
   };
 
-  if (loading) {
+  if (eventLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -96,7 +87,7 @@ const EventDetail = () => {
     );
   }
 
-  if (!event) {
+  if (eventError || !event) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -110,6 +101,18 @@ const EventDetail = () => {
       </div>
     );
   }
+
+  // Mock data for FAQ and reviews until they are added to the database
+  const faq = [
+    { question: "What should I bring?", answer: "Just yourself and a valid ID. If you have a printed ticket, please bring it along." },
+    { question: "Is there parking available?", answer: "Yes, there is ample parking available at the venue." },
+    { question: "Can I get a refund if I can't attend?", answer: "Refunds are available up to 48 hours before the event. Please contact our support team." }
+  ];
+  
+  const reviews = [
+    { id: 1, name: "Raj Kumar", rating: 5, comment: "Amazing experience! Will definitely come back again.", date: "2 weeks ago" },
+    { id: 2, name: "Priya Sharma", rating: 4, comment: "Very good event, just a bit crowded.", date: "1 month ago" }
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -137,40 +140,15 @@ const EventDetail = () => {
                 
                 <div className="prose text-foreground max-w-none mb-8">
                   <p>{event.description}</p>
+                  {event.long_description && <p>{event.long_description}</p>}
                 </div>
               </FadeIn>
-
-              {/* Artists Section - If there are artists */}
-              {eventArtists.length > 0 && (
-                <FadeIn delay={100}>
-                  <h3 className="text-2xl font-bold mb-4">Featured Artists</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                    {eventArtists.map(artist => (
-                      <Card key={artist.id} className="border-none shadow-soft">
-                        <CardContent className="p-6">
-                          <div className="flex items-center mb-4">
-                            <Avatar className="h-16 w-16 mr-4 border-2 border-violet">
-                              <AvatarImage src={artist.image} alt={artist.name} />
-                              <AvatarFallback>{artist.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h4 className="text-lg font-bold">{artist.name}</h4>
-                              <p className="text-muted-foreground">{artist.genre}</p>
-                            </div>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-3">{artist.bio}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </FadeIn>
-              )}
 
               {/* Reviews Section */}
               <FadeIn delay={200}>
                 <h3 className="text-2xl font-bold mb-4">Community Reviews</h3>
                 <div className="space-y-4 mb-12">
-                  {event.reviews.map((review: any) => (
+                  {reviews.map((review) => (
                     <Card key={review.id} className="border-none shadow-soft">
                       <CardContent className="p-6">
                         <div className="flex justify-between mb-2">
@@ -192,7 +170,7 @@ const EventDetail = () => {
               <FadeIn delay={300}>
                 <h3 className="text-2xl font-bold mb-4">Frequently Asked Questions</h3>
                 <Accordion type="single" collapsible className="mb-12">
-                  {event.faq.map((item: any, index: number) => (
+                  {faq.map((item, index) => (
                     <AccordionItem key={index} value={`item-${index}`}>
                       <AccordionTrigger className="text-left font-medium">
                         {item.question}
@@ -235,7 +213,7 @@ const EventDetail = () => {
                           <Clock className="h-5 w-5 text-yellow mr-3 mt-0.5" />
                           <div>
                             <div className="font-medium">Time & Duration</div>
-                            <div className="text-muted-foreground">{event.time} • {event.duration}</div>
+                            <div className="text-muted-foreground">{event.time} • {event.duration || 'TBD'}</div>
                           </div>
                         </div>
                         
@@ -243,7 +221,7 @@ const EventDetail = () => {
                           <User className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
                           <div>
                             <div className="font-medium">Host</div>
-                            <div className="text-muted-foreground">{event.host}</div>
+                            <div className="text-muted-foreground">{event.host || 'Motojojo'}</div>
                           </div>
                         </div>
                         
@@ -259,7 +237,7 @@ const EventDetail = () => {
                           <Users className="h-5 w-5 text-orange-500 mr-3 mt-0.5" />
                           <div>
                             <div className="font-medium">Availability</div>
-                            <div className="text-muted-foreground">{event.seatsAvailable} seats available</div>
+                            <div className="text-muted-foreground">{event.seats_available} seats available</div>
                           </div>
                         </div>
                         
@@ -274,7 +252,7 @@ const EventDetail = () => {
                     </CardContent>
                     <CardFooter className="px-6 pb-6 pt-0">
                       <RazorpayButton 
-                        eventId={event.id} 
+                        eventId={parseInt(event.id)} 
                         eventName={event.title}
                         amount={event.price}
                         onSuccess={handleBookingSuccess}
@@ -287,11 +265,11 @@ const EventDetail = () => {
           </div>
           
           {/* Similar Events */}
-          {similarEvents.length > 0 && (
+          {!similarEventsLoading && similarEvents.length > 0 && (
             <FadeIn delay={500}>
               <h3 className="text-2xl font-bold mt-12 mb-6">Similar Events</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-                {similarEvents.map(event => (
+                {similarEvents.map((event: Event) => (
                   <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden">
                     <div className="h-48 relative">
                       <img 
@@ -318,11 +296,12 @@ const EventDetail = () => {
                     </CardContent>
                     <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
                       <div className="text-lg font-bold">₹{event.price}</div>
-                      <RazorpayButton 
-                        eventId={event.id} 
-                        eventName={event.title}
-                        amount={event.price}
-                      />
+                      <Button 
+                        variant="outline"
+                        onClick={() => navigate(`/event/${event.id}`)}
+                      >
+                        View Details
+                      </Button>
                     </CardFooter>
                   </Card>
                 ))}

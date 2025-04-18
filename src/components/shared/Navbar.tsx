@@ -8,14 +8,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MapPin, Search, User, LogIn, Menu, X } from "lucide-react";
+import { MapPin, Search, User, Menu, X } from "lucide-react";
 import { cities } from "@/data/mockData";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const Navbar = () => {
   const [selectedCity, setSelectedCity] = useState("Mumbai");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isSignedIn } = useAuth();
+  const navigate = useNavigate();
 
   // Detect location and set city (mock implementation)
   const detectLocation = () => {
@@ -90,12 +94,24 @@ const Navbar = () => {
           </Button>
 
           {/* Auth Buttons */}
-          <Button variant="outline" asChild>
-            <Link to="/login">
-              <LogIn className="h-4 w-4 mr-2" />
-              Sign In
-            </Link>
-          </Button>
+          {!isSignedIn ? (
+            <>
+              <SignInButton mode="modal">
+                <Button variant="outline">Sign In</Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button>Sign Up</Button>
+              </SignUpButton>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={() => navigate("/profile")}>
+                <User className="h-4 w-4 mr-2" />
+                Profile
+              </Button>
+              <UserButton afterSignOutUrl="/" />
+            </>
+          )}
 
           {/* Admin */}
           <Button variant="ghost" asChild>
@@ -156,12 +172,26 @@ const Navbar = () => {
               Explore Premium
             </Button>
             
-            <Button variant="outline" className="w-full" asChild>
-              <Link to="/login">
-                <LogIn className="h-4 w-4 mr-2" />
-                Sign In
-              </Link>
-            </Button>
+            {!isSignedIn ? (
+              <>
+                <SignInButton mode="modal">
+                  <Button variant="outline" className="w-full">Sign In</Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button className="w-full">Sign Up</Button>
+                </SignUpButton>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" className="w-full" onClick={() => navigate("/profile")}>
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </Button>
+                <div className="flex justify-center py-2">
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              </>
+            )}
             
             <Button variant="ghost" className="w-full" asChild>
               <Link to="/admin">

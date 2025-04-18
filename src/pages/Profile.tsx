@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { FadeIn } from "@/components/ui/motion";
@@ -13,6 +14,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Tabs,
@@ -20,74 +22,153 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { events, categories } from "@/data/mockData";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { categories } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
-import { Check, UserRound, MapPin, Phone, Mail } from "lucide-react";
+import { Check, UserRound, MapPin, Phone, Mail, Ticket } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType } from "@/services/bookingService";
+import { useQuery } from "@tanstack/react-query";
 
 const Profile = () => {
   const { toast } = useToast();
+  const { user, profile, isLoaded, isSignedIn, updateProfile } = useAuth();
+  const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+91 98765 43210",
-    whatsapp: "+91 98765 43210",
-    city: "Mumbai",
-    interests: [1, 3, 6] // IDs of categories the user is interested in
+    full_name: "",
+    email: "",
+    phone: "",
+    city: "",
+    preferences: [] as number[]
+  });
+  const [isTicketDialogOpen, setIsTicketDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [ticketsForBooking, setTicketsForBooking] = useState<TicketType[]>([]);
+  
+  // Fetch user bookings
+  const { 
+    data: bookings = [], 
+    isLoading: bookingsLoading,
+    refetch: refetchBookings
+  } = useQuery({
+    queryKey: ['bookings', user?.id],
+    queryFn: () => getUserBookings(user?.id || ''),
+    enabled: !!isSignedIn && !!user?.id
   });
   
-  // Mock user bookings
-  const [bookings] = useState([
-    {
-      id: 1,
-      eventId: 1,
-      event: events[0],
-      bookingDate: "2025-01-10",
-      status: "confirmed",
-      ticketCount: 2,
-      totalAmount: events[0].price * 2
-    },
-    {
-      id: 2,
-      eventId: 3,
-      event: events[2],
-      bookingDate: "2025-02-15",
-      status: "confirmed",
-      ticketCount: 1,
-      totalAmount: events[2].price
+  // Effect to update local state when profile data loads
+  useEffect(() => {
+    if (profile) {
+      setUserProfile({
+        full_name: profile.full_name || "",
+        email: profile.email || "",
+        phone: profile.phone || "",
+        city: profile.city || "",
+        preferences: profile.preferences ? JSON.parse(profile.preferences) : []
+      });
     }
-  ]);
+  }, [profile]);
   
-  const handleProfileUpdate = (e: React.FormEvent) => {
+  // Redirect if not signed in
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to view your profile.",
+      });
+      navigate("/");
+    }
+  }, [isLoaded, isSignedIn, navigate, toast]);
+  
+  const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated.",
-    });
+    
+    try {
+      const result = await updateProfile({
+        full_name: userProfile.full_name,
+        phone: userProfile.phone,
+        city: userProfile.city,
+        preferences: JSON.stringify(userProfile.preferences)
+      });
+      
+      if (result) {
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been successfully updated.",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Update Failed",
+        description: "There was an error updating your profile.",
+        variant: "destructive"
+      });
+    }
   };
   
   const handleInterestToggle = (categoryId: number) => {
     setUserProfile(prev => {
-      const interests = [...prev.interests];
+      const preferences = [...prev.preferences];
       
-      if (interests.includes(categoryId)) {
+      if (preferences.includes(categoryId)) {
         return {
           ...prev,
-          interests: interests.filter(id => id !== categoryId)
+          preferences: preferences.filter(id => id !== categoryId)
         };
       } else {
         return {
           ...prev,
-          interests: [...interests, categoryId]
+          preferences: [...preferences, categoryId]
         };
       }
     });
   };
+
+  const handleViewTickets = async (booking: Booking) => {
+    setSelectedBooking(booking);
+    
+    try {
+      const tickets = await getBookingTickets(booking.id);
+      setTicketsForBooking(tickets);
+      setIsTicketDialogOpen(true);
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
+      toast({
+        title: "Failed to Load Tickets",
+        description: "There was an error loading your tickets. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
   
   // Format date for display
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
+  
+  if (isLoaded && !isSignedIn) {
+    return null; // Will redirect via the useEffect
+  }
+  
+  if (!isLoaded || !profile) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="animate-pulse">Loading profile...</div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -120,13 +201,13 @@ const Profile = () => {
                       <form onSubmit={handleProfileUpdate} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">
-                            <Label htmlFor="name">Full Name</Label>
+                            <Label htmlFor="full_name">Full Name</Label>
                             <div className="flex">
                               <UserRound className="mr-2 h-4 w-4 text-muted-foreground mt-3" />
                               <Input 
-                                id="name" 
-                                value={userProfile.name} 
-                                onChange={e => setUserProfile({...userProfile, name: e.target.value})}
+                                id="full_name" 
+                                value={userProfile.full_name} 
+                                onChange={e => setUserProfile({...userProfile, full_name: e.target.value})}
                               />
                             </div>
                           </div>
@@ -138,8 +219,9 @@ const Profile = () => {
                               <Input 
                                 id="email" 
                                 type="email" 
-                                value={userProfile.email} 
-                                onChange={e => setUserProfile({...userProfile, email: e.target.value})}
+                                value={user?.primaryEmailAddress?.emailAddress || ''}
+                                disabled
+                                className="bg-gray-100"
                               />
                             </div>
                           </div>
@@ -152,18 +234,6 @@ const Profile = () => {
                                 id="phone" 
                                 value={userProfile.phone} 
                                 onChange={e => setUserProfile({...userProfile, phone: e.target.value})}
-                              />
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="whatsapp">WhatsApp Number</Label>
-                            <div className="flex">
-                              <Phone className="mr-2 h-4 w-4 text-muted-foreground mt-3" />
-                              <Input 
-                                id="whatsapp" 
-                                value={userProfile.whatsapp} 
-                                onChange={e => setUserProfile({...userProfile, whatsapp: e.target.value})}
                               />
                             </div>
                           </div>
@@ -201,7 +271,7 @@ const Profile = () => {
                           <div key={category.id} className="flex items-center space-x-2">
                             <Checkbox 
                               id={`category-${category.id}`}
-                              checked={userProfile.interests.includes(category.id)}
+                              checked={userProfile.preferences.includes(category.id)}
                               onCheckedChange={() => handleInterestToggle(category.id)}
                             />
                             <Label 
@@ -216,12 +286,7 @@ const Profile = () => {
                         <Button 
                           type="button" 
                           className="w-full mt-4"
-                          onClick={() => {
-                            toast({
-                              title: "Preferences Saved",
-                              description: "Your interests have been updated successfully.",
-                            });
-                          }}
+                          onClick={handleProfileUpdate}
                         >
                           Save Preferences
                         </Button>
@@ -236,64 +301,93 @@ const Profile = () => {
             <TabsContent value="bookings">
               <FadeIn>
                 <div className="grid grid-cols-1 gap-6">
-                  {bookings.length > 0 ? (
-                    bookings.map(booking => (
+                  {bookingsLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-pulse">Loading your bookings...</div>
+                    </div>
+                  ) : bookings.length > 0 ? (
+                    bookings.map((booking) => (
                       <Card key={booking.id} className="overflow-hidden border-none shadow-soft">
                         <div className="md:flex">
                           <div className="md:w-1/4 h-48 md:h-auto">
-                            <img 
-                              src={booking.event.image} 
-                              alt={booking.event.title} 
-                              className="w-full h-full object-cover"
-                            />
+                            {booking.event && (
+                              <img 
+                                src={booking.event.image} 
+                                alt={booking.event.title} 
+                                className="w-full h-full object-cover"
+                              />
+                            )}
                           </div>
                           <div className="p-6 md:w-3/4">
                             <div className="flex flex-col md:flex-row justify-between mb-4">
                               <div>
-                                <h3 className="text-xl font-bold mb-1">{booking.event.title}</h3>
-                                <p className="text-muted-foreground">{booking.event.subtitle}</p>
+                                <h3 className="text-xl font-bold mb-1">
+                                  {booking.event ? booking.event.title : "Event details not available"}
+                                </h3>
+                                <p className="text-muted-foreground">
+                                  {booking.event ? booking.event.subtitle : ""}
+                                </p>
                               </div>
                               <div className="mt-2 md:mt-0 flex items-center">
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-500">
-                                  <Check className="mr-1 h-3 w-3" />
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                  booking.status === 'confirmed' 
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-500' 
+                                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800/30 dark:text-yellow-500'
+                                }`}>
+                                  {booking.status === 'confirmed' && <Check className="mr-1 h-3 w-3" />}
                                   {booking.status}
                                 </span>
                               </div>
                             </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                              <div>
-                                <div className="text-sm text-muted-foreground">Event Date</div>
-                                <div className="font-medium">{formatDate(booking.event.date)}</div>
-                              </div>
-                              <div>
-                                <div className="text-sm text-muted-foreground">Booking Date</div>
-                                <div className="font-medium">{formatDate(booking.bookingDate)}</div>
-                              </div>
-                              <div>
-                                <div className="text-sm text-muted-foreground">Venue</div>
-                                <div className="font-medium">{booking.event.venue}, {booking.event.city}</div>
-                              </div>
+                              {booking.event && (
+                                <>
+                                  <div>
+                                    <div className="text-sm text-muted-foreground">Event Date</div>
+                                    <div className="font-medium">{formatDate(booking.event.date)}</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-sm text-muted-foreground">Booking Date</div>
+                                    <div className="font-medium">{formatDate(booking.booking_date)}</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-sm text-muted-foreground">Venue</div>
+                                    <div className="font-medium">{booking.event.venue}, {booking.event.city}</div>
+                                  </div>
+                                </>
+                              )}
                             </div>
                             
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-4 pt-4 border-t border-border">
                               <div>
                                 <div className="text-sm text-muted-foreground">Tickets</div>
-                                <div className="font-medium">{booking.ticketCount} x ₹{booking.event.price}</div>
+                                <div className="font-medium">
+                                  {booking.tickets} x ₹{booking.event ? booking.event.price : 0}
+                                </div>
                               </div>
                               <div>
                                 <div className="text-sm text-muted-foreground">Total Amount</div>
-                                <div className="text-lg font-bold">₹{booking.totalAmount}</div>
+                                <div className="text-lg font-bold">₹{booking.amount}</div>
                               </div>
-                              <Button 
-                                variant="outline" 
-                                className="mt-4 md:mt-0"
-                                onClick={() => {
-                                  window.location.href = `/event/${booking.eventId}`;
-                                }}
-                              >
-                                View Event
-                              </Button>
+                              <div className="flex flex-col md:flex-row gap-2 mt-4 md:mt-0">
+                                <Button 
+                                  variant="default"
+                                  onClick={() => handleViewTickets(booking)}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Ticket className="h-4 w-4" />
+                                  View Tickets
+                                </Button>
+                                {booking.event && (
+                                  <Button 
+                                    variant="outline"
+                                    onClick={() => navigate(`/event/${booking.event.id}`)}
+                                  >
+                                    View Event
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -304,9 +398,7 @@ const Profile = () => {
                       <h3 className="text-xl font-medium mb-2">No Bookings Yet</h3>
                       <p className="text-muted-foreground mb-6">You haven't booked any events yet. Explore our exciting events and book your first experience!</p>
                       <Button 
-                        onClick={() => {
-                          window.location.href = "/";
-                        }}
+                        onClick={() => navigate("/")}
                       >
                         Explore Events
                       </Button>
@@ -318,6 +410,52 @@ const Profile = () => {
           </Tabs>
         </div>
       </main>
+      
+      {/* Tickets Dialog */}
+      <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Your Tickets</DialogTitle>
+            <DialogDescription>
+              {selectedBooking?.event ? selectedBooking.event.title : 'Event Details'} - {ticketsForBooking.length} tickets
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {ticketsForBooking.length > 0 ? (
+              <div className="space-y-4">
+                {ticketsForBooking.map((ticket) => (
+                  <Card key={ticket.id} className="overflow-hidden">
+                    <CardContent className="p-4">
+                      <div className="flex flex-col items-center">
+                        {ticket.qr_code && (
+                          <div className="mb-3">
+                            <img src={ticket.qr_code} alt="Ticket QR Code" className="w-32 h-32" />
+                          </div>
+                        )}
+                        <div className="text-center">
+                          <div className="font-bold mb-1">Ticket #{ticket.ticket_number}</div>
+                          <div className="text-sm text-muted-foreground">
+                            Please show this QR code at the venue
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4">No tickets found for this booking.</div>
+            )}
+          </div>
+          
+          <div className="mt-4 flex justify-end">
+            <Button variant="outline" onClick={() => setIsTicketDialogOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>
