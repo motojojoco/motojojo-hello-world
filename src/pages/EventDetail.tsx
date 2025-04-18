@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import RazorpayButton from "@/components/ui/RazorpayButton";
+import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/motion";
 import { 
   Card, 

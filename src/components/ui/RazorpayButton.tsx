@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -100,7 +99,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
               .from('bookings')
               .insert({
                 user_id: user?.id,
-                event_id: eventId,
+                event_id: eventId.toString(),
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
@@ -174,7 +173,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
     }
     setIsFormOpen(true);
   };
-
+  
   return (
     <>
       <Button 
