@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FadeIn } from "@/components/ui/motion";
@@ -331,7 +332,6 @@ const AdminDashboard = () => {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {/* @ts-expect-error */}
                               {experiences.map((experience) => (
                                 <TableRow key={experience.id}>
                                   <TableCell className="font-medium">{experience.name}</TableCell>
@@ -420,7 +420,6 @@ const AdminDashboard = () => {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {/* @ts-expect-error */}
                               {banners.map((banner) => (
                                 <TableRow key={banner.id}>
                                   <TableCell className="font-medium">{banner.title}</TableCell>

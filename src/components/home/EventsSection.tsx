@@ -1,15 +1,65 @@
 
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { events } from "@/data/mockData";
 import { FadeIn } from "@/components/ui/motion";
 import { Calendar, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getEvents, Event } from "@/services/eventService";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const EventsSection = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  // Fetch events on component mount
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const eventData = await getEvents();
+        setEvents(eventData);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load events. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('events-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'events'
+        },
+        async (payload) => {
+          console.log('Real-time update received:', payload);
+          // Refresh the events list when changes occur
+          const refreshedEvents = await getEvents();
+          setEvents(refreshedEvents);
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [toast]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -28,6 +78,38 @@ const EventsSection = () => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
+
+  if (loading) {
+    return (
+      <section className="py-16">
+        <div className="container-padding">
+          <h2 className="section-title">Upcoming Events</h2>
+          <div className="flex justify-center py-16">
+            <div className="animate-pulse flex space-x-4">
+              <div className="h-12 w-12 bg-slate-200 rounded-full"></div>
+              <div className="space-y-4 flex-1">
+                <div className="h-4 bg-slate-200 rounded"></div>
+                <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (events.length === 0) {
+    return (
+      <section className="py-16">
+        <div className="container-padding">
+          <h2 className="section-title">Upcoming Events</h2>
+          <div className="flex justify-center py-16">
+            <p className="text-muted-foreground">No events available at this time. Please check back later.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16">
@@ -89,7 +171,7 @@ const EventsSection = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-yellow" />
-                      <span>{event.time} • {event.duration}</span>
+                      <span>{event.time} • {event.duration || "2 hours"}</span>
                     </div>
                   </div>
                 </CardContent>
