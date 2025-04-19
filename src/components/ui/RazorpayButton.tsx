@@ -148,19 +148,51 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
               return;
             }
 
-            // Generate tickets
+            // After creating tickets, send email
+            const ticketNumbers: string[] = [];
+            const qrCodes: string[] = [];
+
             for (let i = 0; i < formData.tickets; i++) {
               const ticketNumber = `MJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-              await supabase
+              const { data: ticketData } = await supabase
                 .from('tickets')
                 .insert({
                   booking_id: booking.id,
                   ticket_number: ticketNumber,
                   qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`
-                });
+                })
+                .select()
+                .single();
+
+              if (ticketData) {
+                ticketNumbers.push(ticketData.ticket_number);
+                qrCodes.push(ticketData.qr_code || '');
+              }
             }
 
-            // Show success dialog
+            // Send email with ticket details
+            const { data: eventData } = await supabase
+              .from('events')
+              .select('*')
+              .eq('id', eventId)
+              .single();
+
+            if (eventData) {
+              await supabase.functions.invoke('send-ticket', {
+                body: {
+                  email: formData.email,
+                  name: formData.name,
+                  eventTitle: eventData.title,
+                  eventDate: eventData.date,
+                  eventTime: eventData.time,
+                  eventVenue: `${eventData.venue}, ${eventData.city}`,
+                  ticketNumbers,
+                  qrCodes
+                }
+              });
+            }
+
+            // Show success dialog and call onSuccess callback
             setIsFormOpen(false);
             setIsSuccessOpen(true);
             if (onSuccess) onSuccess();
