@@ -71,6 +71,10 @@ const EventDetail = () => {
     };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
+
+  const formatPrice = (price: number): string => {
+    return price.toLocaleString('en-IN');
+  };
   
   // Handle successful booking
   const handleBookingSuccess = () => {
@@ -246,14 +250,14 @@ const EventDetail = () => {
                           <DollarSign className="h-5 w-5 text-purple-500 mr-3 mt-0.5" />
                           <div>
                             <div className="font-medium">Price</div>
-                            <div className="text-xl font-bold">₹{event.price.toLocaleString()}</div>
+                            <div className="text-xl font-bold">₹{formatPrice(event.price)}</div>
                           </div>
                         </div>
                       </div>
                     </CardContent>
                     <CardFooter className="px-6 pb-6 pt-0">
                       <RazorpayButton 
-                        eventId={parseInt(event.id)} 
+                        eventId={event.id} 
                         eventName={event.title}
                         amount={event.price}
                         onSuccess={handleBookingSuccess}
@@ -296,7 +300,7 @@ const EventDetail = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
-                      <div className="text-lg font-bold">₹{event.price.toString()}</div>
+                      <div className="text-lg font-bold">₹{formatPrice(event.price)}</div>
                       <Button 
                         variant="outline"
                         onClick={() => navigate(`/event/${event.id}`)}
