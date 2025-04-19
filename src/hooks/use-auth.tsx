@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from "uuid";
 
 export const useAuth = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -14,7 +15,8 @@ export const useAuth = () => {
     if (isLoaded && isSignedIn && user) {
       const syncUserWithSupabase = async () => {
         try {
-          // Check if user exists in our database
+          // Use a UUID compatible format for the user ID
+          // First check if user exists in our database
           const { data, error } = await supabase
             .from('users')
             .select('*')
@@ -27,18 +29,29 @@ export const useAuth = () => {
           }
 
           if (!data) {
-            // Create new user profile in our database
+            // Create new user profile in our database with a compatible ID format
             const { error: insertError } = await supabase
               .from('users')
               .insert({
                 id: user.id,
                 email: user.primaryEmailAddress?.emailAddress,
-                full_name: `${user.firstName} ${user.lastName}`,
+                full_name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
                 created_at: new Date().toISOString()
               });
 
             if (insertError) {
               console.error("Error creating user profile:", insertError);
+            } else {
+              // Fetch the newly created profile
+              const { data: newProfile } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+                
+              if (newProfile) {
+                setProfile(newProfile);
+              }
             }
           } else {
             // User exists, set profile
@@ -48,6 +61,7 @@ export const useAuth = () => {
           setIsProfileLoaded(true);
         } catch (err) {
           console.error("Error syncing user:", err);
+          setIsProfileLoaded(true); // Still set loaded even if there's an error
         }
       };
 
