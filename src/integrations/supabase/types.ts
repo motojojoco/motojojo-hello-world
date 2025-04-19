@@ -62,6 +62,45 @@ export type Database = {
           },
         ]
       }
+      event_seats: {
+        Row: {
+          booking_id: string | null
+          created_at: string | null
+          event_id: string | null
+          id: string
+          seat_number: number
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          seat_number: number
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          seat_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_seats_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_seats_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_types: {
         Row: {
           created_at: string
@@ -216,7 +255,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_event_seats: {
+        Args: { event_id: string; total_seats: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

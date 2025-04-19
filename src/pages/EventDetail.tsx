@@ -32,6 +32,7 @@ import {
 import { getEventById, getEventsByCategory, Event } from "@/services/eventService";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import SeatAvailability from "@/components/event/SeatAvailability";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -147,6 +148,10 @@ const EventDetail = () => {
                   <p>{event.description}</p>
                   {event.long_description && <p>{event.long_description}</p>}
                 </div>
+              </FadeIn>
+
+              <FadeIn delay={200}>
+                <SeatAvailability eventId={id || ''} />
               </FadeIn>
 
               {/* Reviews Section */}
