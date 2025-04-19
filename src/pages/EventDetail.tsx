@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
@@ -296,7 +296,7 @@ const EventDetail = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
-                      <div className="text-lg font-bold">₹{event.price}</div>
+                      <div className="text-lg font-bold">₹{event.price.toString()}</div>
                       <Button 
                         variant="outline"
                         onClick={() => navigate(`/event/${event.id}`)}
