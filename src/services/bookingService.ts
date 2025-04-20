@@ -30,7 +30,8 @@ export const getUserBookings = async (userId: string): Promise<Booking[]> => {
     .from('bookings')
     .select(`
       *,
-      event:event_id (*)
+      event:event_id (*),
+      tickets (*)
     `)
     .eq('user_id', userId)
     .order('booking_date', { ascending: false });
