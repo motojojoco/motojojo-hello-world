@@ -15,7 +15,7 @@ export interface Booking {
   order_id?: string;
   booking_date: string;
   event?: any;
-  tickets?: Ticket[]; // Added to support tickets in the booking response
+  ticket_items?: Ticket[]; // Renamed from tickets to ticket_items to avoid conflict
 }
 
 export interface Ticket {
@@ -32,7 +32,7 @@ export const getUserBookings = async (userId: string): Promise<Booking[]> => {
     .select(`
       *,
       event:event_id (*),
-      tickets (*)
+      ticket_items:tickets (*)
     `)
     .eq('user_id', userId)
     .order('booking_date', { ascending: false });

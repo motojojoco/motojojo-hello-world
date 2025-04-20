@@ -160,13 +160,13 @@ const Profile = () => {
     });
   };
 
-  // Modified handleViewTickets
+  // Modified handleViewTickets to use the new property name
   const handleViewTickets = async (booking: Booking) => {
     setSelectedBooking(booking);
     
-    // Fixed: Ensure we properly handle the tickets array
-    if (booking.tickets && Array.isArray(booking.tickets)) {
-      setTicketsForBooking(booking.tickets);
+    // Check if the booking has ticket_items array and use it directly
+    if (booking.ticket_items && Array.isArray(booking.ticket_items)) {
+      setTicketsForBooking(booking.ticket_items);
       setIsTicketDialogOpen(true);
     } else {
       // If tickets are not included in the booking, fetch them separately
@@ -452,7 +452,7 @@ const Profile = () => {
         </div>
       </main>
       
-      {/* Fixed: Update the Tickets Dialog content to properly display ticket properties */}
+      {/* Fixed ticket dialog rendering */}
       <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
