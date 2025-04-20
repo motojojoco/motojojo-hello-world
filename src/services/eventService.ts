@@ -8,7 +8,7 @@ export interface Event {
   description: string;
   date: string;
   time: string;
-  category: number;
+  category: string; // Changed from number to string to match database schema
   venue: string;
   city: string;
   address: string;
@@ -20,8 +20,23 @@ export interface Event {
   seats_available: number;
   is_published: boolean;
   created_at: string;
+  event_type: string;
+  host?: string;
+  duration?: string;
+  long_description?: string;
   [key: string]: any;
 }
+
+export const getEvents = async (): Promise<Event[]> => {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('is_published', true)
+    .order('date', { ascending: true });
+    
+  if (error) console.error("Error fetching events:", error);
+  return data as Event[] || [];
+};
 
 export const getFeaturedEvents = async (): Promise<Event[]> => {
   const { data, error } = await supabase
@@ -32,10 +47,10 @@ export const getFeaturedEvents = async (): Promise<Event[]> => {
     .order('date', { ascending: true });
     
   if (error) console.error("Error fetching featured events:", error);
-  return data || [];
+  return data as Event[] || [];
 };
 
-export const getEventsByCategory = async (categoryId: number): Promise<Event[]> => {
+export const getEventsByCategory = async (categoryId: string): Promise<Event[]> => {
   const { data, error } = await supabase
     .from('events')
     .select('*')
@@ -44,7 +59,7 @@ export const getEventsByCategory = async (categoryId: number): Promise<Event[]> 
     .order('date', { ascending: true });
     
   if (error) console.error(`Error fetching events for category ${categoryId}:`, error);
-  return data || [];
+  return data as Event[] || [];
 };
 
 export const getEvent = async (id: string): Promise<Event | null> => {
@@ -59,8 +74,11 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     return null;
   }
   
-  return data;
+  return data as Event;
 };
+
+// Alias for getEvent to maintain backwards compatibility
+export const getEventById = getEvent;
 
 export const addToCart = (event: Event, quantity: number = 1) => {
   // This function will be imported in other components

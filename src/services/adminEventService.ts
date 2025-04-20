@@ -2,7 +2,30 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "./eventService";
 
-export const createEvent = async (eventData: Omit<Event, "id" | "created_at" | "updated_at">) => {
+// Interface to create an event (matches database fields)
+export interface CreateEventInput {
+  title: string;
+  subtitle?: string;
+  description: string;
+  long_description?: string;
+  date: string;
+  time: string;
+  category: string;
+  venue: string;
+  city: string;
+  price: number;
+  image: string;
+  gallery?: string[];
+  featured?: boolean;
+  created_by?: string;
+  seats_available: number;
+  is_published?: boolean;
+  host?: string;
+  duration?: string;
+  event_type: string;
+}
+
+export const createEvent = async (eventData: CreateEventInput) => {
   const { data, error } = await supabase
     .from('events')
     .insert(eventData)
@@ -17,7 +40,7 @@ export const createEvent = async (eventData: Omit<Event, "id" | "created_at" | "
   return data;
 };
 
-export const updateEvent = async (id: string, eventData: Partial<Event>) => {
+export const updateEvent = async (id: string, eventData: Partial<CreateEventInput>) => {
   const { data, error } = await supabase
     .from('events')
     .update(eventData)

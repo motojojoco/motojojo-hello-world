@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ShoppingCart, Ticket } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
-import { addToCart } from "@/services/eventService";
+import { addToCart, Event } from "@/services/eventService";
 
 interface SeatInfo {
   seat_number: number;
@@ -34,17 +34,37 @@ interface SeatInfo {
 
 interface SeatAvailabilityProps {
   eventId: string;
-  eventDetails: any;
 }
 
-const SeatAvailability = ({ eventId, eventDetails }: SeatAvailabilityProps) => {
+const SeatAvailability = ({ eventId }: SeatAvailabilityProps) => {
   const [seats, setSeats] = useState<SeatInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+  const [eventDetails, setEventDetails] = useState<Event | null>(null);
   const { isSignedIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const addItemToCart = useCartStore(state => state.addItem);
+
+  useEffect(() => {
+    // Fetch event details
+    const fetchEventDetails = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('id', eventId)
+          .single();
+        
+        if (error) throw error;
+        setEventDetails(data as Event);
+      } catch (error) {
+        console.error('Error fetching event details:', error);
+      }
+    };
+
+    fetchEventDetails();
+  }, [eventId]);
 
   useEffect(() => {
     const fetchSeats = async () => {
