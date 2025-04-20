@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ShoppingCart, Ticket } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
-import { addToCart, Event } from "@/services/eventService";
+import { addToCart, Event, getEvent } from "@/services/eventService";
 
 interface SeatInfo {
   seat_number: number;
@@ -50,14 +50,10 @@ const SeatAvailability = ({ eventId }: SeatAvailabilityProps) => {
     // Fetch event details
     const fetchEventDetails = async () => {
       try {
-        const { data, error } = await supabase
-          .from('events')
-          .select('*')
-          .eq('id', eventId)
-          .single();
-        
-        if (error) throw error;
-        setEventDetails(data as Event);
+        const data = await getEvent(eventId);
+        if (data) {
+          setEventDetails(data);
+        }
       } catch (error) {
         console.error('Error fetching event details:', error);
       }

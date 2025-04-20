@@ -13,6 +13,7 @@ export interface CreateEventInput {
   category: string;
   venue: string;
   city: string;
+  address: string;
   price: number;
   image: string;
   gallery?: string[];
