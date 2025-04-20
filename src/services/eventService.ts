@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Event {
@@ -27,11 +26,24 @@ export interface Event {
   updated_at?: string;
 }
 
-export const getEvents = async (): Promise<Event[]> => {
-  const { data, error } = await supabase
+export const getEvents = async (filters?: { city?: string; eventType?: string }): Promise<Event[]> => {
+  let query = supabase
     .from('events')
     .select('*')
     .order('date', { ascending: true });
+    
+  // Apply filters if provided
+  if (filters) {
+    if (filters.city) {
+      query = query.eq('city', filters.city);
+    }
+    
+    if (filters.eventType) {
+      query = query.eq('event_type', filters.eventType);
+    }
+  }
+  
+  const { data, error } = await query;
     
   if (error) console.error("Error fetching events:", error);
   
@@ -62,6 +74,33 @@ export const getEvents = async (): Promise<Event[]> => {
     long_description: event.long_description || null,
     updated_at: event.updated_at
   }));
+};
+
+// Get unique cities from events
+export const getEventCities = async (): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from('events')
+    .select('city')
+    .order('city');
+    
+  if (error) {
+    console.error("Error fetching event cities:", error);
+    return [];
+  }
+  
+  // Extract unique cities
+  const cities = new Set(data.map(item => item.city));
+  return Array.from(cities);
+};
+
+// Get events by city
+export const getEventsByCity = async (city: string): Promise<Event[]> => {
+  return getEvents({ city });
+};
+
+// Get events by event type
+export const getEventsByType = async (eventType: string): Promise<Event[]> => {
+  return getEvents({ eventType });
 };
 
 export const getFeaturedEvents = async (): Promise<Event[]> => {
