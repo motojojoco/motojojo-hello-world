@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
@@ -163,7 +164,7 @@ const Profile = () => {
   const handleViewTickets = async (booking: Booking) => {
     setSelectedBooking(booking);
     
-    // Fixed: Check if the booking has tickets array and use it directly
+    // Fixed: Ensure we properly handle the tickets array
     if (booking.tickets && Array.isArray(booking.tickets)) {
       setTicketsForBooking(booking.tickets);
       setIsTicketDialogOpen(true);
@@ -451,7 +452,7 @@ const Profile = () => {
         </div>
       </main>
       
-      {/* Update the Tickets Dialog content */}
+      {/* Fixed: Update the Tickets Dialog content to properly display ticket properties */}
       <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

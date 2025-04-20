@@ -15,6 +15,7 @@ export interface Booking {
   order_id?: string;
   booking_date: string;
   event?: any;
+  tickets?: Ticket[]; // Added to support tickets in the booking response
 }
 
 export interface Ticket {
