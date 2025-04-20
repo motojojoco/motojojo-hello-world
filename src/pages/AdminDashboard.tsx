@@ -52,10 +52,12 @@ const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Fetch events using React Query
+  // Fetch events using React Query with proper query function
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
-    queryFn: getEvents
+    queryFn: async () => {
+      return await getEvents();
+    }
   });
 
   // Subscribe to real-time updates
