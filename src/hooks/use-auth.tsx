@@ -15,7 +15,6 @@ export const useAuth = () => {
     if (isLoaded && isSignedIn && user) {
       const syncUserWithSupabase = async () => {
         try {
-          // Use a UUID compatible format for the user ID
           // First check if user exists in our database
           const { data, error } = await supabase
             .from('users')
@@ -25,11 +24,12 @@ export const useAuth = () => {
 
           if (error && error.code !== 'PGRST116') {
             console.error("Error checking user:", error);
+            setIsProfileLoaded(true);
             return;
           }
 
           if (!data) {
-            // Create new user profile in our database with a compatible ID format
+            // Create new user profile in our database
             const { error: insertError } = await supabase
               .from('users')
               .insert({
@@ -41,6 +41,7 @@ export const useAuth = () => {
 
             if (insertError) {
               console.error("Error creating user profile:", insertError);
+              setIsProfileLoaded(true);
             } else {
               // Fetch the newly created profile
               const { data: newProfile } = await supabase
@@ -52,13 +53,13 @@ export const useAuth = () => {
               if (newProfile) {
                 setProfile(newProfile);
               }
+              setIsProfileLoaded(true);
             }
           } else {
             // User exists, set profile
             setProfile(data);
+            setIsProfileLoaded(true);
           }
-          
-          setIsProfileLoaded(true);
         } catch (err) {
           console.error("Error syncing user:", err);
           setIsProfileLoaded(true); // Still set loaded even if there's an error

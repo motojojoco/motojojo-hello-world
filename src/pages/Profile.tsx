@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { FadeIn } from "@/components/ui/motion";
@@ -40,6 +40,11 @@ const Profile = () => {
   const { toast } = useToast();
   const { user, profile, isLoaded, isSignedIn, updateProfile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const defaultTab = queryParams.get('tab') === 'bookings' ? 'bookings' : 'profile';
+  
+  const [activeTab, setActiveTab] = useState(defaultTab);
   const [userProfile, setUserProfile] = useState({
     full_name: "",
     email: "",
@@ -50,6 +55,12 @@ const Profile = () => {
   const [isTicketDialogOpen, setIsTicketDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [ticketsForBooking, setTicketsForBooking] = useState<TicketType[]>([]);
+  
+  // Update active tab when URL changes
+  useEffect(() => {
+    const tab = queryParams.get('tab') === 'bookings' ? 'bookings' : 'profile';
+    setActiveTab(tab);
+  }, [location.search]);
   
   // Fetch user bookings
   const { 
@@ -180,7 +191,7 @@ const Profile = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-8">My Profile</h1>
           </FadeIn>
           
-          <Tabs defaultValue="profile" className="w-full">
+          <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full md:w-[400px] grid-cols-2 mb-8">
               <TabsTrigger value="profile">Profile Details</TabsTrigger>
               <TabsTrigger value="bookings">My Bookings</TabsTrigger>

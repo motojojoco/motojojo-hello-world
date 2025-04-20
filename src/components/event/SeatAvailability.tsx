@@ -2,6 +2,9 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Table,
   TableBody,
@@ -11,12 +14,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ShoppingCart, Ticket } from "lucide-react";
+import { useCartStore } from "@/store/cart-store";
+import { addToCart } from "@/services/eventService";
 
 interface SeatInfo {
   seat_number: number;
@@ -27,11 +34,17 @@ interface SeatInfo {
 
 interface SeatAvailabilityProps {
   eventId: string;
+  eventDetails: any;
 }
 
-const SeatAvailability = ({ eventId }: SeatAvailabilityProps) => {
+const SeatAvailability = ({ eventId, eventDetails }: SeatAvailabilityProps) => {
   const [seats, setSeats] = useState<SeatInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+  const { isSignedIn } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const addItemToCart = useCartStore(state => state.addItem);
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -80,6 +93,86 @@ const SeatAvailability = ({ eventId }: SeatAvailabilityProps) => {
     };
   }, [eventId]);
 
+  const handleSeatClick = (seat: SeatInfo) => {
+    if (seat.booking) {
+      return; // Can't select already booked seats
+    }
+
+    setSelectedSeats(prev => {
+      if (prev.includes(seat.seat_number)) {
+        return prev.filter(s => s !== seat.seat_number);
+      } else {
+        if (prev.length < 10) { // Limit to 10 seats per transaction
+          return [...prev, seat.seat_number];
+        }
+        return prev;
+      }
+    });
+  };
+
+  const handleAddToCart = () => {
+    if (!isSignedIn) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to book tickets",
+      });
+      return;
+    }
+
+    if (selectedSeats.length === 0) {
+      toast({
+        title: "No seats selected",
+        description: "Please select at least one seat to continue",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!eventDetails) {
+      toast({
+        title: "Error",
+        description: "Unable to add tickets to cart. Event details not available.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Add to cart
+    const cartItem = addToCart(eventDetails, selectedSeats.length);
+    addItemToCart(cartItem);
+
+    toast({
+      title: "Added to cart",
+      description: `${selectedSeats.length} ticket(s) added to your cart.`,
+    });
+
+    // Reset selection
+    setSelectedSeats([]);
+  };
+
+  const handleBookNow = () => {
+    if (!isSignedIn) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to book tickets",
+      });
+      return;
+    }
+
+    if (selectedSeats.length === 0) {
+      toast({
+        title: "No seats selected",
+        description: "Please select at least one seat to continue",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Add to cart and redirect to cart page
+    handleAddToCart();
+    navigate('/cart');
+  };
+
   if (loading) {
     return <div className="animate-pulse">Loading seat information...</div>;
   }
@@ -115,8 +208,13 @@ const SeatAvailability = ({ eventId }: SeatAvailabilityProps) => {
                       <Tooltip>
                         <TooltipTrigger>
                           <Badge 
-                            variant={seat.booking ? "secondary" : "outline"}
-                            className="cursor-help"
+                            variant={
+                              selectedSeats.includes(seat.seat_number) 
+                                ? "default" 
+                                : (seat.booking ? "secondary" : "outline")
+                            }
+                            className={`cursor-${seat.booking ? 'help' : 'pointer'}`}
+                            onClick={() => handleSeatClick(seat)}
                           >
                             {seat.seat_number}
                           </Badge>
@@ -124,7 +222,9 @@ const SeatAvailability = ({ eventId }: SeatAvailabilityProps) => {
                         <TooltipContent>
                           {seat.booking 
                             ? `Booked by ${seat.booking.name}`
-                            : 'Available'}
+                            : selectedSeats.includes(seat.seat_number)
+                              ? 'Selected'
+                              : 'Available - Click to select'}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -135,15 +235,42 @@ const SeatAvailability = ({ eventId }: SeatAvailabilityProps) => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex gap-4 mt-4 justify-end text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">123</Badge>
-          <span>Available</span>
+      <div className="flex gap-4 mt-4 justify-between items-center">
+        <div className="flex gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">123</Badge>
+            <span>Available</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">123</Badge>
+            <span>Booked</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="default">123</Badge>
+            <span>Selected</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">123</Badge>
-          <span>Booked</span>
-        </div>
+        
+        {selectedSeats.length > 0 && (
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={handleAddToCart}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Add to Cart ({selectedSeats.length})
+            </Button>
+            
+            <Button 
+              className="flex items-center gap-2"
+              onClick={handleBookNow}
+            >
+              <Ticket className="h-4 w-4" />
+              Book Now
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

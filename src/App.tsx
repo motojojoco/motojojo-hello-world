@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import EventDetail from "./pages/EventDetail";
 import Profile from "./pages/Profile";
+import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -26,6 +27,11 @@ const App = () => (
           <Route path="/profile" element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/cart" element={
+            <ProtectedRoute>
+              <Cart />
             </ProtectedRoute>
           } />
           <Route path="/admin" element={<Admin />} />

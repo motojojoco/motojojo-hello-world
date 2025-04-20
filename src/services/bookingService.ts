@@ -57,3 +57,41 @@ export const getBookingTickets = async (bookingId: string): Promise<Ticket[]> =>
   
   return data || [];
 };
+
+export const createBookingFromCart = async (
+  userId: string, 
+  eventId: string, 
+  name: string, 
+  email: string, 
+  phone: string, 
+  tickets: number, 
+  amount: number
+): Promise<Booking | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert({
+        user_id: userId,
+        event_id: eventId,
+        name,
+        email,
+        phone,
+        tickets,
+        amount,
+        status: 'confirmed',
+        booking_date: new Date().toISOString()
+      })
+      .select()
+      .single();
+      
+    if (error) {
+      console.error("Error creating booking:", error);
+      return null;
+    }
+    
+    return data;
+  } catch (err) {
+    console.error("Error in createBookingFromCart:", err);
+    return null;
+  }
+};
