@@ -7,65 +7,26 @@
 
 @layer base {
   :root {
-    --background: 240 10% 5%;
-    --foreground: 240 5% 95%;
-
-    --card: 240 10% 8%;
-    --card-foreground: 240 5% 95%;
-
-    --popover: 240 10% 8%;
-    --popover-foreground: 240 5% 95%;
-
-    --primary: 271 100% 37%;
-    --primary-foreground: 240 5% 95%;
-
-    --secondary: 339 100% 55%;
-    --secondary-foreground: 240 5% 95%;
-
-    --accent: 45 100% 50%;
-    --accent-foreground: 240 5% 10%;
-
-    --muted: 240 10% 15%;
-    --muted-foreground: 240 5% 75%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 240 5% 95%;
-
-    --border: 240 10% 15%;
-    --input: 240 10% 15%;
-    --ring: 271 100% 37%;
-
+    --background: 260 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 260 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 260 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 342 65% 49%;  /* French Raspberry */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 49 78% 62%;  /* Sandstorm */
+    --secondary-foreground: 260 25% 11%;
+    --muted: 260 3.7% 15.9%;
+    --muted-foreground: 260 5% 64.9%;
+    --accent: 260 25% 20%;  /* Russian Violet */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 260 3.7% 15.9%;
+    --input: 260 3.7% 15.9%;
+    --ring: 260 4.9% 83.9%;
     --radius: 0.75rem;
-  }
-
-  .light {
-    --background: 240 5% 97%;
-    --foreground: 240 10% 5%;
-
-    --card: 240 5% 100%;
-    --card-foreground: 240 10% 5%;
-
-    --popover: 240 5% 100%;
-    --popover-foreground: 240 10% 5%;
-
-    --primary: 271 75% 45%;
-    --primary-foreground: 240 5% 97%;
-
-    --secondary: 339 80% 55%;
-    --secondary-foreground: 240 5% 97%;
-
-    --accent: 45 100% 50%;
-    --accent-foreground: 240 5% 10%;
-
-    --muted: 240 5% 90%;
-    --muted-foreground: 240 3.8% 40%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 240 5% 97%;
-
-    --border: 240 5% 90%;
-    --input: 240 5% 90%;
-    --ring: 271 75% 45%;
   }
 }
 
@@ -75,6 +36,7 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
 }
 
@@ -84,7 +46,7 @@
   }
   
   .section-title::after {
-    @apply content-[''] absolute left-0 -bottom-2 w-20 h-1 bg-violet rounded-full;
+    @apply content-[''] absolute left-0 -bottom-2 w-20 h-1 bg-raspberry rounded-full;
   }
   
   .container-padding {
@@ -100,7 +62,7 @@
   }
   
   .text-gradient {
-    @apply bg-gradient-to-r from-violet via-red to-yellow text-transparent bg-clip-text;
+    @apply bg-gradient-to-r from-raspberry via-sandstorm to-violet text-transparent bg-clip-text;
   }
   
   .scrollbar-hide {
@@ -112,3 +74,4 @@
     display: none;
   }
 }
+
