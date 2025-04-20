@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
@@ -163,15 +164,24 @@ const Profile = () => {
   const handleViewTickets = async (booking: Booking) => {
     setSelectedBooking(booking);
     
-    if (booking.tickets) {
+    // Fixed: Check if the booking has tickets array and use it directly
+    if (booking.tickets && Array.isArray(booking.tickets)) {
       setTicketsForBooking(booking.tickets);
       setIsTicketDialogOpen(true);
     } else {
-      toast({
-        title: "No Tickets Found",
-        description: "We couldn't find any tickets for this booking.",
-        variant: "destructive"
-      });
+      // If tickets are not included in the booking, fetch them separately
+      try {
+        const ticketData = await getBookingTickets(booking.id);
+        setTicketsForBooking(ticketData);
+        setIsTicketDialogOpen(true);
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+        toast({
+          title: "No Tickets Found",
+          description: "We couldn't find any tickets for this booking.",
+          variant: "destructive"
+        });
+      }
     }
   };
   
