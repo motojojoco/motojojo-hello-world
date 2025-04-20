@@ -13,7 +13,7 @@ export interface CreateEventInput {
   category: string;
   venue: string;
   city: string;
-  address: string;
+  address?: string;
   price: number;
   image: string;
   gallery?: string[];
@@ -80,7 +80,34 @@ export const subscribeToEvents = (callback: (event: Event) => void) => {
         table: 'events'
       },
       (payload) => {
-        callback(payload.new as Event);
+        // Transform the payload to match the Event interface
+        const newEvent = payload.new as any;
+        const transformedEvent: Event = {
+          id: newEvent.id,
+          title: newEvent.title,
+          subtitle: newEvent.subtitle || undefined,
+          description: newEvent.description,
+          date: newEvent.date,
+          time: newEvent.time,
+          category: newEvent.category,
+          venue: newEvent.venue,
+          city: newEvent.city,
+          address: '', // Default value
+          price: newEvent.price,
+          image: newEvent.image,
+          gallery: [], // Default value
+          featured: false, // Default value
+          created_by: '', // Default value
+          seats_available: newEvent.seats_available,
+          is_published: true, // Default value
+          created_at: newEvent.created_at,
+          event_type: newEvent.event_type,
+          host: newEvent.host || undefined,
+          duration: newEvent.duration || undefined,
+          long_description: newEvent.long_description || null,
+          updated_at: newEvent.updated_at
+        };
+        callback(transformedEvent);
       }
     )
     .subscribe();
