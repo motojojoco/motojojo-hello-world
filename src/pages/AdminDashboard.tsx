@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FadeIn } from "@/components/ui/motion";
@@ -41,7 +42,6 @@ import { getEvents } from "@/services/eventService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LogOut, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { experiences, banners } from "@/data/mockData";
-import ArtistForm from "@/components/admin/ArtistForm";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -52,12 +52,10 @@ const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Fetch events using React Query with proper query function
+  // Fetch events using React Query
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
-    queryFn: async () => {
-      return await getEvents();
-    }
+    queryFn: getEvents
   });
 
   // Subscribe to real-time updates
@@ -388,14 +386,6 @@ const AdminDashboard = () => {
                         </form>
                       </CardContent>
                     </Card>
-                  </FadeIn>
-                </div>
-              </div>
-              {/* Featured Artists Upload Section */}
-              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <FadeIn delay={250}>
-                    <ArtistForm />
                   </FadeIn>
                 </div>
               </div>

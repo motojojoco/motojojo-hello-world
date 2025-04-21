@@ -15,7 +15,6 @@ export interface Booking {
   order_id?: string;
   booking_date: string;
   event?: any;
-  ticket_items?: Ticket[]; // Renamed from tickets to ticket_items to avoid conflict
 }
 
 export interface Ticket {
@@ -31,8 +30,7 @@ export const getUserBookings = async (userId: string): Promise<Booking[]> => {
     .from('bookings')
     .select(`
       *,
-      event:event_id (*),
-      ticket_items:tickets (*)
+      event:event_id (*)
     `)
     .eq('user_id', userId)
     .order('booking_date', { ascending: false });
@@ -58,42 +56,4 @@ export const getBookingTickets = async (bookingId: string): Promise<Ticket[]> =>
   }
   
   return data || [];
-};
-
-export const createBookingFromCart = async (
-  userId: string, 
-  eventId: string, 
-  name: string, 
-  email: string, 
-  phone: string, 
-  tickets: number, 
-  amount: number
-): Promise<Booking | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('bookings')
-      .insert({
-        user_id: userId,
-        event_id: eventId,
-        name,
-        email,
-        phone,
-        tickets,
-        amount,
-        status: 'confirmed',
-        booking_date: new Date().toISOString()
-      })
-      .select()
-      .single();
-      
-    if (error) {
-      console.error("Error creating booking:", error);
-      return null;
-    }
-    
-    return data;
-  } catch (err) {
-    console.error("Error in createBookingFromCart:", err);
-    return null;
-  }
 };

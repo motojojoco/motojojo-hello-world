@@ -1,110 +1,62 @@
+
 import { useEffect, useState } from "react";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useAuth = () => {
-  const { user, isSignedIn, isLoaded: isClerkLoaded } = useUser();
+  const { user, isSignedIn, isLoaded } = useUser();
   const { signOut } = useClerk();
   const [isProfileLoaded, setIsProfileLoaded] = useState(false);
   const [profile, setProfile] = useState<any>(null);
-  const [error, setError] = useState<Error | null>(null);
 
+  // Sync Clerk user with Supabase
   useEffect(() => {
-    let isMounted = true;
-
-    const syncUserWithSupabase = async () => {
-      try {
-        // Gather latest user info from Clerk
-        const newUserProfile = {
-          id: user?.id,
-          email: user?.primaryEmailAddress?.emailAddress,
-          full_name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
-          created_at: new Date().toISOString(),
-        };
-
-        // Try fetching user from Supabase
-        const { data, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', user?.id)
-          .single();
-
-        if (error && error.code !== "PGRST116") {
-          console.error("Error checking user:", error);
-          if (isMounted) {
-            setError(error);
-            setIsProfileLoaded(true);
-          }
-          return;
-        }
-
-        if (!data && isMounted && user) {
-          // User not in DB: Insert from Clerk info
-          const { data: insertedProfile, error: insertError } = await supabase
+    if (isLoaded && isSignedIn && user) {
+      const syncUserWithSupabase = async () => {
+        try {
+          // Check if user exists in our database
+          const { data, error } = await supabase
             .from('users')
-            .insert(newUserProfile)
-            .select()
+            .select('*')
+            .eq('id', user.id)
             .single();
 
-          if (insertError) {
-            console.error("Error creating user profile:", insertError);
-            setError(insertError);
-          } else {
-            setProfile(insertedProfile);
+          if (error && error.code !== 'PGRST116') {
+            console.error("Error checking user:", error);
+            return;
           }
-        } else if (isMounted && user) {
-          // Found, but possibly outdated
-          let needsUpdate = false;
-          if (
-            data.email !== user.primaryEmailAddress?.emailAddress ||
-            data.full_name !== `${user.firstName || ""} ${user.lastName || ""}`.trim()
-          ) {
-            needsUpdate = true;
-          }
-          if (needsUpdate) {
-            const { data: updated, error: updateError } = await supabase
+
+          if (!data) {
+            // Create new user profile in our database
+            const { error: insertError } = await supabase
               .from('users')
-              .update({
+              .insert({
+                id: user.id,
                 email: user.primaryEmailAddress?.emailAddress,
-                full_name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-              })
-              .eq('id', user.id)
-              .select()
-              .single();
-            if (updateError) {
-              setError(updateError);
-            } else {
-              setProfile(updated);
+                full_name: `${user.firstName} ${user.lastName}`,
+                created_at: new Date().toISOString()
+              });
+
+            if (insertError) {
+              console.error("Error creating user profile:", insertError);
             }
           } else {
+            // User exists, set profile
             setProfile(data);
           }
-        }
-      } catch (err) {
-        console.error("Error syncing user:", err);
-        if (isMounted) {
-          setError(err as Error);
-        }
-      } finally {
-        if (isMounted) {
+          
           setIsProfileLoaded(true);
+        } catch (err) {
+          console.error("Error syncing user:", err);
         }
-      }
-    };
+      };
 
-    if (isClerkLoaded) {
-      if (isSignedIn && user) {
-        syncUserWithSupabase();
-      } else {
-        setProfile(null);
-        setIsProfileLoaded(true);
-      }
+      syncUserWithSupabase();
+    } else if (isLoaded && !isSignedIn) {
+      setProfile(null);
+      setIsProfileLoaded(true);
     }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isClerkLoaded, isSignedIn, user]);
+  }, [isLoaded, isSignedIn, user]);
 
   const logout = async () => {
     await signOut();
@@ -137,7 +89,7 @@ export const useAuth = () => {
   return {
     user,
     profile,
-    isLoaded: isClerkLoaded && isProfileLoaded,
+    isLoaded: isLoaded && isProfileLoaded,
     isSignedIn,
     logout,
     updateProfile

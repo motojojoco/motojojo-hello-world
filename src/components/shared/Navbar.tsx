@@ -8,13 +8,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket } from "lucide-react";
+import { MapPin, Search, User, Menu, X } from "lucide-react";
 import { cities } from "@/data/mockData";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
 import { useAuth } from "@/hooks/use-auth";
-import { useCartStore } from "@/store/cart-store";
 
 const Navbar = () => {
   const [selectedCity, setSelectedCity] = useState("Mumbai");
@@ -22,8 +20,6 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isSignedIn } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const totalItems = useCartStore(state => state.getTotalItems());
 
   // Detect location and set city (mock implementation)
   const detectLocation = () => {
@@ -46,11 +42,6 @@ const Navbar = () => {
   useEffect(() => {
     detectLocation();
   }, []);
-
-  // Close mobile menu on navigation
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
 
   return (
     <header
@@ -97,24 +88,6 @@ const Navbar = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Cart Button */}
-          {isSignedIn && (
-            <Button 
-              variant="outline" 
-              className="relative"
-              onClick={() => navigate("/cart")}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              {totalItems > 0 && (
-                <Badge 
-                  className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0"
-                >
-                  {totalItems}
-                </Badge>
-              )}
-            </Button>
-          )}
-
           {/* Premium Button */}
           <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity">
             Explore Premium
@@ -132,21 +105,9 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate("/profile")}
-                className="flex items-center gap-2"
-              >
-                <User className="h-4 w-4" />
+              <Button variant="ghost" onClick={() => navigate("/profile")}>
+                <User className="h-4 w-4 mr-2" />
                 Profile
-              </Button>
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate("/profile?tab=bookings")}
-                className="flex items-center gap-2"
-              >
-                <Ticket className="h-4 w-4" />
-                My Bookings
               </Button>
               <UserButton afterSignOutUrl="/" />
             </>
@@ -206,25 +167,6 @@ const Navbar = () => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* Cart Button (Mobile) */}
-            {isSignedIn && (
-              <Button 
-                variant="outline" 
-                className="w-full flex items-center justify-between"
-                onClick={() => navigate("/cart")}
-              >
-                <div className="flex items-center gap-2">
-                  <ShoppingCart className="h-4 w-4" />
-                  Cart
-                </div>
-                {totalItems > 0 && (
-                  <Badge>
-                    {totalItems}
-                  </Badge>
-                )}
-              </Button>
-            )}
             
             <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity w-full">
               Explore Premium
@@ -241,13 +183,9 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => navigate("/profile")}>
+                <Button variant="ghost" className="w-full" onClick={() => navigate("/profile")}>
                   <User className="h-4 w-4 mr-2" />
                   Profile
-                </Button>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => navigate("/profile?tab=bookings")}>
-                  <Ticket className="h-4 w-4 mr-2" />
-                  My Bookings
                 </Button>
                 <div className="flex justify-center py-2">
                   <UserButton afterSignOutUrl="/" />
