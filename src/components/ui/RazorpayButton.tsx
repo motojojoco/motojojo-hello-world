@@ -72,6 +72,41 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
     };
   }, [eventId, onSuccess]);
 
+  const upsertUserIfNeeded = async (formData: any) => {
+    if (!user?.id) return;
+    const { data: existing, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const newUserProfile = {
+      id: user.id,
+      email: formData.email,
+      full_name: formData.name,
+      phone: formData.phone,
+      created_at: new Date().toISOString()
+    };
+
+    if (!existing) {
+      // Insert user if doesn't exist
+      await supabase.from('users').insert(newUserProfile);
+    } else {
+      // Update only if changed
+      if (
+        existing.email !== formData.email ||
+        existing.full_name !== formData.name ||
+        existing.phone !== formData.phone
+      ) {
+        await supabase.from('users').update({
+          email: formData.email,
+          full_name: formData.name,
+          phone: formData.phone,
+        }).eq('id', user.id);
+      }
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => {
@@ -83,10 +118,9 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Redirect to login if not signed in
+
     if (!isSignedIn) {
       toast({
         title: "Please sign in",
@@ -96,8 +130,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       setIsFormOpen(false);
       return;
     }
-    
-    // Validate form
+
     if (!formData.name || !formData.email || !formData.phone) {
       toast({
         title: "Missing Information",
@@ -106,18 +139,19 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       });
       return;
     }
-    
-    // Load Razorpay script and open payment
+
+    await upsertUserIfNeeded(formData); // Sync user before booking
+
     loadRazorpayScript(() => {
       const totalAmount = amount * formData.tickets;
-      
+
       const options = {
-        key: "rzp_test_kXdvIUTOdIictY", // Test key from prompt
-        amount: totalAmount * 100, // Amount in paise
+        key: "rzp_test_kXdvIUTOdIictY",
+        amount: totalAmount * 100,
         currency: "INR",
         name: "Motojojo",
         description: `${formData.tickets} Ticket(s) for ${eventName}`,
-        image: "https://your-logo-url.png", // Replace with your logo
+        image: "https://your-logo-url.png",
         handler: async function(response: any) {
           try {
             // Save booking to Supabase
@@ -160,7 +194,9 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                 .insert({
                   booking_id: booking.id,
                   ticket_number: ticketNumber,
-                  qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`
+                  qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`,
+                  // Save user name (formData.name), helpful if tickets table is extended
+                  name: formData.name,
                 })
                 .select()
                 .single();
@@ -193,7 +229,6 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               });
             }
 
-            // Show success dialog and call onSuccess callback
             setIsFormOpen(false);
             setIsSuccessOpen(true);
             if (onSuccess) onSuccess();
@@ -215,7 +250,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
           color: "#6A0DAD"
         }
       };
-      
+
       const razorpay = new (window as any).Razorpay(options);
       razorpay.open();
     });

@@ -14,13 +14,22 @@ export const useAuth = () => {
 
     const syncUserWithSupabase = async () => {
       try {
+        // Gather latest user info from Clerk
+        const newUserProfile = {
+          id: user?.id,
+          email: user?.primaryEmailAddress?.emailAddress,
+          full_name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+          created_at: new Date().toISOString(),
+        };
+
+        // Try fetching user from Supabase
         const { data, error } = await supabase
           .from('users')
           .select('*')
           .eq('id', user?.id)
           .single();
 
-        if (error && error.code !== 'PGRST116') {
+        if (error && error.code !== "PGRST116") {
           console.error("Error checking user:", error);
           if (isMounted) {
             setError(error);
@@ -29,14 +38,8 @@ export const useAuth = () => {
           return;
         }
 
-        if (!data && isMounted) {
-          const newUserProfile = {
-            id: user?.id,
-            email: user?.primaryEmailAddress?.emailAddress,
-            full_name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
-            created_at: new Date().toISOString()
-          };
-
+        if (!data && isMounted && user) {
+          // User not in DB: Insert from Clerk info
           const { data: insertedProfile, error: insertError } = await supabase
             .from('users')
             .insert(newUserProfile)
@@ -49,8 +52,33 @@ export const useAuth = () => {
           } else {
             setProfile(insertedProfile);
           }
-        } else if (isMounted) {
-          setProfile(data);
+        } else if (isMounted && user) {
+          // Found, but possibly outdated
+          let needsUpdate = false;
+          if (
+            data.email !== user.primaryEmailAddress?.emailAddress ||
+            data.full_name !== `${user.firstName || ""} ${user.lastName || ""}`.trim()
+          ) {
+            needsUpdate = true;
+          }
+          if (needsUpdate) {
+            const { data: updated, error: updateError } = await supabase
+              .from('users')
+              .update({
+                email: user.primaryEmailAddress?.emailAddress,
+                full_name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+              })
+              .eq('id', user.id)
+              .select()
+              .single();
+            if (updateError) {
+              setError(updateError);
+            } else {
+              setProfile(updated);
+            }
+          } else {
+            setProfile(data);
+          }
         }
       } catch (err) {
         console.error("Error syncing user:", err);

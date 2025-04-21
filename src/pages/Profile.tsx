@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
@@ -39,6 +38,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const Profile = () => {
   const { toast } = useToast();
+  // Fetch latest Clerk data and Supabase-stored profile
   const { user, profile, isLoaded, isSignedIn, updateProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -91,18 +91,22 @@ const Profile = () => {
     }
   }, [isLoaded, profile, bookingsError, toast]);
   
-  // Effect to update local state when profile data loads
+  // Keep everything in sync if user/Clerk data changes
   useEffect(() => {
-    if (profile) {
+    if (user && profile) {
       setUserProfile({
-        full_name: profile.full_name || "",
-        email: profile.email || "",
+        full_name: profile.full_name || user.firstName + ' ' + user.lastName || "",
+        email: profile.email || user.primaryEmailAddress?.emailAddress || "",
         phone: profile.phone || "",
         city: profile.city || "",
-        preferences: profile.preferences ? JSON.parse(profile.preferences) : []
+        preferences: profile.preferences
+          ? typeof profile.preferences === "string"
+            ? JSON.parse(profile.preferences)
+            : profile.preferences
+          : [],
       });
     }
-  }, [profile]);
+  }, [user, profile]);
   
   // Redirect if not signed in
   useEffect(() => {
