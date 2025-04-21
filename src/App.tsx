@@ -13,6 +13,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ExplorePremium from "./pages/ExplorePremium";
+import PricingPage from "./pages/PricingPage";
+import TicketPreview from "./pages/TicketPreview";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,9 @@ const App = () => (
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/explorepremium" element={<ExplorePremium />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          {/* Demo route: after QR scan, preview a ticket */}
+          <Route path="/ticket-preview" element={<TicketPreview />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
