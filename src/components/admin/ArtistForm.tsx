@@ -21,28 +21,53 @@ const ArtistForm = ({ onCreated }: ArtistFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("artists")
-      .insert([{ name, profile, genre, image }]);
-    setLoading(false);
-
-    if (error) {
+    
+    if (!name || !profile || !genre) {
       toast({
-        title: "Error",
-        description: "Failed to create artist.",
+        title: "Missing Fields",
+        description: "Please fill out all required fields.",
         variant: "destructive",
       });
-    } else {
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from("artists")
+        .insert([{ 
+          name, 
+          profile, 
+          genre, 
+          image: image || null 
+        }]);
+        
+      if (error) throw error;
+      
       toast({
         title: "Artist Added",
         description: "Featured artist was added successfully.",
       });
+      
+      // Reset form
       setName("");
       setProfile("");
       setGenre("");
       setImage("");
+      
+      // Call callback if provided
       if (onCreated) onCreated();
+      
+    } catch (error) {
+      console.error("Error creating artist:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create artist. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 

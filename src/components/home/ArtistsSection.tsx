@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,10 +25,12 @@ const ArtistsSection = () => {
   useEffect(() => {
     const fetchArtists = async () => {
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from('artists')
           .select('*')
           .order('created_at', { ascending: false });
+          
         if (error) throw error;
         setArtists(data || []);
       } catch (error) {
@@ -43,8 +44,10 @@ const ArtistsSection = () => {
         setLoading(false);
       }
     };
+    
     fetchArtists();
-    // Real-time updates if needed
+    
+    // Real-time updates
     const channel = supabase
       .channel('artists-changes')
       .on(
@@ -59,6 +62,7 @@ const ArtistsSection = () => {
         }
       )
       .subscribe();
+      
     return () => {
       supabase.removeChannel(channel);
     };
