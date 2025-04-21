@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { RazorpayButton } from "@/components/ui/RazorpayButton";
+import RazorpayButton from "@/components/ui/RazorpayButton";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function PricingPage() {
