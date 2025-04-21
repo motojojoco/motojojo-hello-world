@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { FadeIn } from "@/components/ui/motion";
@@ -35,11 +34,18 @@ import { Check, UserRound, MapPin, Phone, Mail, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType } from "@/services/bookingService";
 import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Profile = () => {
   const { toast } = useToast();
+  // Fetch latest Clerk data and Supabase-stored profile
   const { user, profile, isLoaded, isSignedIn, updateProfile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const defaultTab = queryParams.get('tab') === 'bookings' ? 'bookings' : 'profile';
+  
+  const [activeTab, setActiveTab] = useState(defaultTab);
   const [userProfile, setUserProfile] = useState({
     full_name: "",
     email: "",
@@ -51,29 +57,56 @@ const Profile = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [ticketsForBooking, setTicketsForBooking] = useState<TicketType[]>([]);
   
-  // Fetch user bookings
+  // Update active tab when URL changes
+  useEffect(() => {
+    const tab = queryParams.get('tab') === 'bookings' ? 'bookings' : 'profile';
+    setActiveTab(tab);
+  }, [location.search]);
+  
+  // Modified fetching logic
   const { 
     data: bookings = [], 
     isLoading: bookingsLoading,
+    error: bookingsError,
     refetch: refetchBookings
   } = useQuery({
     queryKey: ['bookings', user?.id],
     queryFn: () => getUserBookings(user?.id || ''),
-    enabled: !!isSignedIn && !!user?.id
+    enabled: !!isSignedIn && !!user?.id,
+    retry: 1
   });
-  
-  // Effect to update local state when profile data loads
+
+  // Effect to handle loading states
   useEffect(() => {
-    if (profile) {
-      setUserProfile({
-        full_name: profile.full_name || "",
-        email: profile.email || "",
-        phone: profile.phone || "",
-        city: profile.city || "",
-        preferences: profile.preferences ? JSON.parse(profile.preferences) : []
+    if (!isLoaded || !profile) {
+      return;
+    }
+
+    if (bookingsError) {
+      toast({
+        title: "Error Loading Bookings",
+        description: "There was a problem loading your bookings. Please try again.",
+        variant: "destructive"
       });
     }
-  }, [profile]);
+  }, [isLoaded, profile, bookingsError, toast]);
+  
+  // Keep everything in sync if user/Clerk data changes
+  useEffect(() => {
+    if (user && profile) {
+      setUserProfile({
+        full_name: profile.full_name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: profile.email || user.primaryEmailAddress?.emailAddress || "",
+        phone: profile.phone || "",
+        city: profile.city || "",
+        preferences: profile.preferences
+          ? typeof profile.preferences === "string"
+            ? JSON.parse(profile.preferences)
+            : profile.preferences
+          : [],
+      });
+    }
+  }, [user, profile]);
   
   // Redirect if not signed in
   useEffect(() => {
@@ -131,20 +164,28 @@ const Profile = () => {
     });
   };
 
+  // Modified handleViewTickets to use the new property name
   const handleViewTickets = async (booking: Booking) => {
     setSelectedBooking(booking);
     
-    try {
-      const tickets = await getBookingTickets(booking.id);
-      setTicketsForBooking(tickets);
+    // Check if the booking has ticket_items array and use it directly
+    if (booking.ticket_items && Array.isArray(booking.ticket_items)) {
+      setTicketsForBooking(booking.ticket_items);
       setIsTicketDialogOpen(true);
-    } catch (error) {
-      console.error("Error fetching tickets:", error);
-      toast({
-        title: "Failed to Load Tickets",
-        description: "There was an error loading your tickets. Please try again.",
-        variant: "destructive"
-      });
+    } else {
+      // If tickets are not included in the booking, fetch them separately
+      try {
+        const ticketData = await getBookingTickets(booking.id);
+        setTicketsForBooking(ticketData);
+        setIsTicketDialogOpen(true);
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+        toast({
+          title: "No Tickets Found",
+          description: "We couldn't find any tickets for this booking.",
+          variant: "destructive"
+        });
+      }
     }
   };
   
@@ -155,16 +196,20 @@ const Profile = () => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
   
-  if (isLoaded && !isSignedIn) {
-    return null; // Will redirect via the useEffect
-  }
-  
-  if (!isLoaded || !profile) {
+  if (!isLoaded || !isSignedIn) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <div className="flex-grow flex items-center justify-center">
-          <div className="animate-pulse">Loading profile...</div>
+          <div className="w-full max-w-md mx-auto p-6">
+            <Skeleton className="h-8 w-3/4 mb-6" />
+            <Skeleton className="h-32 w-full mb-4" />
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -180,7 +225,7 @@ const Profile = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-8">My Profile</h1>
           </FadeIn>
           
-          <Tabs defaultValue="profile" className="w-full">
+          <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full md:w-[400px] grid-cols-2 mb-8">
               <TabsTrigger value="profile">Profile Details</TabsTrigger>
               <TabsTrigger value="bookings">My Bookings</TabsTrigger>
@@ -411,13 +456,13 @@ const Profile = () => {
         </div>
       </main>
       
-      {/* Tickets Dialog */}
+      {/* Fixed ticket dialog rendering */}
       <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Your Tickets</DialogTitle>
             <DialogDescription>
-              {selectedBooking?.event ? selectedBooking.event.title : 'Event Details'} - {ticketsForBooking.length} tickets
+              {selectedBooking?.event?.title} - {ticketsForBooking.length} tickets
             </DialogDescription>
           </DialogHeader>
           
@@ -430,11 +475,17 @@ const Profile = () => {
                       <div className="flex flex-col items-center">
                         {ticket.qr_code && (
                           <div className="mb-3">
-                            <img src={ticket.qr_code} alt="Ticket QR Code" className="w-32 h-32" />
+                            <img 
+                              src={ticket.qr_code} 
+                              alt="Ticket QR Code" 
+                              className="w-32 h-32"
+                            />
                           </div>
                         )}
                         <div className="text-center">
-                          <div className="font-bold mb-1">Ticket #{ticket.ticket_number}</div>
+                          <div className="font-bold mb-1">
+                            Ticket #{ticket.ticket_number}
+                          </div>
                           <div className="text-sm text-muted-foreground">
                             Please show this QR code at the venue
                           </div>
@@ -445,12 +496,17 @@ const Profile = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-4">No tickets found for this booking.</div>
+              <div className="text-center py-4">
+                No tickets found for this booking.
+              </div>
             )}
           </div>
           
           <div className="mt-4 flex justify-end">
-            <Button variant="outline" onClick={() => setIsTicketDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsTicketDialogOpen(false)}
+            >
               Close
             </Button>
           </div>

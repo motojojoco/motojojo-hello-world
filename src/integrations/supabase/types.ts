@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      artists: {
+        Row: {
+          created_at: string | null
+          genre: string
+          id: string
+          image: string | null
+          name: string
+          profile: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          genre: string
+          id?: string
+          image?: string | null
+          name: string
+          profile: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          genre?: string
+          id?: string
+          image?: string | null
+          name?: string
+          profile?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           amount: number
@@ -55,6 +85,45 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_seats: {
+        Row: {
+          booking_id: string | null
+          created_at: string | null
+          event_id: string | null
+          id: string
+          seat_number: number
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          seat_number: number
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          seat_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_seats_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_seats_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
@@ -156,6 +225,7 @@ export type Database = {
           id: string
           qr_code: string | null
           ticket_number: string
+          username: string | null
         }
         Insert: {
           booking_id?: string | null
@@ -163,6 +233,7 @@ export type Database = {
           id?: string
           qr_code?: string | null
           ticket_number: string
+          username?: string | null
         }
         Update: {
           booking_id?: string | null
@@ -170,6 +241,7 @@ export type Database = {
           id?: string
           qr_code?: string | null
           ticket_number?: string
+          username?: string | null
         }
         Relationships: [
           {
@@ -216,7 +288,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_event_seats: {
+        Args: { event_id: string; total_seats: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
