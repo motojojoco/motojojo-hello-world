@@ -49,11 +49,11 @@ export default function PricingPage() {
         </div>
         <div className="flex justify-center mt-8">
           <RazorpayButton
+            eventId="premium-subscription"
+            eventName={selected.name}
             amount={selected.amount}
-            description={selected.name}
             className="bg-violet text-sandstorm font-bold px-8 py-3 rounded-xl text-lg shadow-glow"
-            // Implement onSuccess logic as needed
-          >Purchase {selected.name}</RazorpayButton>
+          />
         </div>
       </div>
     </div>
