@@ -22,6 +22,7 @@ interface RazorpayButtonProps {
   eventName: string;
   amount: number;
   onSuccess?: () => void;
+  className?: string; // Added className prop to the interface
 }
 
 // Mock function to load Razorpay script
@@ -33,7 +34,7 @@ const loadRazorpayScript = (callback: () => void) => {
   document.body.appendChild(script);
 };
 
-const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButtonProps) => {
+const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: RazorpayButtonProps) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -234,7 +235,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess }: RazorpayButto
   return (
     <>
       <Button 
-        className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity"
+        className={className || "bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity"}
         onClick={handleButtonClick}
       >
         Book Now
