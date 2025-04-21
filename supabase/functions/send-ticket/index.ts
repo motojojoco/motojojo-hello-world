@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
+// Resend instance uses the secret key from Supabase environment variable (already set)
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
@@ -39,8 +40,9 @@ const handler = async (req: Request): Promise<Response> => {
       qrCodes 
     }: TicketEmailData = await req.json();
 
+    // Always use the correct sender domain
     const emailResponse = await resend.emails.send({
-      from: "Motojojo Events <onboarding@resend.dev>",
+      from: "Motojojo Events <info@motojojo.co>",
       to: [email],
       subject: `Your tickets for ${eventTitle}`,
       html: `
@@ -96,3 +98,4 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 serve(handler);
+
