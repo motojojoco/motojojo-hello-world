@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      artists: {
+        Row: {
+          created_at: string | null
+          genre: string
+          id: string
+          image: string | null
+          name: string
+          profile: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          genre: string
+          id?: string
+          image?: string | null
+          name: string
+          profile: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          genre?: string
+          id?: string
+          image?: string | null
+          name?: string
+          profile?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           amount: number
@@ -195,6 +225,7 @@ export type Database = {
           id: string
           qr_code: string | null
           ticket_number: string
+          username: string | null
         }
         Insert: {
           booking_id?: string | null
@@ -202,6 +233,7 @@ export type Database = {
           id?: string
           qr_code?: string | null
           ticket_number: string
+          username?: string | null
         }
         Update: {
           booking_id?: string | null
@@ -209,6 +241,7 @@ export type Database = {
           id?: string
           qr_code?: string | null
           ticket_number?: string
+          username?: string | null
         }
         Relationships: [
           {

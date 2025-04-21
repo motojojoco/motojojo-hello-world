@@ -13,7 +13,8 @@ interface Artist {
   id: string;
   name: string;
   genre: string;
-  image: string;
+  image: string | null;
+  profile: string;
 }
 
 const ArtistsSection = () => {
@@ -25,14 +26,12 @@ const ArtistsSection = () => {
   useEffect(() => {
     const fetchArtists = async () => {
       try {
-        // For now, we'll use an empty array since we don't have an artists table yet
-        // This can be implemented when you add the artists table to Supabase
-        setArtists([]);
-        
-        // Uncomment and use this when you create an artists table
-        // const { data, error } = await supabase.from('artists').select('*');
-        // if (error) throw error;
-        // setArtists(data || []);
+        const { data, error } = await supabase
+          .from('artists')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        setArtists(data || []);
       } catch (error) {
         console.error("Error fetching artists:", error);
         toast({
@@ -44,30 +43,25 @@ const ArtistsSection = () => {
         setLoading(false);
       }
     };
-
     fetchArtists();
-
-    // Setup real-time subscription when artists table is created
-    // const channel = supabase
-    //   .channel('artists-changes')
-    //   .on(
-    //     'postgres_changes',
-    //     {
-    //       event: '*',
-    //       schema: 'public',
-    //       table: 'artists'
-    //     },
-    //     async (payload) => {
-    //       console.log('Real-time update received:', payload);
-    //       const { data } = await supabase.from('artists').select('*');
-    //       setArtists(data || []);
-    //     }
-    //   )
-    //   .subscribe();
-
-    // return () => {
-    //   supabase.removeChannel(channel);
-    // };
+    // Real-time updates if needed
+    const channel = supabase
+      .channel('artists-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'artists'
+        },
+        async () => {
+          fetchArtists();
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [toast]);
 
   const scroll = (direction: "left" | "right") => {
@@ -140,31 +134,30 @@ const ArtistsSection = () => {
             </div>
           </div>
         </FadeIn>
-        
-        {/* Artists Carousel */}
         <div 
           ref={scrollContainerRef}
           className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
         >
           {artists.map((artist, index) => (
             <FadeIn key={artist.id} delay={100 * index}>
-              <Link to={`/artist/${artist.id}`}>
-                <Card className="w-[180px] hover-scale border-none shadow-soft text-center">
-                  <CardContent className="p-6 flex flex-col items-center">
-                    <Avatar className="w-24 h-24 mb-4 border-2 border-violet">
-                      <AvatarImage src={artist.image} alt={artist.name} />
-                      <AvatarFallback className="bg-violet text-white">
-                        {artist.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <h3 className="font-bold mb-1">{artist.name}</h3>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Music className="h-3 w-3 mr-1" />
-                      {artist.genre}
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+              <Card className="w-[220px] hover-scale border-none shadow-soft text-center">
+                <CardContent className="p-6 flex flex-col items-center">
+                  <Avatar className="w-24 h-24 mb-4 border-2 border-violet">
+                    <AvatarImage src={artist.image || undefined} alt={artist.name} />
+                    <AvatarFallback className="bg-violet text-white">
+                      {artist.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <h3 className="font-bold mb-1">{artist.name}</h3>
+                  <div className="text-xs text-muted-foreground mb-2">
+                    {artist.profile}
+                  </div>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Music className="h-3 w-3 mr-1" />
+                    {artist.genre}
+                  </div>
+                </CardContent>
+              </Card>
             </FadeIn>
           ))}
         </div>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FadeIn } from "@/components/ui/motion";
@@ -42,6 +41,7 @@ import { getEvents } from "@/services/eventService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LogOut, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { experiences, banners } from "@/data/mockData";
+import ArtistForm from "@/components/admin/ArtistForm";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -388,6 +388,14 @@ const AdminDashboard = () => {
                         </form>
                       </CardContent>
                     </Card>
+                  </FadeIn>
+                </div>
+              </div>
+              {/* Featured Artists Upload Section */}
+              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <FadeIn delay={250}>
+                    <ArtistForm />
                   </FadeIn>
                 </div>
               </div>

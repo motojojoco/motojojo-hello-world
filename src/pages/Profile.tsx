@@ -95,7 +95,7 @@ const Profile = () => {
   useEffect(() => {
     if (user && profile) {
       setUserProfile({
-        full_name: profile.full_name || user.firstName + ' ' + user.lastName || "",
+        full_name: profile.full_name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
         email: profile.email || user.primaryEmailAddress?.emailAddress || "",
         phone: profile.phone || "",
         city: profile.city || "",
