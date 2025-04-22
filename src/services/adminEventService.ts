@@ -27,18 +27,27 @@ export interface CreateEventInput {
 }
 
 export const createEvent = async (eventData: CreateEventInput) => {
-  const { data, error } = await supabase
-    .from('events')
-    .insert(eventData)
-    .select('*')
-    .single();
+  try {
+    // First create the event
+    const { data, error } = await supabase
+      .from('events')
+      .insert(eventData)
+      .select('*')
+      .single();
 
-  if (error) {
-    console.error("Error creating event:", error);
+    if (error) {
+      console.error("Error creating event:", error);
+      throw error;
+    }
+
+    // We don't need to manually create event seats - this should be handled by
+    // a database trigger after event creation
+
+    return data;
+  } catch (error) {
+    console.error("Error in createEvent:", error);
     throw error;
   }
-
-  return data;
 };
 
 export const updateEvent = async (id: string, eventData: Partial<CreateEventInput>) => {

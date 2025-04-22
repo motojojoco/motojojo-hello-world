@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -17,6 +17,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from "@/components/ui/select";
+import { getEventTypes, EventType } from "@/services/eventTypeService";
+import { useQuery } from "@tanstack/react-query";
 
 const eventSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -48,6 +57,11 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
+  const { data: eventTypes = [] } = useQuery({
+    queryKey: ['eventTypes'],
+    queryFn: getEventTypes
+  });
+
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -77,11 +91,14 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
         title: `Event ${isEditing ? "updated" : "created"} successfully!`,
         description: `The event "${data.title}" has been ${isEditing ? "updated" : "created"}.`,
       });
-    } catch (error) {
+      if (!isEditing) {
+        form.reset(); // Reset form after successful creation
+      }
+    } catch (error: any) {
       console.error("Error submitting event:", error);
       toast({
         title: "Error",
-        description: "Failed to submit the event. Please try again.",
+        description: error.message || "Failed to submit the event. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -270,7 +287,21 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                   <FormItem>
                     <FormLabel>Event Type</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an event type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {eventTypes.map((type) => (
+                            <SelectItem key={type.id} value={type.id}>
+                              {type.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
