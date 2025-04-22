@@ -33,7 +33,7 @@ import { categories } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { Check, UserRound, MapPin, Phone, Mail, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType } from "@/services/bookingService";
+import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates } from "@/services/bookingService";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -169,24 +169,34 @@ const Profile = () => {
   const handleViewTickets = async (booking: Booking) => {
     setSelectedBooking(booking);
     
-    // Check if the booking has ticket_items array and use it directly
-    if (booking.ticket_items && Array.isArray(booking.ticket_items)) {
-      setTicketsForBooking(booking.ticket_items);
+    try {
+      // Initial fetch of tickets
+      const ticketData = await getBookingTickets(booking.id);
+      setTicketsForBooking(ticketData);
       setIsTicketDialogOpen(true);
-    } else {
-      // If tickets are not included in the booking, fetch them separately
-      try {
-        const ticketData = await getBookingTickets(booking.id);
-        setTicketsForBooking(ticketData);
-        setIsTicketDialogOpen(true);
-      } catch (error) {
-        console.error("Error fetching tickets:", error);
-        toast({
-          title: "No Tickets Found",
-          description: "We couldn't find any tickets for this booking.",
-          variant: "destructive"
-        });
-      }
+      
+      // Subscribe to real-time updates
+      const unsubscribe = subscribeToBookingUpdates(booking.id, (updatedTickets) => {
+        console.log('Received updated tickets:', updatedTickets);
+        setTicketsForBooking(updatedTickets);
+      });
+      
+      // Cleanup subscription when dialog closes
+      const cleanup = () => {
+        unsubscribe();
+        setIsTicketDialogOpen(false);
+      };
+      
+      // Update dialog close handler to include cleanup
+      setIsTicketDialogOpen(true);
+      return cleanup;
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
+      toast({
+        title: "Error Loading Tickets",
+        description: "We couldn't load your tickets. Please try again.",
+        variant: "destructive"
+      });
     }
   };
   
