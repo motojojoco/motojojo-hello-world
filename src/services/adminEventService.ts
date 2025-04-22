@@ -37,11 +37,30 @@ export const createEvent = async (eventData: CreateEventInput) => {
 
     if (error) {
       console.error("Error creating event:", error);
-      throw error;
+      throw new Error(error.message);
     }
 
-    // We don't need to manually create event seats - this should be handled by
-    // a database trigger after event creation
+    // Wait a moment to allow the database trigger to create seats
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Verify seats were created
+    const { data: seats, error: seatsError } = await supabase
+      .from('event_seats')
+      .select('*')
+      .eq('event_id', data.id)
+      .limit(1);
+
+    if (seatsError) {
+      console.error("Error verifying seats:", seatsError);
+      // Don't throw here - the event was created successfully
+    }
+
+    // Log verification result
+    if (!seats || seats.length === 0) {
+      console.warn("Seats may not have been created for event:", data.id);
+    } else {
+      console.log("Seats created successfully for event:", data.id);
+    }
 
     return data;
   } catch (error) {
