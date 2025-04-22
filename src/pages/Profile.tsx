@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import EventTicket from "@/components/tickets/EventTicket";
 import {
   Card,
   CardContent,
@@ -456,9 +457,9 @@ const Profile = () => {
         </div>
       </main>
       
-      {/* Fixed ticket dialog rendering */}
+      {/* Updated Ticket Dialog */}
       <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Your Tickets</DialogTitle>
             <DialogDescription>
@@ -468,31 +469,19 @@ const Profile = () => {
           
           <div className="py-4">
             {ticketsForBooking.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-8">
                 {ticketsForBooking.map((ticket) => (
-                  <Card key={ticket.id} className="overflow-hidden">
-                    <CardContent className="p-4">
-                      <div className="flex flex-col items-center">
-                        {ticket.qr_code && (
-                          <div className="mb-3">
-                            <img 
-                              src={ticket.qr_code} 
-                              alt="Ticket QR Code" 
-                              className="w-32 h-32"
-                            />
-                          </div>
-                        )}
-                        <div className="text-center">
-                          <div className="font-bold mb-1">
-                            Ticket #{ticket.ticket_number}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            Please show this QR code at the venue
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <EventTicket
+                    key={ticket.id}
+                    ticketId={ticket.ticket_number}
+                    imageUrl={selectedBooking?.event?.image || '/placeholder.svg'}
+                    eventName={selectedBooking?.event?.title || 'Event'}
+                    eventDescription={selectedBooking?.event?.subtitle || ''}
+                    date={selectedBooking?.event?.date || ''}
+                    time={selectedBooking?.event?.time || ''}
+                    venue={`${selectedBooking?.event?.venue || ''}, ${selectedBooking?.event?.city || ''}`}
+                    price={selectedBooking?.amount ? selectedBooking.amount / selectedBooking.tickets : 0}
+                  />
                 ))}
               </div>
             ) : (
