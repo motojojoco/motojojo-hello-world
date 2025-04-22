@@ -227,6 +227,23 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   qrCodes
                 }
               });
+
+              // Send WhatsApp message after successful booking
+              try {
+                await supabase.functions.invoke('send-whatsapp', {
+                  body: {
+                    to: formData.phone,
+                    eventTitle: eventName,
+                    ticketCount: formData.tickets,
+                    date: eventData.date,
+                    time: eventData.time,
+                    venue: `${eventData.venue}, ${eventData.city}`
+                  }
+                });
+              } catch (whatsappError) {
+                console.error('Error sending WhatsApp message:', whatsappError);
+                // Don't throw error here as booking was successful
+              }
             }
 
             setIsFormOpen(false);
