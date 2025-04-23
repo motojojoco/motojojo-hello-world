@@ -213,7 +213,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               }
             }
 
-            // After creating tickets, send email
+            // After creating tickets, send email and WhatsApp message
             const { data: eventData } = await supabase
               .from('events')
               .select('*')
@@ -221,6 +221,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               .single();
 
             if (eventData) {
+              // Send email with tickets
               await supabase.functions.invoke('send-ticket', {
                 body: {
                   email: formData.email,
@@ -234,7 +235,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                 }
               });
 
-              // Send WhatsApp message after successful booking
+              // Send WhatsApp message with ticket details
               try {
                 await supabase.functions.invoke('send-whatsapp', {
                   body: {
@@ -293,7 +294,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
   return (
     <>
       <Button 
-        className={className || "bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity"}
+        className={className || "bg-gradient-to-r from-sandstorm to-sandstorm hover:opacity-90 transition-opacity"}
         onClick={handleButtonClick}
       >
         Book Now

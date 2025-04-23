@@ -165,6 +165,18 @@ const Profile = () => {
     });
   };
 
+  const handleDownloadTicket = async (ticket: TicketType) => {
+    // Create a temporary link to download the QR code
+    if (ticket.qr_code) {
+      const link = document.createElement('a');
+      link.href = ticket.qr_code;
+      link.download = `ticket-${ticket.ticket_number}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   // Modified handleViewTickets to ensure tickets exist and use real-time updates
   const handleViewTickets = async (booking: Booking) => {
     setSelectedBooking(booking);
@@ -439,7 +451,7 @@ const Profile = () => {
                                 <Button 
                                   variant="default"
                                   onClick={() => handleViewTickets(booking)}
-                                  className="flex items-center gap-2"
+                                  className="flex items-center gap-2 bg-sandstorm hover:bg-sandstorm/90 text-black"
                                 >
                                   <Ticket className="h-4 w-4" />
                                   View Tickets
@@ -448,6 +460,7 @@ const Profile = () => {
                                   <Button 
                                     variant="outline"
                                     onClick={() => navigate(`/event/${booking.event.id}`)}
+                                    className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
                                   >
                                     View Event
                                   </Button>
@@ -490,17 +503,24 @@ const Profile = () => {
             {ticketsForBooking.length > 0 ? (
               <div className="space-y-8">
                 {ticketsForBooking.map((ticket) => (
-                  <EventTicket
-                    key={ticket.id}
-                    ticketId={ticket.ticket_number}
-                    imageUrl={selectedBooking?.event?.image || '/placeholder.svg'}
-                    eventName={selectedBooking?.event?.title || 'Event'}
-                    eventDescription={selectedBooking?.event?.subtitle || ''}
-                    date={selectedBooking?.event?.date || ''}
-                    time={selectedBooking?.event?.time || ''}
-                    venue={`${selectedBooking?.event?.venue || ''}, ${selectedBooking?.event?.city || ''}`}
-                    price={selectedBooking?.amount ? selectedBooking.amount / selectedBooking.tickets : 0}
-                  />
+                  <div key={ticket.id} className="relative">
+                    <EventTicket
+                      ticketId={ticket.ticket_number}
+                      imageUrl={selectedBooking?.event?.image || '/placeholder.svg'}
+                      eventName={selectedBooking?.event?.title || 'Event'}
+                      eventDescription={selectedBooking?.event?.subtitle || ''}
+                      date={selectedBooking?.event?.date || ''}
+                      time={selectedBooking?.event?.time || ''}
+                      venue={`${selectedBooking?.event?.venue || ''}, ${selectedBooking?.event?.city || ''}`}
+                      price={selectedBooking?.amount ? selectedBooking.amount / selectedBooking.tickets : 0}
+                    />
+                    <Button
+                      className="absolute top-4 right-4 bg-sandstorm hover:bg-sandstorm/90 text-black"
+                      onClick={() => handleDownloadTicket(ticket)}
+                    >
+                      Download QR
+                    </Button>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -514,6 +534,7 @@ const Profile = () => {
             <Button 
               variant="outline" 
               onClick={() => setIsTicketDialogOpen(false)}
+              className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
             >
               Close
             </Button>
