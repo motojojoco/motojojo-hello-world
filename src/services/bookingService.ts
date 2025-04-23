@@ -146,3 +146,49 @@ export const createBookingFromCart = async (
   }
 };
 
+// Function to manually generate tickets for a booking if they don't exist
+export const generateTicketsForBooking = async (booking: Booking): Promise<boolean> => {
+  try {
+    // Check if tickets already exist for this booking
+    const { data: existingTickets, error: checkError } = await supabase
+      .from('tickets')
+      .select('*')
+      .eq('booking_id', booking.id);
+    
+    if (checkError) {
+      console.error("Error checking existing tickets:", checkError);
+      return false;
+    }
+    
+    // If tickets already exist, don't create new ones
+    if (existingTickets && existingTickets.length > 0) {
+      console.log(`Tickets already exist for booking ${booking.id}`);
+      return true;
+    }
+    
+    // Generate tickets for the booking
+    for (let i = 0; i < booking.tickets; i++) {
+      const ticketNumber = `MJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`;
+      
+      const { error: ticketError } = await supabase
+        .from('tickets')
+        .insert({
+          booking_id: booking.id,
+          ticket_number: ticketNumber,
+          qr_code: qrCode,
+          username: booking.name
+        });
+
+      if (ticketError) {
+        console.error("Error creating ticket:", ticketError);
+        return false;
+      }
+    }
+    
+    return true;
+  } catch (err) {
+    console.error("Error in generateTicketsForBooking:", err);
+    return false;
+  }
+};

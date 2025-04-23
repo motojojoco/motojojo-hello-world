@@ -183,23 +183,29 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               return;
             }
 
-            // After creating tickets, send email
+            // Generate tickets for the booking
             const ticketNumbers: string[] = [];
             const qrCodes: string[] = [];
 
             for (let i = 0; i < formData.tickets; i++) {
               const ticketNumber = `MJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-              const { data: ticketData } = await supabase
+              const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`;
+              
+              const { data: ticketData, error: ticketError } = await supabase
                 .from('tickets')
                 .insert({
                   booking_id: booking.id,
                   ticket_number: ticketNumber,
-                  qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`,
-                  // Save user name (formData.name), helpful if tickets table is extended
-                  name: formData.name,
+                  qr_code: qrCode,
+                  username: formData.name,
                 })
                 .select()
                 .single();
+
+              if (ticketError) {
+                console.error("Error creating ticket:", ticketError);
+                continue;
+              }
 
               if (ticketData) {
                 ticketNumbers.push(ticketData.ticket_number);
@@ -207,7 +213,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               }
             }
 
-            // Send email with ticket details
+            // After creating tickets, send email
             const { data: eventData } = await supabase
               .from('events')
               .select('*')

@@ -33,7 +33,7 @@ import { categories } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { Check, UserRound, MapPin, Phone, Mail, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates } from "@/services/bookingService";
+import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates, generateTicketsForBooking } from "@/services/bookingService";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -165,11 +165,24 @@ const Profile = () => {
     });
   };
 
-  // Modified handleViewTickets to use the new property name
+  // Modified handleViewTickets to ensure tickets exist and use real-time updates
   const handleViewTickets = async (booking: Booking) => {
     setSelectedBooking(booking);
     
     try {
+      // Check if tickets exist for this booking, if not generate them
+      if (!booking.ticket_items || booking.ticket_items.length === 0) {
+        const success = await generateTicketsForBooking(booking);
+        if (!success) {
+          toast({
+            title: "Error Generating Tickets",
+            description: "We couldn't generate tickets for this booking. Please contact support.",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+      
       // Initial fetch of tickets
       const ticketData = await getBookingTickets(booking.id);
       setTicketsForBooking(ticketData);
@@ -182,14 +195,10 @@ const Profile = () => {
       });
       
       // Cleanup subscription when dialog closes
-      const cleanup = () => {
+      return () => {
         unsubscribe();
         setIsTicketDialogOpen(false);
       };
-      
-      // Update dialog close handler to include cleanup
-      setIsTicketDialogOpen(true);
-      return cleanup;
     } catch (error) {
       console.error("Error fetching tickets:", error);
       toast({
