@@ -41,13 +41,14 @@ const ArtistForm = ({ onCreated }: ArtistFormProps) => {
           profile, 
           genre, 
           image: image || null 
-        }]);
+        }])
+        .select();
         
       if (error) throw error;
       
       toast({
         title: "Artist Added",
-        description: "Featured artist was added successfully.",
+        description: `${name} was added successfully to featured artists.`,
       });
       
       // Reset form
@@ -59,11 +60,11 @@ const ArtistForm = ({ onCreated }: ArtistFormProps) => {
       // Call callback if provided
       if (onCreated) onCreated();
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating artist:", error);
       toast({
         title: "Error",
-        description: "Failed to create artist. Please try again.",
+        description: `Failed to create artist: ${error.message}`,
         variant: "destructive",
       });
     } finally {
