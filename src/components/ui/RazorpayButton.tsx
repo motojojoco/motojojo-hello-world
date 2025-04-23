@@ -7,7 +7,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose
+  DialogClose,
+  DialogScrollArea
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,11 +19,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
 interface RazorpayButtonProps {
-  eventId: string; // Changed to string only since we're using UUIDs
+  eventId: string;
   eventName: string;
   amount: number;
   onSuccess?: () => void;
-  className?: string; // Added className prop to the interface
+  className?: string;
+}
+
+interface TicketHolder {
+  name: string;
 }
 
 // Mock function to load Razorpay script
@@ -43,6 +48,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
     phone: "",
     tickets: 1
   });
+  const [ticketHolders, setTicketHolders] = useState<TicketHolder[]>([{ name: "" }]);
   const { toast } = useToast();
   const { user, isSignedIn } = useAuth();
   const navigate = useNavigate();
@@ -112,9 +118,34 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
     setFormData(prev => {
       if (name === 'tickets') {
         const ticketCount = parseInt(value) || 1;
-        return { ...prev, [name]: Math.max(1, Math.min(10, ticketCount)) };
+        const newCount = Math.max(1, Math.min(10, ticketCount));
+        
+        // Update ticket holders array based on new ticket count
+        setTicketHolders(prevHolders => {
+          const newHolders = [...prevHolders];
+          if (newCount > prevHolders.length) {
+            // Add new holders
+            for (let i = prevHolders.length; i < newCount; i++) {
+              newHolders.push({ name: "" });
+            }
+          } else if (newCount < prevHolders.length) {
+            // Remove excess holders
+            newHolders.splice(newCount);
+          }
+          return newHolders;
+        });
+        
+        return { ...prev, [name]: newCount };
       }
       return { ...prev, [name]: value };
+    });
+  };
+
+  const handleTicketHolderChange = (index: number, value: string) => {
+    setTicketHolders(prev => {
+      const newHolders = [...prev];
+      newHolders[index] = { name: value };
+      return newHolders;
     });
   };
 
@@ -140,7 +171,17 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       return;
     }
 
-    await upsertUserIfNeeded(formData); // Sync user before booking
+    // Validate all ticket holder names
+    if (ticketHolders.some(holder => !holder.name.trim())) {
+      toast({
+        title: "Missing Names",
+        description: "Please provide names for all ticket holders.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    await upsertUserIfNeeded(formData);
 
     loadRazorpayScript(() => {
       const totalAmount = amount * formData.tickets;
@@ -183,34 +224,19 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               return;
             }
 
-            // Generate tickets for the booking
-            const ticketNumbers: string[] = [];
-            const qrCodes: string[] = [];
-
-            for (let i = 0; i < formData.tickets; i++) {
+            // Generate tickets for each holder
+            for (let i = 0; i < ticketHolders.length; i++) {
               const ticketNumber = `MJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
               const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`;
               
-              const { data: ticketData, error: ticketError } = await supabase
+              await supabase
                 .from('tickets')
                 .insert({
                   booking_id: booking.id,
                   ticket_number: ticketNumber,
                   qr_code: qrCode,
-                  username: formData.name,
-                })
-                .select()
-                .single();
-
-              if (ticketError) {
-                console.error("Error creating ticket:", ticketError);
-                continue;
-              }
-
-              if (ticketData) {
-                ticketNumbers.push(ticketData.ticket_number);
-                qrCodes.push(ticketData.qr_code || '');
-              }
+                  username: ticketHolders[i].name,
+                });
             }
 
             // After creating tickets, send email and WhatsApp message
@@ -230,8 +256,8 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   eventDate: eventData.date,
                   eventTime: eventData.time,
                   eventVenue: `${eventData.venue}, ${eventData.city}`,
-                  ticketNumbers,
-                  qrCodes
+                  ticketNumbers: [], // No ticket numbers needed
+                  qrCodes: [] // No QR codes needed
                 }
               });
 
@@ -311,66 +337,84 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
           </DialogHeader>
           
           <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Enter your full name"
-                  required
-                />
+            <DialogScrollArea className="max-h-[80vh]">
+              <div className="grid gap-4 py-4 px-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Your Full Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter your email address"
+                    required
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="phone">WhatsApp Number</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="Enter your WhatsApp number"
+                    required
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="tickets">Number of Tickets</Label>
+                  <Input
+                    id="tickets"
+                    name="tickets"
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={formData.tickets}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                {/* Ticket Holder Names */}
+                {ticketHolders.map((holder, index) => (
+                  <div key={index} className="grid gap-2">
+                    <Label htmlFor={`ticket-holder-${index}`}>
+                      {index === 0 ? "Primary Ticket Holder" : `Additional Ticket Holder ${index + 1}`}
+                    </Label>
+                    <Input
+                      id={`ticket-holder-${index}`}
+                      value={holder.name}
+                      onChange={(e) => handleTicketHolderChange(index, e.target.value)}
+                      placeholder={`Enter ticket holder ${index + 1}'s name`}
+                      required
+                    />
+                  </div>
+                ))}
+                
+                <div className="mt-2 text-right font-semibold">
+                  <div>Price: ₹{amount.toLocaleString()} x {formData.tickets}</div>
+                  <div className="text-lg">Total: ₹{(amount * formData.tickets).toLocaleString()}</div>
+                </div>
               </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Enter your email address"
-                  required
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="phone">WhatsApp Number</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="Enter your WhatsApp number"
-                  required
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="tickets">Number of Tickets</Label>
-                <Input
-                  id="tickets"
-                  name="tickets"
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={formData.tickets}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              
-              <div className="mt-2 text-right font-semibold">
-                <div>Price: ₹{amount.toLocaleString()} x {formData.tickets}</div>
-                <div className="text-lg">Total: ₹{(amount * formData.tickets).toLocaleString()}</div>
-              </div>
-            </div>
+            </DialogScrollArea>
             
-            <DialogFooter>
+            <DialogFooter className="mt-4">
               <DialogClose asChild>
                 <Button type="button" variant="outline">Cancel</Button>
               </DialogClose>

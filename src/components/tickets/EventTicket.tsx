@@ -3,6 +3,7 @@ import { Calendar, MapPin, Ticket } from "lucide-react";
 
 interface EventTicketProps {
   ticketId: string;
+  username: string;
   imageUrl: string;
   eventName: string;
   eventDescription: string;
@@ -14,6 +15,7 @@ interface EventTicketProps {
 
 export default function EventTicket({
   ticketId,
+  username,
   imageUrl,
   eventName,
   eventDescription,
@@ -36,6 +38,7 @@ export default function EventTicket({
         <div className="px-6 py-4">
           <div className="font-bold text-2xl text-black mb-1">{eventName}</div>
           <div className="text-black text-base mb-3">{eventDescription}</div>
+          <div className="text-black font-medium mb-3">Ticket Holder: {username}</div>
           <div className="flex items-center text-black font-semibold mb-1 gap-2">
             <Calendar size={20} /> {date} | {time}
           </div>

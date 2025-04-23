@@ -28,6 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogScrollArea
 } from "@/components/ui/dialog";
 import { categories } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
@@ -499,36 +500,39 @@ const Profile = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="py-4">
-            {ticketsForBooking.length > 0 ? (
-              <div className="space-y-8">
-                {ticketsForBooking.map((ticket) => (
-                  <div key={ticket.id} className="relative">
-                    <EventTicket
-                      ticketId={ticket.ticket_number}
-                      imageUrl={selectedBooking?.event?.image || '/placeholder.svg'}
-                      eventName={selectedBooking?.event?.title || 'Event'}
-                      eventDescription={selectedBooking?.event?.subtitle || ''}
-                      date={selectedBooking?.event?.date || ''}
-                      time={selectedBooking?.event?.time || ''}
-                      venue={`${selectedBooking?.event?.venue || ''}, ${selectedBooking?.event?.city || ''}`}
-                      price={selectedBooking?.amount ? selectedBooking.amount / selectedBooking.tickets : 0}
-                    />
-                    <Button
-                      className="absolute top-4 right-4 bg-sandstorm hover:bg-sandstorm/90 text-black"
-                      onClick={() => handleDownloadTicket(ticket)}
-                    >
-                      Download QR
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                No tickets found for this booking.
-              </div>
-            )}
-          </div>
+          <DialogScrollArea className="max-h-[70vh]">
+            <div className="py-4 px-4">
+              {ticketsForBooking.length > 0 ? (
+                <div className="space-y-8">
+                  {ticketsForBooking.map((ticket) => (
+                    <div key={ticket.id} className="relative">
+                      <EventTicket
+                        ticketId={ticket.ticket_number}
+                        username={ticket.username || 'Guest'}
+                        imageUrl={selectedBooking?.event?.image || '/placeholder.svg'}
+                        eventName={selectedBooking?.event?.title || 'Event'}
+                        eventDescription={selectedBooking?.event?.subtitle || ''}
+                        date={selectedBooking?.event?.date || ''}
+                        time={selectedBooking?.event?.time || ''}
+                        venue={`${selectedBooking?.event?.venue || ''}, ${selectedBooking?.event?.city || ''}`}
+                        price={selectedBooking?.amount ? selectedBooking.amount / selectedBooking.tickets : 0}
+                      />
+                      <Button
+                        className="absolute top-4 right-4 bg-sandstorm hover:bg-sandstorm/90 text-black"
+                        onClick={() => handleDownloadTicket(ticket)}
+                      >
+                        Download QR
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  No tickets found for this booking.
+                </div>
+              )}
+            </div>
+          </DialogScrollArea>
           
           <div className="mt-4 flex justify-end">
             <Button 
