@@ -13,6 +13,7 @@ export default function TicketPreview() {
     time: "6 AM",
     venue: "6924 W Oak Street, Ritchieworth 56312",
     price: 150,
+    username: "Guest User",
   };
 
   return (

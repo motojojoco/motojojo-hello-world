@@ -513,6 +513,7 @@ const Profile = () => {
                       time={selectedBooking?.event?.time || ''}
                       venue={`${selectedBooking?.event?.venue || ''}, ${selectedBooking?.event?.city || ''}`}
                       price={selectedBooking?.amount ? selectedBooking.amount / selectedBooking.tickets : 0}
+                      username={selectedBooking?.name || 'Guest'}
                     />
                     <Button
                       className="absolute top-4 right-4 bg-sandstorm hover:bg-sandstorm/90 text-black"

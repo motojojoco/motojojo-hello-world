@@ -10,6 +10,7 @@ interface EventTicketProps {
   time: string;
   venue: string;
   price: number;
+  username: string;
 }
 
 export default function EventTicket({
@@ -21,6 +22,7 @@ export default function EventTicket({
   time,
   venue,
   price,
+  username,
 }: EventTicketProps) {
   return (
     <div className="relative w-full max-w-xl mx-auto bg-sandstorm rounded-3xl shadow-glow-yellow p-0 overflow-visible my-8 border-4 border-solid border-sandstorm">
@@ -43,6 +45,7 @@ export default function EventTicket({
             <MapPin size={20} /> {venue}
           </div>
           <div className="text-xs text-gray-700 mb-2 font-mono">Ticket ID: <span className="font-bold">{ticketId}</span></div>
+          <div className="text-xs text-gray-700 mb-2 font-mono">Name: <span className="font-bold">{username}</span></div>
         </div>
         {/* Bottom dashed divider & price */}
         <div className="flex items-center px-6 pb-4 relative">
