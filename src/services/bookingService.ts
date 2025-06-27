@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Booking {
@@ -121,21 +120,78 @@ export const createBookingFromCart = async (
     }
 
     // Generate tickets for the booking
+    const ticketNumbers: string[] = [];
+    const qrCodes: string[] = [];
+
     for (let i = 0; i < tickets; i++) {
       const ticketNumber = `MJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`;
       
-      const { error: ticketError } = await supabase
+      const { data: ticketData, error: ticketError } = await supabase
         .from('tickets')
         .insert({
           booking_id: booking.id,
           ticket_number: ticketNumber,
           qr_code: qrCode,
           username: name
-        });
+        })
+        .select()
+        .single();
 
       if (ticketError) {
         console.error("Error creating ticket:", ticketError);
+        continue;
+      }
+
+      if (ticketData) {
+        ticketNumbers.push(ticketData.ticket_number);
+        qrCodes.push(ticketData.qr_code || '');
+      }
+    }
+
+    // Get event details for email
+    const { data: eventData } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', eventId)
+      .single();
+
+    if (eventData && ticketNumbers.length > 0) {
+      // Send email with tickets
+      try {
+        await supabase.functions.invoke('send-ticket', {
+          body: {
+            email: email,
+            name: name,
+            eventTitle: eventData.title,
+            eventDate: eventData.date,
+            eventTime: eventData.time,
+            eventVenue: `${eventData.venue}, ${eventData.city}`,
+            ticketNumbers,
+            qrCodes
+          }
+        });
+        console.log('Ticket email sent successfully for booking:', booking.id);
+      } catch (emailError) {
+        console.error('Error sending ticket email:', emailError);
+        // Don't throw error here as booking was successful
+      }
+
+      // Send WhatsApp message with ticket details
+      try {
+        await supabase.functions.invoke('send-whatsapp', {
+          body: {
+            to: phone,
+            eventTitle: eventData.title,
+            ticketCount: tickets,
+            date: eventData.date,
+            time: eventData.time,
+            venue: `${eventData.venue}, ${eventData.city}`
+          }
+        });
+      } catch (whatsappError) {
+        console.error('Error sending WhatsApp message:', whatsappError);
+        // Don't throw error here as booking was successful
       }
     }
     
@@ -189,6 +245,54 @@ export const generateTicketsForBooking = async (booking: Booking): Promise<boole
     return true;
   } catch (err) {
     console.error("Error in generateTicketsForBooking:", err);
+    return false;
+  }
+};
+
+// Function to resend tickets via email
+export const resendTicketEmail = async (booking: Booking): Promise<boolean> => {
+  try {
+    // Get event details
+    const { data: eventData } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', booking.event_id)
+      .single();
+
+    if (!eventData) {
+      console.error('Event not found for booking:', booking.id);
+      return false;
+    }
+
+    // Get tickets for this booking
+    const tickets = await getBookingTickets(booking.id);
+    
+    if (tickets.length === 0) {
+      console.error('No tickets found for booking:', booking.id);
+      return false;
+    }
+
+    const ticketNumbers = tickets.map(ticket => ticket.ticket_number);
+    const qrCodes = tickets.map(ticket => ticket.qr_code || '');
+
+    // Send email with tickets
+    await supabase.functions.invoke('send-ticket', {
+      body: {
+        email: booking.email,
+        name: booking.name,
+        eventTitle: eventData.title,
+        eventDate: eventData.date,
+        eventTime: eventData.time,
+        eventVenue: `${eventData.venue}, ${eventData.city}`,
+        ticketNumbers,
+        qrCodes
+      }
+    });
+
+    console.log('Ticket email resent successfully for booking:', booking.id);
+    return true;
+  } catch (error) {
+    console.error('Error resending ticket email:', error);
     return false;
   }
 };

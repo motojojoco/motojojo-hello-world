@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import EventForm from "@/components/admin/EventForm";
+import CategoryForm from "@/components/admin/CategoryForm";
 import {
   Dialog,
   DialogContent,
@@ -190,15 +191,16 @@ const AdminDashboard = () => {
         </div>
       </header>
 
-      <main className="flex-grow py-8">
+      <main className="flex-grow py-8 pb-20 md:pb-8">
         <div className="container-padding">
           <FadeIn>
             <h2 className="text-3xl font-bold mb-8">Admin Dashboard</h2>
           </FadeIn>
 
           <Tabs defaultValue="events" className="w-full">
-            <TabsList className="grid grid-cols-4 mb-8">
+            <TabsList className="grid grid-cols-5 mb-8">
               <TabsTrigger value="events">Manage Events</TabsTrigger>
+              <TabsTrigger value="categories">Manage Categories</TabsTrigger>
               <TabsTrigger value="experiences">Manage Experiences</TabsTrigger>
               <TabsTrigger value="banners">Manage Banners</TabsTrigger>
               <TabsTrigger value="bookings">View Bookings</TabsTrigger>
@@ -239,7 +241,6 @@ const AdminDashboard = () => {
                               <TableHead>Category</TableHead>
                               <TableHead>Date</TableHead>
                               <TableHead>Price</TableHead>
-                              <TableHead>Seats</TableHead>
                               <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                           </TableHeader>
@@ -250,24 +251,16 @@ const AdminDashboard = () => {
                                 <TableCell>{event.category}</TableCell>
                                 <TableCell>{formatDate(event.date)}</TableCell>
                                 <TableCell>₹{event.price}</TableCell>
-                                <TableCell>{event.seats_available}</TableCell>
-                                <TableCell className="text-right space-x-2">
+                                <TableCell className="text-right">
                                   <Button
-                                    size="icon"
-                                    variant="ghost"
+                                    variant="outline"
+                                    size="sm"
                                     onClick={() => {
                                       setSelectedEvent(event);
                                       setIsEditDialogOpen(true);
                                     }}
                                   >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={() => handleDeleteEvent(event.id)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
+                                    Edit
                                   </Button>
                                 </TableCell>
                               </TableRow>
@@ -304,6 +297,12 @@ const AdminDashboard = () => {
                   </Card>
                 </FadeIn>
               </div>
+            </TabsContent>
+
+            <TabsContent value="categories">
+              <FadeIn delay={100}>
+                <CategoryForm />
+              </FadeIn>
             </TabsContent>
 
             <TabsContent value="experiences">

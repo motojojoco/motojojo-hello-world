@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
@@ -56,7 +55,7 @@ const Admin = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow flex items-center justify-center py-16">
+      <main className="flex-grow flex items-center justify-center py-16 pb-20 md:pb-16">
         <div className="container-padding max-w-md w-full">
           <FadeIn>
             <Card className="border-none shadow-soft">

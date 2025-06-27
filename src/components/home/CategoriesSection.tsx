@@ -1,8 +1,7 @@
-
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { categories } from "@/data/mockData";
+import { useCategoriesRealtime } from "@/hooks/use-categories";
 import { FadeIn } from "@/components/ui/motion";
 import { 
   ChevronLeft, 
@@ -17,6 +16,7 @@ import {
   Hammer 
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Map of category icons
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -32,6 +32,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 
 const CategoriesSection = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { categories, isLoading, error } = useCategoriesRealtime();
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -44,6 +45,51 @@ const CategoriesSection = () => {
       }
     }
   };
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <section className="py-16">
+        <div className="container-padding">
+          <FadeIn>
+            <div className="flex justify-between items-center mb-8">
+              <Skeleton className="h-8 w-48" />
+              <div className="hidden md:flex space-x-2">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+              </div>
+            </div>
+          </FadeIn>
+          
+          <div className="flex gap-4 overflow-x-auto pb-4">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <FadeIn key={index} delay={100 * index}>
+                <Skeleton className="w-[140px] h-[120px] rounded-lg" />
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section className="py-16">
+        <div className="container-padding">
+          <FadeIn>
+            <div className="text-center">
+              <h2 className="section-title">Browse Categories</h2>
+              <p className="text-muted-foreground mt-4">
+                Unable to load categories. Please try again later.
+              </p>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16">

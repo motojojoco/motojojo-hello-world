@@ -157,63 +157,75 @@ export type Database = {
       }
       events: {
         Row: {
+          address: string | null
           category: string
           city: string
           created_at: string
+          created_by: string | null
           date: string
-          description: string | null
+          description: string
           duration: string | null
-          event_type: string
+          event_type: string | null
+          featured: boolean
+          gallery: string[] | null
           host: string | null
           id: string
           image: string
+          is_published: boolean
           long_description: string | null
           price: number
-          seats_available: number
           subtitle: string | null
           time: string
           title: string
-          updated_at: string
+          updated_at: string | null
           venue: string
         }
         Insert: {
+          address?: string | null
           category: string
           city: string
           created_at?: string
+          created_by?: string | null
           date: string
-          description?: string | null
+          description: string
           duration?: string | null
-          event_type: string
+          event_type?: string | null
+          featured?: boolean
+          gallery?: string[] | null
           host?: string | null
           id?: string
           image: string
+          is_published?: boolean
           long_description?: string | null
           price: number
-          seats_available: number
           subtitle?: string | null
           time: string
           title: string
-          updated_at?: string
+          updated_at?: string | null
           venue: string
         }
         Update: {
+          address?: string | null
           category?: string
           city?: string
           created_at?: string
+          created_by?: string | null
           date?: string
-          description?: string | null
+          description?: string
           duration?: string | null
-          event_type?: string
+          event_type?: string | null
+          featured?: boolean
+          gallery?: string[] | null
           host?: string | null
           id?: string
           image?: string
+          is_published?: boolean
           long_description?: string | null
           price?: number
-          seats_available?: number
           subtitle?: string | null
           time?: string
           title?: string
-          updated_at?: string
+          updated_at?: string | null
           venue?: string
         }
         Relationships: []

@@ -391,8 +391,9 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="h-8 w-8 text-green-500" />
             </div>
-            <p className="text-lg mb-2">Your seats are booked!</p>
-            <p className="text-muted-foreground">Can't wait to see you there!</p>
+            <p className="text-lg mb-2">Your tickets are booked!</p>
+            <p className="text-muted-foreground mb-4">Check your email for your tickets and QR codes.</p>
+            <p className="text-sm text-muted-foreground">Can't wait to see you there!</p>
           </div>
           
           <DialogFooter className="flex flex-col sm:flex-row gap-2">

@@ -1,4 +1,3 @@
-
 // City data
 export const cities = [
   { id: 1, name: "Mumbai" },
@@ -13,18 +12,6 @@ export const cities = [
   { id: 10, name: "Lucknow" },
   { id: 11, name: "Chandigarh" },
   { id: 12, name: "Kochi" }
-];
-
-// Categories
-export const categories = [
-  { id: 1, name: "Music", icon: "Music", color: "#6A0DAD" },
-  { id: 2, name: "Theatre", icon: "Theater", color: "#FF1F4C" },
-  { id: 3, name: "Comedy", icon: "Laugh", color: "#FFC300" },
-  { id: 4, name: "Tech", icon: "Cpu", color: "#4EA8DE" },
-  { id: 5, name: "Food", icon: "Utensils", color: "#FF6D00" },
-  { id: 6, name: "Art", icon: "Palette", color: "#8BC34A" },
-  { id: 7, name: "Sports", icon: "Trophy", color: "#F44336" },
-  { id: 8, name: "Workshop", icon: "Hammer", color: "#795548" }
 ];
 
 // Experience types
@@ -137,7 +124,6 @@ export const events = [
     duration: "8 hours",
     category: "Music",
     categoryId: 1,
-    seatsAvailable: 5000,
     price: 2499,
     featured: true,
     host: "Percept Live",
@@ -165,7 +151,6 @@ export const events = [
     duration: "2 hours",
     category: "Music",
     categoryId: 1,
-    seatsAvailable: 1200,
     price: 1999,
     featured: true,
     host: "Pandit Music Foundation",
@@ -193,7 +178,6 @@ export const events = [
     duration: "10 days (multiple shows)",
     category: "Theatre",
     categoryId: 2,
-    seatsAvailable: 200,
     price: 599,
     featured: true,
     host: "Prithvi Theatre",
@@ -221,7 +205,6 @@ export const events = [
     duration: "90 minutes",
     category: "Comedy",
     categoryId: 3,
-    seatsAvailable: 500,
     price: 999,
     featured: false,
     host: "Comedy Central India",
@@ -249,7 +232,6 @@ export const events = [
     duration: "3 days",
     category: "Art",
     categoryId: 6,
-    seatsAvailable: 10000,
     price: 899,
     featured: true,
     host: "Comic Con India",
@@ -277,7 +259,6 @@ export const events = [
     duration: "5 hours",
     category: "Music",
     categoryId: 1,
-    seatsAvailable: 2000,
     price: 1499,
     featured: false,
     host: "Sony Music India",

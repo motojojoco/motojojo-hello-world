@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "./eventService";
 
@@ -10,20 +9,16 @@ export interface CreateEventInput {
   long_description?: string;
   date: string;
   time: string;
-  category: string;
+  duration?: string;
   venue: string;
   city: string;
   address?: string;
   price: number;
   image: string;
-  gallery?: string[];
-  featured?: boolean;
-  created_by?: string;
-  seats_available: number;
-  is_published?: boolean;
+  category: string;
+  event_type?: string;
   host?: string;
-  duration?: string;
-  event_type: string;
+  is_published?: boolean;
 }
 
 export const createEvent = async (eventData: CreateEventInput) => {
@@ -40,28 +35,6 @@ export const createEvent = async (eventData: CreateEventInput) => {
       throw new Error(error.message);
     }
 
-    // Wait a moment to allow the database trigger to create seats
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Verify seats were created
-    const { data: seats, error: seatsError } = await supabase
-      .from('event_seats')
-      .select('*')
-      .eq('event_id', data.id)
-      .limit(1);
-
-    if (seatsError) {
-      console.error("Error verifying seats:", seatsError);
-      // Don't throw here - the event was created successfully
-    }
-
-    // Log verification result
-    if (!seats || seats.length === 0) {
-      console.warn("Seats may not have been created for event:", data.id);
-    } else {
-      console.log("Seats created successfully for event:", data.id);
-    }
-
     return data;
   } catch (error) {
     console.error("Error in createEvent:", error);
@@ -70,19 +43,24 @@ export const createEvent = async (eventData: CreateEventInput) => {
 };
 
 export const updateEvent = async (id: string, eventData: Partial<CreateEventInput>) => {
-  const { data, error } = await supabase
-    .from('events')
-    .update(eventData)
-    .eq('id', id)
-    .select('*')
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .update(eventData)
+      .eq('id', id)
+      .select('*')
+      .single();
 
-  if (error) {
-    console.error("Error updating event:", error);
+    if (error) {
+      console.error("Error updating event:", error);
+      throw new Error(error.message);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error in updateEvent:", error);
     throw error;
   }
-
-  return data;
 };
 
 export const deleteEvent = async (id: string) => {
@@ -126,7 +104,6 @@ export const subscribeToEvents = (callback: (event: Event) => void) => {
           gallery: [], // Default value
           featured: false, // Default value
           created_by: '', // Default value
-          seats_available: newEvent.seats_available,
           is_published: true, // Default value
           created_at: newEvent.created_at,
           event_type: newEvent.event_type,

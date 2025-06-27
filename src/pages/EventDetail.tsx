@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -33,7 +32,6 @@ import {
 import { getEvent, getEventsByCategory, Event } from "@/services/eventService";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import SeatAvailability from "@/components/event/SeatAvailability";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -125,7 +123,7 @@ const EventDetail = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-16">
+      <main className="flex-grow pt-16 pb-20 md:pb-0">
         {/* Event Banner */}
         <div className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/60 to-background" />
@@ -149,10 +147,6 @@ const EventDetail = () => {
                   <p>{event.description}</p>
                   {event.long_description && <p>{event.long_description}</p>}
                 </div>
-              </FadeIn>
-
-              <FadeIn delay={200}>
-                {id && <SeatAvailability eventId={id} />}
               </FadeIn>
 
               {/* Reviews Section */}
@@ -241,14 +235,6 @@ const EventDetail = () => {
                           <div>
                             <div className="font-medium">Category</div>
                             <div className="text-muted-foreground">{event.category}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <Users className="h-5 w-5 text-orange-500 mr-3 mt-0.5" />
-                          <div>
-                            <div className="font-medium">Availability</div>
-                            <div className="text-muted-foreground">{event.seats_available} seats available</div>
                           </div>
                         </div>
                         

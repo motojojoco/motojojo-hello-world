@@ -29,11 +29,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { categories } from "@/data/mockData";
+import { useCategories } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
 import { Check, UserRound, MapPin, Phone, Mail, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates, generateTicketsForBooking } from "@/services/bookingService";
+import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates, generateTicketsForBooking, resendTicketEmail } from "@/services/bookingService";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -57,6 +57,9 @@ const Profile = () => {
   const [isTicketDialogOpen, setIsTicketDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [ticketsForBooking, setTicketsForBooking] = useState<TicketType[]>([]);
+  
+  // Get categories for preferences
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   
   // Update active tab when URL changes
   useEffect(() => {
@@ -220,6 +223,62 @@ const Profile = () => {
       });
     }
   };
+
+  // Handle resending tickets via email
+  const handleResendEmail = async () => {
+    if (!selectedBooking) return;
+    
+    try {
+      const success = await resendTicketEmail(selectedBooking);
+      
+      if (success) {
+        toast({
+          title: "Email Sent!",
+          description: "Your tickets have been sent to your email address.",
+        });
+      } else {
+        toast({
+          title: "Email Failed",
+          description: "Failed to send tickets via email. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error resending email:", error);
+      toast({
+        title: "Email Error",
+        description: "There was an error sending your tickets. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle resending tickets via email from booking card
+  const handleResendEmailForBooking = async (booking: Booking) => {
+    try {
+      const success = await resendTicketEmail(booking);
+      
+      if (success) {
+        toast({
+          title: "Email Sent!",
+          description: "Your tickets have been sent to your email address.",
+        });
+      } else {
+        toast({
+          title: "Email Failed",
+          description: "Failed to send tickets via email. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error resending email:", error);
+      toast({
+        title: "Email Error",
+        description: "There was an error sending your tickets. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
   
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -251,7 +310,7 @@ const Profile = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-16">
+      <main className="flex-grow pt-24 pb-20 md:pb-16">
         <div className="container-padding">
           <FadeIn>
             <h1 className="text-3xl md:text-4xl font-bold mb-8">My Profile</h1>
@@ -344,26 +403,37 @@ const Profile = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {categories.map(category => (
-                          <div key={category.id} className="flex items-center space-x-2">
-                            <Checkbox 
-                              id={`category-${category.id}`}
-                              checked={userProfile.preferences.includes(category.id)}
-                              onCheckedChange={() => handleInterestToggle(category.id)}
-                            />
-                            <Label 
-                              htmlFor={`category-${category.id}`}
-                              className="cursor-pointer"
-                            >
-                              {category.name}
-                            </Label>
-                          </div>
-                        ))}
+                        {categoriesLoading ? (
+                          // Loading skeleton for categories
+                          Array.from({ length: 8 }).map((_, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <Skeleton className="h-4 w-4" />
+                              <Skeleton className="h-4 w-24" />
+                            </div>
+                          ))
+                        ) : (
+                          categories.map(category => (
+                            <div key={category.id} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`category-${category.id}`}
+                                checked={userProfile.preferences.includes(category.id)}
+                                onCheckedChange={() => handleInterestToggle(category.id)}
+                              />
+                              <Label 
+                                htmlFor={`category-${category.id}`}
+                                className="cursor-pointer"
+                              >
+                                {category.name}
+                              </Label>
+                            </div>
+                          ))
+                        )}
                         
                         <Button 
                           type="button" 
                           className="w-full mt-4"
                           onClick={handleProfileUpdate}
+                          disabled={categoriesLoading}
                         >
                           Save Preferences
                         </Button>
@@ -408,8 +478,8 @@ const Profile = () => {
                               <div className="mt-2 md:mt-0 flex items-center">
                                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                                   booking.status === 'confirmed' 
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-500' 
-                                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800/30 dark:text-yellow-500'
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-yellow-100 text-yellow-800'
                                 }`}>
                                   {booking.status === 'confirmed' && <Check className="mr-1 h-3 w-3" />}
                                   {booking.status}
@@ -455,6 +525,14 @@ const Profile = () => {
                                 >
                                   <Ticket className="h-4 w-4" />
                                   View Tickets
+                                </Button>
+                                <Button 
+                                  variant="outline"
+                                  onClick={() => handleResendEmailForBooking(booking)}
+                                  className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
+                                >
+                                  <Mail className="h-4 w-4" />
+                                  Resend Email
                                 </Button>
                                 {booking.event && (
                                   <Button 
@@ -531,7 +609,15 @@ const Profile = () => {
             )}
           </div>
           
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex justify-end gap-2">
+            <Button 
+              variant="outline"
+              onClick={handleResendEmail}
+              className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
+            >
+              <Mail className="h-4 w-4 mr-2" />
+              Resend Email
+            </Button>
             <Button 
               variant="outline" 
               onClick={() => setIsTicketDialogOpen(false)}

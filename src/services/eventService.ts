@@ -4,27 +4,61 @@ export interface Event {
   id: string;
   title: string;
   subtitle?: string;
-  description: string | null;
+  description: string;
+  long_description?: string | null;
   date: string;
   time: string;
+  duration?: string;
   category: string;
   venue: string;
   city: string;
-  address?: string; // Making some fields optional since they might not exist in DB
+  address: string;
   price: number;
   image: string;
-  gallery?: string[]; // Optional
-  featured?: boolean; // Optional
-  created_by?: string; // Optional
-  seats_available: number;
-  is_published?: boolean; // Optional
+  gallery: string[];
+  featured: boolean;
+  created_by: string;
+  is_published: boolean;
   created_at: string;
-  event_type: string;
+  event_type?: string;
   host?: string;
-  duration?: string;
-  long_description?: string | null;
   updated_at?: string;
 }
+
+export const getAllEvents = async (): Promise<Event[]> => {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .order('date', { ascending: true });
+    
+  if (error) console.error('Error fetching events:', error);
+  
+  const events = data || [];
+  return events.map(event => ({
+    id: event.id,
+    title: event.title,
+    subtitle: event.subtitle || undefined,
+    description: event.description,
+    date: event.date,
+    time: event.time,
+    category: event.category,
+    venue: event.venue,
+    city: event.city,
+    address: '', // Default value
+    price: event.price,
+    image: event.image,
+    gallery: [], // Default value
+    featured: false, // Default value
+    created_by: '', // Default value
+    is_published: true, // Default value
+    created_at: event.created_at,
+    event_type: event.event_type,
+    host: event.host || undefined,
+    duration: event.duration || undefined,
+    long_description: event.long_description || null,
+    updated_at: event.updated_at
+  }));
+};
 
 export const getEvents = async (filters?: { city?: string; eventType?: string }): Promise<Event[]> => {
   let query = supabase
@@ -65,7 +99,6 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
     gallery: [], // Default value for missing field
     featured: false, // Default value for missing field
     created_by: '', // Default value for missing field
-    seats_available: event.seats_available,
     is_published: true, // Default value for missing field
     created_at: event.created_at,
     event_type: event.event_type,
@@ -131,7 +164,6 @@ export const getFeaturedEvents = async (): Promise<Event[]> => {
     gallery: [], // Default value
     featured: true, // Set as featured
     created_by: '', // Default value
-    seats_available: event.seats_available,
     is_published: true, // Default value
     created_at: event.created_at,
     event_type: event.event_type,
@@ -168,7 +200,6 @@ export const getEventsByCategory = async (categoryId: string): Promise<Event[]> 
     gallery: [], // Default value
     featured: false, // Default value
     created_by: '', // Default value
-    seats_available: event.seats_available,
     is_published: true, // Default value
     created_at: event.created_at,
     event_type: event.event_type,
@@ -209,7 +240,6 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     gallery: [], // Default value
     featured: false, // Default value
     created_by: '', // Default value
-    seats_available: data.seats_available,
     is_published: true, // Default value
     created_at: data.created_at,
     event_type: data.event_type,

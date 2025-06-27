@@ -6,25 +6,25 @@
 
 @layer base {
   :root {
-    --background: 260 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 260 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 260 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
     --primary: 342 65% 49%;  /* French Raspberry */
     --primary-foreground: 0 0% 98%;
     --secondary: 49 78% 62%;  /* Sandstorm */
-    --secondary-foreground: 260 25% 11%;
-    --muted: 260 3.7% 15.9%;
-    --muted-foreground: 260 5% 64.9%;
-    --accent: 260 25% 20%;  /* Russian Violet */
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 260 3.7% 15.9%;
-    --input: 260 3.7% 15.9%;
-    --ring: 260 4.9% 83.9%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
     --radius: 0.75rem;
   }
 }
@@ -57,7 +57,7 @@
   }
   
   .glass-card {
-    @apply bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl;
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl shadow-lg;
   }
   
   .text-gradient {

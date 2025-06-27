@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,25 +26,26 @@ import {
 import { getEventTypes, EventType } from "@/services/eventTypeService";
 import { useQuery } from "@tanstack/react-query";
 
-const eventSchema = z.object({
+const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   subtitle: z.string().optional(),
   description: z.string().min(1, "Description is required"),
   long_description: z.string().optional(),
-  image: z.string().min(1, "Image URL is required"),
-  city: z.string().min(1, "City is required"),
-  venue: z.string().min(1, "Venue is required"),
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   duration: z.string().optional(),
-  host: z.string().optional(),
+  venue: z.string().min(1, "Venue is required"),
+  city: z.string().min(1, "City is required"),
+  address: z.string().optional(),
+  price: z.number().min(0, "Price must be non-negative"),
+  image: z.string().min(1, "Image URL is required"),
   category: z.string().min(1, "Category is required"),
-  event_type: z.string().min(1, "Event type is required"),
-  price: z.number().min(0, "Price must be positive"),
-  seats_available: z.number().min(1, "Must have at least one seat"),
+  event_type: z.string().optional(),
+  host: z.string().optional(),
+  is_published: z.boolean().default(true),
 });
 
-type EventFormData = z.infer<typeof eventSchema>;
+type EventFormData = z.infer<typeof formSchema>;
 
 interface EventFormProps {
   initialData?: Partial<EventFormData>;
@@ -62,24 +62,25 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
     queryFn: getEventTypes
   });
 
-  const form = useForm<EventFormData>({
-    resolver: zodResolver(eventSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       title: initialData?.title || "",
       subtitle: initialData?.subtitle || "",
       description: initialData?.description || "",
       long_description: initialData?.long_description || "",
-      image: initialData?.image || "",
-      city: initialData?.city || "",
-      venue: initialData?.venue || "",
       date: initialData?.date || "",
       time: initialData?.time || "",
       duration: initialData?.duration || "",
-      host: initialData?.host || "",
+      venue: initialData?.venue || "",
+      city: initialData?.city || "",
+      address: initialData?.address || "",
+      price: initialData?.price || 0,
+      image: initialData?.image || "",
       category: initialData?.category || "",
       event_type: initialData?.event_type || "",
-      price: initialData?.price || 0,
-      seats_available: initialData?.seats_available || 1,
+      host: initialData?.host || "",
+      is_published: initialData?.is_published ?? true,
     },
   });
 
@@ -257,7 +258,7 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                 name="host"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Host (Optional)</FormLabel>
+                    <FormLabel>Host</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -318,24 +319,6 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                       <Input 
                         type="number" 
                         {...field} 
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="seats_available"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Available Seats</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
                     </FormControl>

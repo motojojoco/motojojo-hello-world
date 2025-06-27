@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
@@ -81,7 +80,7 @@ const Cart = () => {
       
       toast({
         title: "Booking Successful!",
-        description: "Your tickets have been booked successfully.",
+        description: "Your tickets have been booked successfully and sent to your email.",
       });
       
       // Clear cart after successful checkout
@@ -123,7 +122,7 @@ const Cart = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-16">
+      <main className="flex-grow pt-24 pb-20 md:pb-16">
         <div className="container-padding">
           <FadeIn>
             <h1 className="text-3xl md:text-4xl font-bold mb-8">Your Cart</h1>
