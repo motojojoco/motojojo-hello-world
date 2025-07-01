@@ -1,4 +1,3 @@
-
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -85,12 +84,36 @@ const EventTypesSection = () => {
                   className="w-[200px] hover-scale overflow-hidden border-none shadow-soft"
                 >
                   <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
-                    <div 
-                      className="rounded-full p-4 bg-violet/10 text-violet mb-3"
-                    >
-                      {type.icon || "🎭"}
-                    </div>
+                    {type.image_url ? (
+                      <div className="w-16 h-16 mb-3 rounded-full overflow-hidden">
+                        <img
+                          src={type.image_url}
+                          alt={type.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to icon if image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `<div class="w-full h-full flex items-center justify-center text-2xl">${type.icon || "🎭"}</div>`;
+                            }
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div 
+                        className="rounded-full p-4 bg-violet/10 text-violet mb-3 text-2xl"
+                      >
+                        {type.icon || "🎭"}
+                      </div>
+                    )}
                     <h3 className="font-semibold text-lg">{type.name}</h3>
+                    {type.description && (
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                        {type.description}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </Link>

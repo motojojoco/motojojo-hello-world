@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
+import PreviousEvents from "./pages/PreviousEvents";
 import EventDetail from "./pages/EventDetail";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
@@ -15,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ExplorePremium from "./pages/ExplorePremium";
 import PricingPage from "./pages/PricingPage";
 import TicketPreview from "./pages/TicketPreview";
+import Feedback from "./pages/Feedback";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/previousevents" element={<PreviousEvents />} />
           <Route path="/event/:id" element={<EventDetail />} />
           <Route path="/profile" element={
             <ProtectedRoute>
@@ -42,6 +45,7 @@ const App = () => (
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/explorepremium" element={<ExplorePremium />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/feedback" element={<Feedback />} />
           {/* Demo route: after QR scan, preview a ticket */}
           <Route path="/ticket-preview" element={<TicketPreview />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

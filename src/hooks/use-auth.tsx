@@ -14,11 +14,14 @@ export const useAuth = () => {
 
     const syncUserWithSupabase = async () => {
       try {
+        if (!user?.id) return;
+
         // Gather latest user info from Clerk
         const newUserProfile = {
-          id: user?.id,
-          email: user?.primaryEmailAddress?.emailAddress,
-          full_name: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+          id: user.id,
+          email: user.primaryEmailAddress?.emailAddress,
+          full_name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+          avatar_url: user.imageUrl,
           created_at: new Date().toISOString(),
         };
 
@@ -26,7 +29,7 @@ export const useAuth = () => {
         const { data, error } = await supabase
           .from('users')
           .select('*')
-          .eq('id', user?.id)
+          .eq('id', user.id)
           .single();
 
         if (error && error.code !== "PGRST116") {
@@ -55,22 +58,28 @@ export const useAuth = () => {
         } else if (isMounted && user) {
           // Found, but possibly outdated
           let needsUpdate = false;
+          const currentName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+          
           if (
             data.email !== user.primaryEmailAddress?.emailAddress ||
-            data.full_name !== `${user.firstName || ""} ${user.lastName || ""}`.trim()
+            data.full_name !== currentName ||
+            data.avatar_url !== user.imageUrl
           ) {
             needsUpdate = true;
           }
+          
           if (needsUpdate) {
             const { data: updated, error: updateError } = await supabase
               .from('users')
               .update({
                 email: user.primaryEmailAddress?.emailAddress,
-                full_name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+                full_name: currentName,
+                avatar_url: user.imageUrl,
               })
               .eq('id', user.id)
               .select()
               .single();
+              
             if (updateError) {
               setError(updateError);
             } else {
@@ -106,31 +115,74 @@ export const useAuth = () => {
     };
   }, [isClerkLoaded, isSignedIn, user]);
 
+  // Real-time subscription for profile updates
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel(`user-profile-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'users',
+          filter: `id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Profile update received:', payload);
+          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+            setProfile(payload.new);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   const logout = async () => {
     await signOut();
   };
 
   const updateProfile = async (updatedProfile: any) => {
     try {
-      if (!user) return null;
+      if (!user?.id) {
+        throw new Error("User not authenticated");
+      }
+      
+      // Ensure preferences is properly formatted as JSONB
+      if (updatedProfile.preferences && typeof updatedProfile.preferences === 'string') {
+        try {
+          updatedProfile.preferences = JSON.parse(updatedProfile.preferences);
+        } catch (e) {
+          console.error("Invalid preferences format:", e);
+          updatedProfile.preferences = [];
+        }
+      }
       
       const { data, error } = await supabase
         .from('users')
-        .update(updatedProfile)
+        .update({
+          ...updatedProfile,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', user.id)
         .select()
         .single();
         
       if (error) {
         console.error("Error updating profile:", error);
-        return null;
+        throw error;
       }
       
       setProfile(data);
       return data;
     } catch (err) {
       console.error("Error in updateProfile:", err);
-      return null;
+      throw err;
     }
   };
 
@@ -140,6 +192,7 @@ export const useAuth = () => {
     isLoaded: isClerkLoaded && isProfileLoaded,
     isSignedIn,
     logout,
-    updateProfile
+    updateProfile,
+    error
   };
 };

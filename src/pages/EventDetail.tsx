@@ -27,11 +27,13 @@ import {
   Tag, 
   Users, 
   DollarSign,
-  Star 
+  Star,
+  AlertCircle
 } from "lucide-react";
 import { getEvent, getEventsByCategory, Event } from "@/services/eventService";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { isEventOver, getEventStatus, formatEventStatus } from "@/lib/utils";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -75,6 +77,11 @@ const EventDetail = () => {
   const formatPrice = (price: number): string => {
     return price.toLocaleString('en-IN');
   };
+  
+  // Get event status
+  const eventStatus = event ? getEventStatus(event.date, event.time) : 'upcoming';
+  const statusInfo = formatEventStatus(eventStatus);
+  const isCompleted = eventStatus === 'completed';
   
   // Handle successful booking
   const handleBookingSuccess = () => {
@@ -140,6 +147,17 @@ const EventDetail = () => {
             <div className="lg:col-span-2">
               <FadeIn>
                 <Badge className="mb-4 bg-violet hover:bg-violet-700">{event.category}</Badge>
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge className={`${statusInfo.bgColor} ${statusInfo.color} border-0`}>
+                    {statusInfo.text}
+                  </Badge>
+                  {isCompleted && (
+                    <Badge variant="outline" className="text-gray-600 border-gray-300">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      Booking Closed
+                    </Badge>
+                  )}
+                </div>
                 <h1 className="text-3xl md:text-4xl font-bold mb-2">{event.title}</h1>
                 <h2 className="text-xl text-muted-foreground mb-6">{event.subtitle}</h2>
                 
@@ -248,12 +266,32 @@ const EventDetail = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="px-6 pb-6 pt-0">
-                      <RazorpayButton 
-                        eventId={event.id} 
-                        eventName={event.title}
-                        amount={event.price}
-                        onSuccess={handleBookingSuccess}
-                      />
+                      {isCompleted ? (
+                        <div className="w-full text-center">
+                          <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                            <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                            <h3 className="text-lg font-semibold text-gray-700 mb-1">Event Has Ended</h3>
+                            <p className="text-sm text-gray-600">
+                              This event took place on {formatDate(event.date)}. 
+                              Thank you to everyone who attended!
+                            </p>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => navigate("/events")}
+                          >
+                            Browse Other Events
+                          </Button>
+                        </div>
+                      ) : (
+                        <RazorpayButton 
+                          eventId={event.id} 
+                          eventName={event.title}
+                          amount={event.price}
+                          onSuccess={handleBookingSuccess}
+                        />
+                      )}
                     </CardFooter>
                   </Card>
                 </div>

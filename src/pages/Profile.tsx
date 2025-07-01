@@ -31,11 +31,12 @@ import {
 } from "@/components/ui/dialog";
 import { useCategories } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
-import { Check, UserRound, MapPin, Phone, Mail, Ticket } from "lucide-react";
+import { Check, UserRound, MapPin, Phone, Mail, Ticket, Clock, CheckCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates, generateTicketsForBooking, resendTicketEmail } from "@/services/bookingService";
+import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates, generateTicketsForBooking, resendTicketEmail, markTicketsAsAttended } from "@/services/bookingService";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { isEventOver } from "@/lib/utils";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -57,6 +58,8 @@ const Profile = () => {
   const [isTicketDialogOpen, setIsTicketDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [ticketsForBooking, setTicketsForBooking] = useState<TicketType[]>([]);
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   
   // Get categories for preferences
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
@@ -125,13 +128,14 @@ const Profile = () => {
   
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsUpdatingProfile(true);
     
     try {
       const result = await updateProfile({
         full_name: userProfile.full_name,
         phone: userProfile.phone,
         city: userProfile.city,
-        preferences: JSON.stringify(userProfile.preferences)
+        preferences: userProfile.preferences
       });
       
       if (result) {
@@ -144,9 +148,11 @@ const Profile = () => {
       console.error("Error updating profile:", error);
       toast({
         title: "Update Failed",
-        description: "There was an error updating your profile.",
+        description: "There was an error updating your profile. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsUpdatingProfile(false);
     }
   };
   
@@ -168,6 +174,31 @@ const Profile = () => {
     });
   };
 
+  const handleSavePreferences = async () => {
+    setIsSavingPreferences(true);
+    try {
+      const result = await updateProfile({
+        preferences: userProfile.preferences
+      });
+      
+      if (result) {
+        toast({
+          title: "Preferences Saved",
+          description: "Your interests have been successfully updated.",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving preferences:", error);
+      toast({
+        title: "Save Failed",
+        description: "There was an error saving your preferences. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSavingPreferences(false);
+    }
+  };
+
   const handleDownloadTicket = async (ticket: TicketType) => {
     // Create a temporary link to download the QR code
     if (ticket.qr_code) {
@@ -183,44 +214,21 @@ const Profile = () => {
   // Modified handleViewTickets to ensure tickets exist and use real-time updates
   const handleViewTickets = async (booking: Booking) => {
     setSelectedBooking(booking);
+    setIsTicketDialogOpen(true);
     
-    try {
-      // Check if tickets exist for this booking, if not generate them
-      if (!booking.ticket_items || booking.ticket_items.length === 0) {
-        const success = await generateTicketsForBooking(booking);
-        if (!success) {
-          toast({
-            title: "Error Generating Tickets",
-            description: "We couldn't generate tickets for this booking. Please contact support.",
-            variant: "destructive"
-          });
-          return;
-        }
+    // If event is completed, automatically mark tickets as attended
+    if (booking.event && isEventOver(booking.event.date, booking.event.time)) {
+      try {
+        await markTicketsAsAttended(booking.event_id);
+        // Refetch bookings to get updated attendance status
+        refetchBookings();
+        toast({
+          title: "Tickets Updated",
+          description: "Tickets have been marked as attended for this completed event.",
+        });
+      } catch (error) {
+        console.error("Error marking tickets as attended:", error);
       }
-      
-      // Initial fetch of tickets
-      const ticketData = await getBookingTickets(booking.id);
-      setTicketsForBooking(ticketData);
-      setIsTicketDialogOpen(true);
-      
-      // Subscribe to real-time updates
-      const unsubscribe = subscribeToBookingUpdates(booking.id, (updatedTickets) => {
-        console.log('Received updated tickets:', updatedTickets);
-        setTicketsForBooking(updatedTickets);
-      });
-      
-      // Cleanup subscription when dialog closes
-      return () => {
-        unsubscribe();
-        setIsTicketDialogOpen(false);
-      };
-    } catch (error) {
-      console.error("Error fetching tickets:", error);
-      toast({
-        title: "Error Loading Tickets",
-        description: "We couldn't load your tickets. Please try again.",
-        variant: "destructive"
-      });
     }
   };
 
@@ -387,7 +395,9 @@ const Profile = () => {
                           </div>
                         </div>
                         
-                        <Button type="submit">Update Profile</Button>
+                        <Button type="submit" disabled={isUpdatingProfile}>
+                          {isUpdatingProfile ? "Updating..." : "Update Profile"}
+                        </Button>
                       </form>
                     </CardContent>
                   </Card>
@@ -432,10 +442,10 @@ const Profile = () => {
                         <Button 
                           type="button" 
                           className="w-full mt-4"
-                          onClick={handleProfileUpdate}
-                          disabled={categoriesLoading}
+                          onClick={handleSavePreferences}
+                          disabled={categoriesLoading || isSavingPreferences}
                         >
-                          Save Preferences
+                          {isSavingPreferences ? "Saving..." : "Save Preferences"}
                         </Button>
                       </div>
                     </CardContent>
@@ -484,6 +494,12 @@ const Profile = () => {
                                   {booking.status === 'confirmed' && <Check className="mr-1 h-3 w-3" />}
                                   {booking.status}
                                 </span>
+                                {booking.event && isEventOver(booking.event.date, booking.event.time) && (
+                                  <span className="ml-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <CheckCircle className="mr-1 h-3 w-3" />
+                                    Event Completed
+                                  </span>
+                                )}
                               </div>
                             </div>
                             
@@ -569,19 +585,41 @@ const Profile = () => {
       
       {/* Updated Ticket Dialog */}
       <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-4xl lg:max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="sticky top-0 bg-background z-10 pb-4 border-b">
             <DialogTitle>Your Tickets</DialogTitle>
             <DialogDescription>
-              {selectedBooking?.event?.title} - {ticketsForBooking.length} tickets
+              {selectedBooking?.event?.title} - {ticketsForBooking.length} ticket{ticketsForBooking.length !== 1 ? 's' : ''}
             </DialogDescription>
+            {ticketsForBooking.length > 3 && (
+              <div className="text-sm text-muted-foreground mt-2">
+                Scroll to view all tickets
+              </div>
+            )}
           </DialogHeader>
           
-          <div className="py-4">
+          <div className="py-6">
             {ticketsForBooking.length > 0 ? (
-              <div className="space-y-8">
-                {ticketsForBooking.map((ticket) => (
+              <div className={`grid gap-6 ${
+                ticketsForBooking.length === 1 
+                  ? 'grid-cols-1 max-w-xl mx-auto' 
+                  : ticketsForBooking.length === 2 
+                    ? 'grid-cols-1 md:grid-cols-2' 
+                    : ticketsForBooking.length === 3 
+                      ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
+                      : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+              }`}>
+                {ticketsForBooking.map((ticket, index) => (
                   <div key={ticket.id} className="relative">
+                    <div className="absolute -top-2 -left-2 bg-raspberry text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center z-30">
+                      {index + 1}
+                    </div>
+                    {ticket.attended && (
+                      <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold rounded-full px-2 py-1 flex items-center gap-1 z-30">
+                        <CheckCircle className="h-3 w-3" />
+                        Attended
+                      </div>
+                    )}
                     <EventTicket
                       ticketId={ticket.ticket_number}
                       imageUrl={selectedBooking?.event?.image || '/placeholder.svg'}
@@ -594,7 +632,7 @@ const Profile = () => {
                       username={selectedBooking?.name || 'Guest'}
                     />
                     <Button
-                      className="absolute top-4 right-4 bg-sandstorm hover:bg-sandstorm/90 text-black"
+                      className="absolute top-4 right-4 bg-sandstorm hover:bg-sandstorm/90 text-black z-20"
                       onClick={() => handleDownloadTicket(ticket)}
                     >
                       Download QR
@@ -609,7 +647,7 @@ const Profile = () => {
             )}
           </div>
           
-          <div className="mt-4 flex justify-end gap-2">
+          <div className="sticky bottom-0 bg-background pt-4 border-t flex justify-end gap-2">
             <Button 
               variant="outline"
               onClick={handleResendEmail}

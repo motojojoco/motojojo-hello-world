@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket, Home, Calendar, Heart, Settings } from "lucide-react";
+import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket, Home, Calendar, Heart, Settings, MessageSquare, History } from "lucide-react";
 import { cities } from "@/data/mockData";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
@@ -117,8 +117,23 @@ const Navbar = () => {
             )}
 
             {/* Premium Button */}
-            <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity">
+            <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity" onClick={() => navigate("/explorepremium")}>
               Explore Premium
+            </Button>
+
+            {/* Events Navigation */}
+            <Button variant="ghost" asChild>
+              <Link to="/events">
+                <Calendar className="h-4 w-4 mr-2" />
+                Events
+              </Link>
+            </Button>
+
+            <Button variant="ghost" asChild>
+              <Link to="/previousevents">
+                <History className="h-4 w-4 mr-2" />
+                Past Events
+              </Link>
             </Button>
 
             {/* Auth Buttons */}
@@ -158,6 +173,14 @@ const Navbar = () => {
               <Link to="/admin">
                 <User className="h-4 w-4 mr-2" />
                 Admin
+              </Link>
+            </Button>
+
+            {/* Feedback */}
+            <Button variant="ghost" asChild>
+              <Link to="/feedback">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Feedback
               </Link>
             </Button>
           </div>
@@ -240,10 +263,24 @@ const Navbar = () => {
                 </Button>
               )}
               
-              <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity w-full">
+              <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity w-full" onClick={() => navigate("/explorepremium")}>
                 Explore Premium
               </Button>
               
+              <Button variant="ghost" className="w-full" asChild>
+                <Link to="/events">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Events
+                </Link>
+              </Button>
+
+              <Button variant="ghost" className="w-full" asChild>
+                <Link to="/previousevents">
+                  <History className="h-4 w-4 mr-2" />
+                  Past Events
+                </Link>
+              </Button>
+
               {!isSignedIn ? (
                 <>
                   <SignInButton mode="modal">
@@ -273,6 +310,13 @@ const Navbar = () => {
                 <Link to="/admin">
                   <User className="h-4 w-4 mr-2" />
                   Admin
+                </Link>
+              </Button>
+
+              <Button variant="ghost" className="w-full" asChild>
+                <Link to="/feedback">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Feedback
                 </Link>
               </Button>
             </div>
@@ -344,6 +388,19 @@ const Navbar = () => {
           >
             <Heart className="h-5 w-5 text-raspberry" />
             <span className="text-xs text-raspberry">Premium</span>
+          </Button>
+
+          {/* Feedback */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 ${
+              location.pathname === "/feedback" ? "text-violet" : "text-muted-foreground"
+            }`}
+            onClick={() => navigate("/feedback")}
+          >
+            <MessageSquare className="h-5 w-5" />
+            <span className="text-xs">Feedback</span>
           </Button>
         </div>
       </nav>

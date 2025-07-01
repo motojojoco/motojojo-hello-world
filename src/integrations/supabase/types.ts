@@ -238,6 +238,8 @@ export type Database = {
           qr_code: string | null
           ticket_number: string
           username: string | null
+          attended: boolean | null
+          attended_at: string | null
         }
         Insert: {
           booking_id?: string | null
@@ -246,6 +248,8 @@ export type Database = {
           qr_code?: string | null
           ticket_number: string
           username?: string | null
+          attended?: boolean | null
+          attended_at?: string | null
         }
         Update: {
           booking_id?: string | null
@@ -254,6 +258,8 @@ export type Database = {
           qr_code?: string | null
           ticket_number?: string
           username?: string | null
+          attended?: boolean | null
+          attended_at?: string | null
         }
         Relationships: [
           {

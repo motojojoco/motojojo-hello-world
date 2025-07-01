@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Dialog, 
@@ -85,7 +84,7 @@ const PremiumPopup = () => {
             className="w-full sm:w-auto bg-gradient-to-r from-violet to-red"
             onClick={() => {
               setIsOpen(false);
-              window.location.href = "/premium";
+              window.location.href = "/explorepremium";
             }}
           >
             Get Premium

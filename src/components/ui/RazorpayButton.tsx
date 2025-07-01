@@ -16,6 +16,7 @@ import { Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { ScrollableNumberInput } from "@/components/ui/scrollable-number-input";
 
 interface RazorpayButtonProps {
   eventId: string; // Changed to string only since we're using UUIDs
@@ -25,13 +26,17 @@ interface RazorpayButtonProps {
   className?: string; // Added className prop to the interface
 }
 
-// Mock function to load Razorpay script
+// Load Razorpay script
 const loadRazorpayScript = (callback: () => void) => {
-  const script = document.createElement("script");
-  script.src = "https://checkout.razorpay.com/v1/checkout.js";
-  script.async = true;
+  if (typeof window !== 'undefined' && (window as any).Razorpay) {
+    callback();
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = 'https://checkout.razorpay.com/v1/checkout.js';
   script.onload = callback;
-  document.body.appendChild(script);
+  document.head.appendChild(script);
 };
 
 const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: RazorpayButtonProps) => {
@@ -43,6 +48,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
     phone: "",
     tickets: 1
   });
+  const [ticketNames, setTicketNames] = useState<string[]>([""]);
   const { toast } = useToast();
   const { user, isSignedIn } = useAuth();
   const navigate = useNavigate();
@@ -71,6 +77,17 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       supabase.removeChannel(channel);
     };
   }, [eventId, onSuccess]);
+
+  // Update ticket names when ticket count changes
+  useEffect(() => {
+    if (formData.tickets > ticketNames.length) {
+      // Add more name fields
+      setTicketNames(prev => [...prev, ...Array(formData.tickets - prev.length).fill("")]);
+    } else if (formData.tickets < ticketNames.length) {
+      // Remove extra name fields
+      setTicketNames(prev => prev.slice(0, formData.tickets));
+    }
+  }, [formData.tickets, ticketNames.length]);
 
   const upsertUserIfNeeded = async (formData: any) => {
     if (!user?.id) return;
@@ -112,9 +129,21 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
     setFormData(prev => {
       if (name === 'tickets') {
         const ticketCount = parseInt(value) || 1;
-        return { ...prev, [name]: Math.max(1, Math.min(10, ticketCount)) };
+        return { ...prev, [name]: Math.max(1, Math.min(15, ticketCount)) };
       }
       return { ...prev, [name]: value };
+    });
+  };
+
+  const handleTicketCountChange = (value: number) => {
+    setFormData(prev => ({ ...prev, tickets: value }));
+  };
+
+  const handleTicketNameChange = (index: number, value: string) => {
+    setTicketNames(prev => {
+      const newNames = [...prev];
+      newNames[index] = value;
+      return newNames;
     });
   };
 
@@ -140,7 +169,20 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       return;
     }
 
-    await upsertUserIfNeeded(formData); // Sync user before booking
+    // Validate ticket names if multiple tickets
+    if (formData.tickets > 1) {
+      const emptyNames = ticketNames.slice(0, formData.tickets).filter(name => !name.trim());
+      if (emptyNames.length > 0) {
+        toast({
+          title: "Missing Names",
+          description: "Please provide names for all ticket holders.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
+    await upsertUserIfNeeded(formData);
 
     loadRazorpayScript(() => {
       const totalAmount = amount * formData.tickets;
@@ -191,13 +233,16 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               const ticketNumber = `MJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
               const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`;
               
+              // Use individual name if multiple tickets, otherwise use main name
+              const ticketHolderName = formData.tickets > 1 ? ticketNames[i] : formData.name;
+              
               const { data: ticketData, error: ticketError } = await supabase
                 .from('tickets')
                 .insert({
                   booking_id: booking.id,
                   ticket_number: ticketNumber,
                   qr_code: qrCode,
-                  username: formData.name,
+                  username: ticketHolderName,
                 })
                 .select()
                 .single();
@@ -231,7 +276,8 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   eventTime: eventData.time,
                   eventVenue: `${eventData.venue}, ${eventData.city}`,
                   ticketNumbers,
-                  qrCodes
+                  qrCodes,
+                  ticketHolderNames: formData.tickets > 1 ? ticketNames : undefined
                 }
               });
 
@@ -352,17 +398,41 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               
               <div className="grid gap-2">
                 <Label htmlFor="tickets">Number of Tickets</Label>
-                <Input
+                <ScrollableNumberInput
                   id="tickets"
                   name="tickets"
-                  type="number"
-                  min="1"
-                  max="10"
                   value={formData.tickets}
-                  onChange={handleChange}
+                  onChange={handleTicketCountChange}
+                  min={1}
+                  max={15}
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   required
                 />
               </div>
+
+              {/* Individual ticket holder names */}
+              {formData.tickets > 1 && (
+                <div className="grid gap-3">
+                  <Label className="text-sm font-medium">Ticket Holder Names</Label>
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Please provide the name for each person attending
+                  </div>
+                  {ticketNames.slice(0, formData.tickets).map((name, index) => (
+                    <div key={index} className="grid gap-2">
+                      <Label htmlFor={`ticket-name-${index}`} className="text-sm">
+                        Ticket {index + 1} - Attendee Name
+                      </Label>
+                      <Input
+                        id={`ticket-name-${index}`}
+                        value={name}
+                        onChange={(e) => handleTicketNameChange(index, e.target.value)}
+                        placeholder={`Enter name for ticket ${index + 1}`}
+                        required
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
               
               <div className="mt-2 text-right font-semibold">
                 <div>Price: ₹{amount.toLocaleString()} x {formData.tickets}</div>

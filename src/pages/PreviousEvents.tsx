@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { 
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -27,8 +27,8 @@ import {
   Filter,
   Search,
   AlertCircle,
-  History,
-  Eye
+  Calendar as CalendarIcon,
+  List
 } from "lucide-react";
 import { FadeIn } from "@/components/ui/motion";
 import { getEvents, getEventCities, Event } from "@/services/eventService";
@@ -36,11 +36,11 @@ import { getEventTypes, EventType } from "@/services/eventTypeService";
 import { Separator } from "@/components/ui/separator";
 import { getEventStatus, formatEventStatus } from "@/lib/utils";
 
-const Events = () => {
+const PreviousEvents = () => {
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [selectedEventType, setSelectedEventType] = useState<string>("");
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
-  const [showAllPreviousEvents, setShowAllPreviousEvents] = useState(false);
+  const [showAllEventsList, setShowAllEventsList] = useState(false);
   
   // Fetch all events
   const { data: events = [], isLoading: eventsLoading } = useQuery({
@@ -60,39 +60,12 @@ const Events = () => {
     queryFn: getEventTypes
   });
 
-  // Get all previous events
-  const allPreviousEvents = events.filter(event => {
-    const status = getEventStatus(event.date, event.time);
-    return status === 'completed';
-  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-  // Group previous events by date
-  const groupPreviousEventsByDate = (events: Event[]) => {
-    const grouped: { [key: string]: Event[] } = {};
-    
-    events.forEach(event => {
-      const dateKey = event.date;
-      if (!grouped[dateKey]) {
-        grouped[dateKey] = [];
-      }
-      grouped[dateKey].push(event);
-    });
-    
-    // Sort dates (most recent first)
-    return Object.keys(grouped).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()).reduce((acc, date) => {
-      acc[date] = grouped[date];
-      return acc;
-    }, {} as { [key: string]: Event[] });
-  };
-
-  const groupedPreviousEvents = groupPreviousEventsByDate(allPreviousEvents);
-
-  // Apply filters and filter out completed events
+  // Apply filters and filter to only completed events
   useEffect(() => {
     const applyFilters = async () => {
       let filtered = events.filter(event => {
         const status = getEventStatus(event.date, event.time);
-        return status !== 'completed'; // Only show upcoming and ongoing events
+        return status === 'completed'; // Only show completed events
       });
       
       if (selectedCity) {
@@ -103,8 +76,8 @@ const Events = () => {
         filtered = filtered.filter(event => event.event_type === selectedEventType);
       }
       
-      // Sort by date (earliest first)
-      filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      // Sort by date (most recent first)
+      filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
       setFilteredEvents(filtered);
     };
@@ -124,8 +97,8 @@ const Events = () => {
       grouped[dateKey].push(event);
     });
     
-    // Sort dates
-    return Object.keys(grouped).sort().reduce((acc, date) => {
+    // Sort dates (most recent first)
+    return Object.keys(grouped).sort((a, b) => new Date(b).getTime() - new Date(a).getTime()).reduce((acc, date) => {
       acc[date] = grouped[date];
       return acc;
     }, {} as { [key: string]: Event[] });
@@ -147,8 +120,8 @@ const Events = () => {
   const formatDateHeader = (dateString: string) => {
     if (!dateString) return '';
     const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
     const eventDate = new Date(dateString);
     
     const options: Intl.DateTimeFormatOptions = { 
@@ -157,10 +130,8 @@ const Events = () => {
       weekday: 'long'
     };
     
-    if (eventDate.toDateString() === today.toDateString()) {
-      return 'Today';
-    } else if (eventDate.toDateString() === tomorrow.toDateString()) {
-      return 'Tomorrow';
+    if (eventDate.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
     } else {
       return new Date(dateString).toLocaleDateString('en-US', options);
     }
@@ -181,34 +152,34 @@ const Events = () => {
       <main className="flex-grow pt-16 pb-20 md:pb-0">
         <div className="container-padding py-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">Upcoming Events</h1>
+            <h1 className="text-4xl font-bold mb-4">Past Events</h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Discover and book the best upcoming events happening in your city. 
+              Browse through our past events and relive the amazing experiences we've created together.
               All events are organized by date for easy browsing.
             </p>
             <div className="mt-6">
               <Button variant="outline" asChild>
-                <Link to="/previousevents" className="flex items-center gap-2">
-                  <History className="h-4 w-4" />
-                  View Past Events
+                <Link to="/events" className="flex items-center gap-2">
+                  <CalendarIcon className="h-4 w-4" />
+                  View Upcoming Events
                 </Link>
               </Button>
-              <Dialog open={showAllPreviousEvents} onOpenChange={setShowAllPreviousEvents}>
+              <Dialog open={showAllEventsList} onOpenChange={setShowAllEventsList}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="ml-4 flex items-center gap-2">
-                    <Eye className="h-4 w-4" />
-                    View All Previous Events
+                    <List className="h-4 w-4" />
+                    View All Events List
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                      <History className="h-5 w-5" />
-                      All Previous Events
+                      <List className="h-5 w-5" />
+                      All Previous Events List
                     </DialogTitle>
                   </DialogHeader>
                   <div className="py-4">
-                    {allPreviousEvents.length === 0 ? (
+                    {filteredEvents.length === 0 ? (
                       <div className="text-center py-8">
                         <h3 className="text-lg font-medium mb-2">No previous events found</h3>
                         <p className="text-muted-foreground">
@@ -216,59 +187,45 @@ const Events = () => {
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-8">
-                        {Object.entries(groupedPreviousEvents).map(([date, dateEvents]) => (
-                          <div key={date}>
-                            <div className="mb-4">
-                              <h3 className="text-xl font-bold text-gray-900 mb-1">
-                                {formatDateHeader(date)}
-                              </h3>
-                              <p className="text-muted-foreground">
-                                {formatDate(date)}
-                              </p>
+                      <div className="space-y-4">
+                        {filteredEvents.map((event, index) => (
+                          <Card key={event.id} className="flex items-center p-4 opacity-75 hover:opacity-100 transition-opacity">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+                              <img 
+                                src={event.image} 
+                                alt={event.title} 
+                                className="w-full h-full object-cover"
+                              />
                             </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {dateEvents.map((event, index) => (
-                                <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden opacity-75 hover:opacity-100 transition-opacity">
-                                  <div className="h-32 relative">
-                                    <img 
-                                      src={event.image} 
-                                      alt={event.title} 
-                                      className="w-full h-full object-cover"
-                                    />
-                                    <div className="absolute top-2 right-2 flex flex-col gap-1">
-                                      <Badge className="bg-violet hover:bg-violet-700 text-xs">{event.category}</Badge>
-                                      <Badge className="bg-gray-100 text-gray-600 border-0 text-xs">
-                                        <AlertCircle className="h-3 w-3 mr-1" />
-                                        Event Over
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                  <CardContent className="p-3">
-                                    <h4 className="text-sm font-bold mb-1 line-clamp-1">{event.title}</h4>
-                                    <p className="text-muted-foreground text-xs mb-2 line-clamp-2">{event.subtitle}</p>
-                                    
-                                    <div className="flex items-center gap-1 text-xs mb-1">
-                                      <MapPin className="h-3 w-3 text-red" />
-                                      <span>{event.city}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1 text-xs">
-                                      <Clock className="h-3 w-3 text-violet" />
-                                      <span>{event.time}</span>
-                                    </div>
-                                  </CardContent>
-                                  <CardFooter className="px-3 pb-3 pt-0 flex justify-between items-center">
-                                    <div className="text-sm font-bold">₹{event.price}</div>
-                                    <Button variant="outline" size="sm" disabled className="text-gray-500 text-xs">
-                                      <AlertCircle className="h-3 w-3 mr-1" />
-                                      Event Over
-                                    </Button>
-                                  </CardFooter>
-                                </Card>
-                              ))}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-sm mb-1 line-clamp-1">{event.title}</h4>
+                              <p className="text-muted-foreground text-xs mb-2 line-clamp-1">{event.subtitle}</p>
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  <span>{event.city}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  <span>{formatDate(event.date)}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{event.time}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Badge className="bg-violet hover:bg-violet-700 text-xs">{event.category}</Badge>
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                            <div className="flex flex-col items-end gap-2 ml-4">
+                              <div className="text-sm font-bold">₹{event.price}</div>
+                              <Badge className="bg-gray-100 text-gray-600 border-0 text-xs">
+                                <AlertCircle className="h-3 w-3 mr-1" />
+                                Event Over
+                              </Badge>
+                            </div>
+                          </Card>
                         ))}
                       </div>
                     )}
@@ -329,9 +286,9 @@ const Events = () => {
             </div>
           ) : Object.keys(groupedEvents).length === 0 ? (
             <div className="text-center py-16">
-              <h3 className="text-xl font-medium mb-2">No upcoming events found</h3>
+              <h3 className="text-xl font-medium mb-2">No past events found</h3>
               <p className="text-muted-foreground">
-                Try adjusting your filters or check back later for new events.
+                Try adjusting your filters or check our upcoming events.
               </p>
               {(selectedCity || selectedEventType) && (
                 <Button 
@@ -358,48 +315,44 @@ const Events = () => {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {dateEvents.map((event, index) => (
-                <FadeIn key={event.id} delay={index * 100}>
-                  <Card className="hover-scale border-none shadow-soft overflow-hidden">
-                    <div className="h-48 relative">
-                      <img 
-                        src={event.image} 
-                        alt={event.title} 
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-3 right-3 flex flex-col gap-2">
-                        <Badge className="bg-violet hover:bg-violet-700">{event.category}</Badge>
-                        {(() => {
-                          const status = getEventStatus(event.date, event.time);
-                          const statusInfo = formatEventStatus(status);
-                          return (
-                            <Badge className={`${statusInfo.bgColor} ${statusInfo.color} border-0`}>
-                              {statusInfo.text}
-                            </Badge>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                    <CardContent className="p-5">
-                      <h3 className="text-lg font-bold mb-1">{event.title}</h3>
-                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{event.subtitle}</p>
-                      
-                      <div className="flex items-center gap-2 text-sm mb-2">
-                        <MapPin className="h-4 w-4 text-red" />
-                        <span>{event.city}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
+                      <FadeIn key={event.id} delay={index * 100}>
+                        <Card className="hover-scale border-none shadow-soft overflow-hidden opacity-75 hover:opacity-100 transition-opacity">
+                          <div className="h-48 relative">
+                            <img 
+                              src={event.image} 
+                              alt={event.title} 
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute top-3 right-3 flex flex-col gap-2">
+                              <Badge className="bg-violet hover:bg-violet-700">{event.category}</Badge>
+                              <Badge className="bg-gray-100 text-gray-600 border-0">
+                                <AlertCircle className="h-3 w-3 mr-1" />
+                                Event Over
+                              </Badge>
+                            </div>
+                          </div>
+                          <CardContent className="p-5">
+                            <h3 className="text-lg font-bold mb-1">{event.title}</h3>
+                            <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{event.subtitle}</p>
+                            
+                            <div className="flex items-center gap-2 text-sm mb-2">
+                              <MapPin className="h-4 w-4 text-red" />
+                              <span>{event.city}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
                               <Clock className="h-4 w-4 text-violet" />
                               <span>{event.time}</span>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
-                      <div className="text-lg font-bold">₹{event.price}</div>
-                        <Button asChild>
-                          <Link to={`/event/${event.id}`}>Book Now</Link>
-                        </Button>
-                    </CardFooter>
-                  </Card>
-                </FadeIn>
+                            </div>
+                          </CardContent>
+                          <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
+                            <div className="text-lg font-bold">₹{event.price}</div>
+                            <Button variant="outline" disabled className="text-gray-500">
+                              <AlertCircle className="h-4 w-4 mr-2" />
+                              Event Over
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      </FadeIn>
                     ))}
                   </div>
                 </div>
@@ -414,4 +367,4 @@ const Events = () => {
   );
 };
 
-export default Events;
+export default PreviousEvents; 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/ui/motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollableNumberInput } from "@/components/ui/scrollable-number-input";
 import {
   Card,
   CardContent,
@@ -30,13 +31,59 @@ const Cart = () => {
   const [phone, setPhone] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   
+  // Track individual ticket names for each cart item
+  const [ticketNames, setTicketNames] = useState<{ [itemId: string]: string[] }>({});
+  
+  // Calculate total tickets across all items
+  const totalTickets = items.reduce((sum, item) => sum + item.quantity, 0);
+  
+  // Initialize ticket names when items change
+  useEffect(() => {
+    const newTicketNames: { [itemId: string]: string[] } = {};
+    items.forEach(item => {
+      if (!ticketNames[item.id]) {
+        newTicketNames[item.id] = Array(item.quantity).fill("");
+      } else if (ticketNames[item.id].length !== item.quantity) {
+        // Adjust array length if quantity changed
+        if (item.quantity > ticketNames[item.id].length) {
+          newTicketNames[item.id] = [...ticketNames[item.id], ...Array(item.quantity - ticketNames[item.id].length).fill("")];
+        } else {
+          newTicketNames[item.id] = ticketNames[item.id].slice(0, item.quantity);
+        }
+      } else {
+        newTicketNames[item.id] = ticketNames[item.id];
+      }
+    });
+    setTicketNames(newTicketNames);
+  }, [items, ticketNames]);
+
+  const validateTicketNames = () => {
+    if (totalTickets <= 1) return true; // No validation needed for single ticket
+    
+    for (const item of items) {
+      const itemTicketNames = ticketNames[item.id] || [];
+      const emptyNames = itemTicketNames.slice(0, item.quantity).filter(name => !name.trim());
+      if (emptyNames.length > 0) {
+        return false;
+      }
+    }
+    return true;
+  };
+  
   // Form validation
-  const isFormValid = name && email && phone && items.length > 0;
+  const isFormValid = name && email && phone && items.length > 0 && validateTicketNames();
   
   const handleQuantityChange = (item: CartItem, newQty: number) => {
-    if (newQty >= 1 && newQty <= 10) {
+    if (newQty >= 1 && newQty <= 15) {
       updateQuantity(item.id, newQty);
     }
+  };
+
+  const handleTicketNameChange = (itemId: string, index: number, value: string) => {
+    setTicketNames(prev => ({
+      ...prev,
+      [itemId]: prev[itemId].map((name, i) => i === index ? value : name)
+    }));
   };
   
   const handleCheckout = async () => {
@@ -57,12 +104,23 @@ const Cart = () => {
       });
       return;
     }
+
+    // Validate ticket names if multiple tickets
+    if (!validateTicketNames()) {
+      toast({
+        title: "Missing Names",
+        description: "Please provide names for all ticket holders.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsProcessing(true);
     
     try {
       // Process each item in cart
       for (const item of items) {
+        const itemTicketNames = ticketNames[item.id] || [];
         const booking = await createBookingFromCart(
           user.id,
           item.eventId,
@@ -70,7 +128,8 @@ const Cart = () => {
           email,
           phone,
           item.quantity,
-          item.price * item.quantity
+          item.price * item.quantity,
+          itemTicketNames
         );
         
         if (!booking) {
@@ -176,12 +235,20 @@ const Cart = () => {
                               >
                                 <Minus className="h-4 w-4" />
                               </Button>
-                              <span className="w-8 text-center">{item.quantity}</span>
+                              <ScrollableNumberInput
+                                value={item.quantity}
+                                onChange={(newQty) => handleQuantityChange(item, newQty)}
+                                min={1}
+                                max={15}
+                                showArrows={false}
+                                showScrollHint={false}
+                                className="w-16"
+                              />
                               <Button 
                                 variant="outline" 
                                 size="sm"
                                 onClick={() => handleQuantityChange(item, item.quantity + 1)}
-                                disabled={item.quantity >= 10}
+                                disabled={item.quantity >= 15}
                                 className="h-8 w-8 p-0"
                               >
                                 <Plus className="h-4 w-4" />
@@ -248,6 +315,40 @@ const Cart = () => {
                           required
                         />
                       </div>
+
+                      {/* Individual ticket holder names */}
+                      {totalTickets > 1 && (
+                        <div className="space-y-4">
+                          <div>
+                            <Label className="text-sm font-medium">Ticket Holder Names</Label>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Please provide the name for each person attending
+                            </div>
+                          </div>
+                          
+                          {items.map((item) => (
+                            <div key={item.id} className="space-y-3">
+                              <div className="text-sm font-medium text-muted-foreground">
+                                {item.eventTitle} ({item.quantity} ticket{item.quantity !== 1 ? 's' : ''})
+                              </div>
+                              {Array.from({ length: item.quantity }, (_, index) => (
+                                <div key={`${item.id}-${index}`}>
+                                  <Label htmlFor={`ticket-name-${item.id}-${index}`} className="text-sm">
+                                    Ticket {index + 1} - Attendee Name
+                                  </Label>
+                                  <Input
+                                    id={`ticket-name-${item.id}-${index}`}
+                                    value={ticketNames[item.id]?.[index] || ""}
+                                    onChange={(e) => handleTicketNameChange(item.id, index, e.target.value)}
+                                    placeholder={`Enter name for ticket ${index + 1}`}
+                                    required
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </form>
                     
                     <div className="mt-6 space-y-2">

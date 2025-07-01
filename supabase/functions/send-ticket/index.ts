@@ -19,6 +19,7 @@ interface TicketEmailData {
   eventVenue: string;
   ticketNumbers: string[];
   qrCodes: string[];
+  ticketHolderNames?: string[];
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -36,7 +37,8 @@ const handler = async (req: Request): Promise<Response> => {
       eventTime, 
       eventVenue,
       ticketNumbers,
-      qrCodes 
+      qrCodes,
+      ticketHolderNames 
     }: TicketEmailData = await req.json();
 
     // Always use the correct sender domain
@@ -92,12 +94,15 @@ const handler = async (req: Request): Promise<Response> => {
 
               <!-- Tickets Section -->
               <h2 style="color: #333; margin: 30px 0 20px 0; font-size: 20px; font-weight: 600;">🎟️ Your Tickets</h2>
-              ${ticketNumbers.map((ticketNumber, index) => `
+              ${ticketNumbers.map((ticketNumber, index) => {
+                const ticketHolderName = ticketHolderNames && ticketHolderNames[index] ? ticketHolderNames[index] : name;
+                return `
                 <div style="background: #ffffff; border: 2px solid #e9ecef; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <div>
                       <p style="margin: 0; font-weight: 600; color: #333; font-size: 14px;">Ticket #${index + 1}</p>
                       <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 12px; font-family: monospace;">${ticketNumber}</p>
+                      ${ticketHolderNames && ticketHolderNames[index] ? `<p style="margin: 5px 0 0 0; color: #6A0DAD; font-size: 12px; font-weight: 600;">Attendee: ${ticketHolderName}</p>` : ''}
                     </div>
                     <div style="background: #6A0DAD; color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
                       CONFIRMED
@@ -108,7 +113,7 @@ const handler = async (req: Request): Promise<Response> => {
                     <p style="margin: 10px 0 0 0; font-size: 12px; color: #6c757d;">Scan this QR code at the venue for entry</p>
                   </div>
                 </div>
-              `).join('')}
+              `}).join('')}
 
               <!-- Important Notes -->
               <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 30px 0;">
