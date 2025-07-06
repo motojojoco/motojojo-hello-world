@@ -174,9 +174,49 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                 name="image"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Image URL</FormLabel>
+                    <FormLabel>Event Image</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            // Upload to Supabase Storage
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+                            const { data, error } = await supabase.storage
+                              .from('event-images')
+                              .upload(fileName, file, {
+                                cacheControl: '3600',
+                                upsert: false
+                              });
+                            if (error) {
+                              toast({
+                                title: 'Image Upload Failed',
+                                description: error.message,
+                                variant: 'destructive',
+                              });
+                              return;
+                            }
+                            // Get public URL
+                            const { data: publicUrlData } = supabase.storage
+                              .from('event-images')
+                              .getPublicUrl(data.path);
+                            if (publicUrlData?.publicUrl) {
+                              field.onChange(publicUrlData.publicUrl);
+                              toast({
+                                title: 'Image Uploaded',
+                                description: 'Image uploaded successfully!',
+                              });
+                            }
+                          }}
+                        />
+                        {field.value && (
+                          <img src={field.value} alt="Event" className="mt-2 max-h-32 rounded" />
+                        )}
+                      </>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

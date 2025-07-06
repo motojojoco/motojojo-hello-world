@@ -133,7 +133,6 @@ const EventDetail = () => {
       <main className="flex-grow pt-16 pb-20 md:pb-0">
         {/* Event Banner */}
         <div className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/60 to-background" />
           <img 
             src={event.image} 
             alt={event.title} 
@@ -161,8 +160,8 @@ const EventDetail = () => {
                 <h1 className="text-3xl md:text-4xl font-bold mb-2">{event.title}</h1>
                 <h2 className="text-xl text-muted-foreground mb-6">{event.subtitle}</h2>
                 
-                <div className="prose text-foreground max-w-none mb-8">
-                  <p>{event.description}</p>
+                <div className="whitespace-pre-line text-foreground max-w-none mb-8">
+                  {event.description}
                   {event.long_description && <p>{event.long_description}</p>}
                 </div>
               </FadeIn>
