@@ -162,7 +162,14 @@ const EventDetail = () => {
                 <h2 className="text-xl text-muted-foreground mb-6">{event.subtitle}</h2>
                 
                 <div className="prose text-foreground max-w-none mb-8">
-                  <p>{event.description}</p>
+                  <ul className="list-disc pl-5">
+                    {event.description
+                      .split('\n')
+                      .filter(line => line.trim() !== '')
+                      .map((line, idx) => (
+                        <li key={idx}>{line.replace(/^- /, '').trim()}</li>
+                      ))}
+                  </ul>
                   {event.long_description && <p>{event.long_description}</p>}
                 </div>
               </FadeIn>
