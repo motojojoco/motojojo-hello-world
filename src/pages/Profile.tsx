@@ -46,6 +46,7 @@ const Profile = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const defaultTab = queryParams.get('tab') === 'bookings' ? 'bookings' : 'profile';
+  const showSuccessMessage = queryParams.get('success') === 'true';
   
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [userProfile, setUserProfile] = useState({
@@ -97,6 +98,20 @@ const Profile = () => {
       });
     }
   }, [isLoaded, profile, bookingsError, toast]);
+
+  // Show success message when redirected from successful booking
+  useEffect(() => {
+    if (showSuccessMessage) {
+      toast({
+        title: "Booking Successful!",
+        description: "Your tickets have been booked successfully and sent to your email.",
+      });
+      // Clear the success parameter from URL
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('success');
+      window.history.replaceState({}, '', newUrl.toString());
+    }
+  }, [showSuccessMessage, toast]);
   
   // Keep everything in sync if user/Clerk data changes
   useEffect(() => {
@@ -544,6 +559,14 @@ const Profile = () => {
                                 </Button>
                                 <Button 
                                   variant="outline"
+                                  onClick={() => navigate(`/ticket-preview/${booking.id}`)}
+                                  className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
+                                >
+                                  <Ticket className="h-4 w-4" />
+                                  Ticket Preview
+                                </Button>
+                                <Button 
+                                  variant="outline"
                                   onClick={() => handleResendEmailForBooking(booking)}
                                   className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
                                 >
@@ -630,6 +653,7 @@ const Profile = () => {
                       venue={`${selectedBooking?.event?.venue || ''}, ${selectedBooking?.event?.city || ''}`}
                       price={selectedBooking?.amount ? selectedBooking.amount / selectedBooking.tickets : 0}
                       username={selectedBooking?.name || 'Guest'}
+                      qrCode={ticket.qr_code}
                     />
                     <Button
                       className="absolute top-4 right-4 bg-sandstorm hover:bg-sandstorm/90 text-black z-20"

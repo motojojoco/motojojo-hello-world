@@ -63,9 +63,9 @@ const Navbar = () => {
       >
         <div className="container-padding flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-gradient">Motojojo</h1>
-          </Link>
+            <Link to="/" className="flex items-center">
+            <img src="/motojojo.png" alt="Motojojo Logo" className="h-16 w-auto" />
+            </Link>
 
           {/* Desktop Nav Items */}
           <div className="hidden md:flex items-center space-x-4">

@@ -119,6 +119,7 @@ const Cart = () => {
     
     try {
       // Process each item in cart
+      const createdBookings: any[] = [];
       for (const item of items) {
         const itemTicketNames = ticketNames[item.id] || [];
         const booking = await createBookingFromCart(
@@ -135,18 +136,25 @@ const Cart = () => {
         if (!booking) {
           throw new Error(`Failed to create booking for ${item.eventTitle}`);
         }
+        
+        createdBookings.push(booking);
       }
       
+      // Clear cart after successful checkout
+      clearCart();
+      
+      // Show success message and redirect to ticket preview
       toast({
         title: "Booking Successful!",
         description: "Your tickets have been booked successfully and sent to your email.",
       });
       
-      // Clear cart after successful checkout
-      clearCart();
-      
-      // Redirect to bookings page
-      navigate("/profile?tab=bookings");
+      // Redirect to ticket preview for the first booking
+      if (createdBookings.length > 0) {
+        navigate(`/ticket-preview/${createdBookings[0].id}`);
+      } else {
+        navigate("/profile?tab=bookings");
+      }
     } catch (error) {
       console.error("Checkout error:", error);
       toast({

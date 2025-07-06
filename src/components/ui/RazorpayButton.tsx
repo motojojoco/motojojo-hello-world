@@ -12,11 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Check } from "lucide-react";
+import { Check, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ScrollableNumberInput } from "@/components/ui/scrollable-number-input";
+import BookingTicket from "@/components/tickets/BookingTicket";
 
 interface RazorpayButtonProps {
   eventId: string; // Changed to string only since we're using UUIDs
@@ -41,6 +42,7 @@ const loadRazorpayScript = (callback: () => void) => {
 
 const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: RazorpayButtonProps) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -49,6 +51,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
     tickets: 1
   });
   const [ticketNames, setTicketNames] = useState<string[]>([""]);
+  const [lastBookingId, setLastBookingId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user, isSignedIn } = useAuth();
   const navigate = useNavigate();
@@ -188,12 +191,12 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       const totalAmount = amount * formData.tickets;
 
       const options = {
-        key: "rzp_test_kXdvIUTOdIictY",
+        key: "rzp_live_yAyC4YmewB4VQG", // Updated to live key
         amount: totalAmount * 100,
         currency: "INR",
         name: "Motojojo",
         description: `${formData.tickets} Ticket(s) for ${eventName}`,
-        image: "https://your-logo-url.png",
+        image: "/motojojo-logo.png", // Updated to use new logo
         handler: async function(response: any) {
           try {
             // Save booking to Supabase
@@ -224,6 +227,9 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               });
               return;
             }
+
+            // Store the booking ID for the success dialog
+            setLastBookingId(booking.id);
 
             // Generate tickets for the booking
             const ticketNumbers: string[] = [];
@@ -440,10 +446,19 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               </div>
             </div>
             
-            <DialogFooter>
+            <DialogFooter className="flex flex-col sm:flex-row gap-2">
               <DialogClose asChild>
                 <Button type="button" variant="outline">Cancel</Button>
               </DialogClose>
+              <Button 
+                type="button" 
+                variant="outline"
+                onClick={() => setIsPreviewOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Eye className="h-4 w-4" />
+                Preview Ticket
+              </Button>
               <Button type="submit">Proceed to Payment</Button>
             </DialogFooter>
           </form>
@@ -471,10 +486,20 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               className="w-full"
               onClick={() => {
                 setIsSuccessOpen(false);
+                navigate(`/ticket-preview/${lastBookingId}`);
+              }}
+            >
+              View Ticket Preview
+            </Button>
+            <Button 
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setIsSuccessOpen(false);
                 navigate("/profile");
               }}
             >
-              View My Tickets
+              View My Bookings
             </Button>
             <Button 
               variant="outline"
@@ -482,6 +507,57 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               onClick={() => setIsSuccessOpen(false)}
             >
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Ticket Preview Dialog */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Ticket Preview</DialogTitle>
+            <DialogDescription>
+              Preview how your ticket will look before booking
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <BookingTicket
+              eventName={eventName}
+              eventDescription="Event description will be loaded from the event details"
+              eventDate="2024-06-15"
+              eventTime="7:00 PM"
+              eventVenue="Event Venue"
+              eventCity="Event City"
+              eventPrice={amount}
+              bookerName={formData.name}
+              bookerEmail={formData.email}
+              bookerPhone={formData.phone}
+              numberOfTickets={formData.tickets}
+              totalAmount={amount * formData.tickets}
+              isBooking={false}
+            />
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsPreviewOpen(false)}
+            >
+              Back to Form
+            </Button>
+            <Button 
+              onClick={() => {
+                setIsPreviewOpen(false);
+                // Trigger form submission
+                const form = document.querySelector('form');
+                if (form) {
+                  form.dispatchEvent(new Event('submit', { bubbles: true }));
+                }
+              }}
+            >
+              Proceed to Payment
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -24,7 +24,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Brand Column */}
           <div>
-            <h2 className="text-2xl font-bold text-gradient mb-4">Motojojo</h2>
+          <img src="/motojojo.png" alt="Motojojo Logo" className="h-12 w-auto" />
             <p className="text-muted-foreground mb-6">
               India's premier platform for discovering and booking curated entertainment events.
             </p>

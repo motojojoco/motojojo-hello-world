@@ -10,6 +10,7 @@ interface EventTicketProps {
   venue: string;
   price: number;
   username: string;
+  qrCode?: string;
 }
 
 export default function EventTicket({
@@ -22,6 +23,7 @@ export default function EventTicket({
   venue,
   price,
   username,
+  qrCode,
 }: EventTicketProps) {
   return (
     <div className="relative w-full bg-sandstorm rounded-3xl shadow-glow-yellow p-0 overflow-visible border-4 border-solid border-sandstorm">
@@ -45,6 +47,15 @@ export default function EventTicket({
           </div>
           <div className="text-xs text-gray-700 mb-1 sm:mb-2 font-mono">Ticket ID: <span className="font-bold">{ticketId}</span></div>
           <div className="text-xs text-gray-700 mb-1 sm:mb-2 font-mono">Name: <span className="font-bold">{username}</span></div>
+          {qrCode && (
+            <div className="flex justify-center mt-3 mb-2">
+              <img 
+                src={qrCode} 
+                alt="QR Code" 
+                className="w-16 h-16 border-2 border-gray-300 rounded"
+              />
+            </div>
+          )}
         </div>
         {/* Bottom dashed divider & price */}
         <div className="flex items-center px-4 sm:px-6 pb-3 sm:pb-4 relative">

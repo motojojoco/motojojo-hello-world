@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ExplorePremium from "./pages/ExplorePremium";
 import PricingPage from "./pages/PricingPage";
 import TicketPreview from "./pages/TicketPreview";
+import BookingTicketDemo from "./pages/BookingTicketDemo";
 import Feedback from "./pages/Feedback";
 
 const queryClient = new QueryClient();
@@ -46,8 +47,14 @@ const App = () => (
           <Route path="/explorepremium" element={<ExplorePremium />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/feedback" element={<Feedback />} />
-          {/* Demo route: after QR scan, preview a ticket */}
+          {/* Ticket preview route with booking ID */}
+          <Route path="/ticket-preview/:bookingId" element={<TicketPreview />} />
+          {/* QR code scan route with ticket ID */}
+          <Route path="/ticket/:ticketId" element={<TicketPreview />} />
+          {/* Demo ticket preview route */}
           <Route path="/ticket-preview" element={<TicketPreview />} />
+          {/* Booking ticket demo route */}
+          <Route path="/booking-ticket-demo" element={<BookingTicketDemo />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
