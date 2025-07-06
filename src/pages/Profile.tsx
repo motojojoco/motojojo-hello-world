@@ -441,8 +441,8 @@ const Profile = () => {
                             <div key={category.id} className="flex items-center space-x-2">
                               <Checkbox 
                                 id={`category-${category.id}`}
-                                checked={userProfile.preferences.includes(category.id)}
-                                onCheckedChange={() => handleInterestToggle(category.id)}
+                                checked={userProfile.preferences.includes(Number(category.id))}
+                                onCheckedChange={() => handleInterestToggle(Number(category.id))}
                               />
                               <Label 
                                 htmlFor={`category-${category.id}`}
@@ -471,15 +471,14 @@ const Profile = () => {
             
             {/* Bookings Tab */}
             <TabsContent value="bookings">
-              <FadeIn>
-                <div className="grid grid-cols-1 gap-6">
-                  {bookingsLoading ? (
-                    <div className="text-center py-8">
-                      <div className="animate-pulse">Loading your bookings...</div>
-                    </div>
-                  ) : bookings.length > 0 ? (
-                    bookings.map((booking) => (
-                      <Card key={booking.id} className="overflow-hidden border-none shadow-soft">
+              <div className="grid grid-cols-1 gap-6">
+                {bookingsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-pulse">Loading your bookings...</div>
+                  </div>
+                ) : bookings.length > 0 ? (
+                  bookings.map((booking) => (
+                    <Card key={booking.id} className="overflow-hidden border-none shadow-soft">
                         <div className="md:flex">
                           <div className="md:w-1/4 h-48 md:h-auto">
                             {booking.event && (
@@ -549,22 +548,15 @@ const Profile = () => {
                                 <div className="text-lg font-bold">₹{booking.amount}</div>
                               </div>
                               <div className="flex flex-col md:flex-row gap-2 mt-4 md:mt-0">
-                                <Button 
-                                  variant="default"
-                                  onClick={() => handleViewTickets(booking)}
-                                  className="flex items-center gap-2 bg-sandstorm hover:bg-sandstorm/90 text-black"
-                                >
-                                  <Ticket className="h-4 w-4" />
-                                  View Tickets
-                                </Button>
+ 
                                 <Button 
                                   variant="outline"
                                   onClick={() => navigate(`/ticket-preview/${booking.id}`)}
-                                  className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
-                                >
-                                  <Ticket className="h-4 w-4" />
-                                  Ticket Preview
-                                </Button>
+                                  className="flex items-center gap-2 bg-sandstorm hover:bg-sandstorm/90 text-black"
+                                  >
+                                    <Ticket className="h-4 w-4" />
+                                    View Tickets
+                                  </Button>
                                 <Button 
                                   variant="outline"
                                   onClick={() => handleResendEmailForBooking(booking)}
@@ -600,7 +592,6 @@ const Profile = () => {
                     </Card>
                   )}
                 </div>
-              </FadeIn>
             </TabsContent>
           </Tabs>
         </div>
