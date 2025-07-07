@@ -23,6 +23,9 @@ export interface Event {
   event_type?: string;
   host?: string;
   updated_at?: string;
+  has_discount?: boolean;
+  real_price?: number | null;
+  discounted_price?: number | null;
 }
 
 export const getAllEvents = async (): Promise<Event[]> => {
@@ -56,7 +59,10 @@ export const getAllEvents = async (): Promise<Event[]> => {
     host: event.host || undefined,
     duration: event.duration || undefined,
     long_description: event.long_description || null,
-    updated_at: event.updated_at
+    updated_at: event.updated_at,
+    has_discount: event.has_discount ?? false,
+    real_price: event.real_price ?? null,
+    discounted_price: event.discounted_price ?? null,
   }));
 };
 
@@ -105,7 +111,10 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
     host: event.host || undefined,
     duration: event.duration || undefined,
     long_description: event.long_description || null,
-    updated_at: event.updated_at
+    updated_at: event.updated_at,
+    has_discount: event.has_discount ?? false,
+    real_price: event.real_price ?? null,
+    discounted_price: event.discounted_price ?? null,
   }));
 };
 
@@ -170,7 +179,10 @@ export const getFeaturedEvents = async (): Promise<Event[]> => {
     host: event.host || undefined,
     duration: event.duration || undefined,
     long_description: event.long_description || null,
-    updated_at: event.updated_at
+    updated_at: event.updated_at,
+    has_discount: event.has_discount ?? false,
+    real_price: event.real_price ?? null,
+    discounted_price: event.discounted_price ?? null,
   }));
 };
 
@@ -206,7 +218,10 @@ export const getEventsByCategory = async (categoryId: string): Promise<Event[]> 
     host: event.host || undefined,
     duration: event.duration || undefined,
     long_description: event.long_description || null,
-    updated_at: event.updated_at
+    updated_at: event.updated_at,
+    has_discount: event.has_discount ?? false,
+    real_price: event.real_price ?? null,
+    discounted_price: event.discounted_price ?? null,
   }));
 };
 
@@ -246,7 +261,10 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     host: data.host || undefined,
     duration: data.duration || undefined,
     long_description: data.long_description || null,
-    updated_at: data.updated_at
+    updated_at: data.updated_at,
+    has_discount: data.has_discount ?? false,
+    real_price: data.real_price ?? null,
+    discounted_price: data.discounted_price ?? null,
   };
 };
 

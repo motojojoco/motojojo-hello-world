@@ -30,7 +30,7 @@ const HeroSection = () => {
   if (isLoading) {
     return (
       <section className="w-full h-[80vh] md:h-[90vh] relative overflow-hidden mt-16">
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/30 to-background/60" />
         <Skeleton className="w-full h-full" />
         <div className="container-padding relative z-10 h-full flex flex-col justify-center">
           <Skeleton className="h-16 w-96 mb-4" />
@@ -48,17 +48,17 @@ const HeroSection = () => {
   if (banners.length === 0) {
     return (
       <section className="w-full h-[80vh] md:h-[90vh] relative overflow-hidden mt-16">
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/30 to-background/60" />
         <div className="container-padding relative z-10 h-full flex flex-col justify-center">
           <FadeIn delay={200}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl">
-              <span className="text-gradient">Experience</span> the Best Events in {" "}
+              <span className="text-raspberry">Experience</span> the Best Events in {" "}
               <span className="text-yellow">Your City</span>
             </h1>
           </FadeIn>
           
           <FadeIn delay={300}>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl">
+            <p className="text-xl md:text-2xl text-yellow mb-8 max-w-2xl">
               Discover and book curated experiences, from concerts to workshops, all in one place.
             </p>
           </FadeIn>
@@ -66,8 +66,8 @@ const HeroSection = () => {
           <FadeIn delay={400}>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-violet hover:bg-violet-700 transition-colors">
-                <Link to="/events" className="flex items-center">
-                  Explore Events
+                <Link to="/membership" className="flex items-center">
+                  Become a Member
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -88,7 +88,7 @@ const HeroSection = () => {
             index === activeBanner ? "opacity-100" : "opacity-0"
           }`}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/30 to-background/60" />
           <img
             src={banner.image_url}
             alt={banner.title}
@@ -101,13 +101,13 @@ const HeroSection = () => {
       <div className="container-padding relative z-10 h-full flex flex-col justify-center">
         <FadeIn delay={200}>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl">
-            <span className="text-gradient">Experience</span> the Best Events in {" "}
+            <span className="text-raspberry">Experience</span> the Best Events in {" "}
             <span className="text-yellow">Your City</span>
           </h1>
         </FadeIn>
         
         <FadeIn delay={300}>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl">
+          <p className="text-xl md:text-2xl text-yellow mb-8 max-w-2xl">
             Discover and book curated experiences, from concerts to workshops, all in one place.
           </p>
         </FadeIn>
@@ -115,8 +115,8 @@ const HeroSection = () => {
         <FadeIn delay={400}>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button size="lg" className="bg-violet hover:bg-violet-700 transition-colors">
-              <Link to="/events" className="flex items-center">
-                Explore Events
+              <Link to="/membership" className="flex items-center">
+               Become a Member 
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>

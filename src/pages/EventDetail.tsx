@@ -166,7 +166,7 @@ const EventDetail = () => {
                 </div>
               </FadeIn>
 
-              {/* Reviews Section */}
+              {/* Reviews Section 
               <FadeIn delay={200}>
                 <h3 className="text-2xl font-bold mb-4">Community Reviews</h3>
                 <div className="space-y-4 mb-12">
@@ -186,9 +186,9 @@ const EventDetail = () => {
                     </Card>
                   ))}
                 </div>
-              </FadeIn>
+              </FadeIn> */}
               
-              {/* FAQ Section */}
+              {/* FAQ Section 
               <FadeIn delay={300}>
                 <h3 className="text-2xl font-bold mb-4">Frequently Asked Questions</h3>
                 <Accordion type="single" collapsible className="mb-12">
@@ -203,7 +203,7 @@ const EventDetail = () => {
                     </AccordionItem>
                   ))}
                 </Accordion>
-              </FadeIn>
+              </FadeIn> */}
             </div>
             
             {/* Booking Card */}
@@ -259,7 +259,14 @@ const EventDetail = () => {
                           <DollarSign className="h-5 w-5 text-purple-500 mr-3 mt-0.5" />
                           <div>
                             <div className="font-medium">Price</div>
-                            <div className="text-xl font-bold">₹{formatPrice(event.price)}</div>
+                            {event.has_discount && event.real_price && event.discounted_price ? (
+                              <div className="flex flex-col items-start">
+                                <span className="text-base text-muted-foreground opacity-60 line-through decoration-2 decoration-red-500">₹{formatPrice(event.real_price)}</span>
+                                <span className="text-xl font-bold text-red-600">₹{formatPrice(event.discounted_price)}</span>
+                              </div>
+                            ) : (
+                              <div className="text-xl font-bold">₹{formatPrice(event.price)}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -287,7 +294,7 @@ const EventDetail = () => {
                         <RazorpayButton 
                           eventId={event.id} 
                           eventName={event.title}
-                          amount={event.price}
+                          amount={event.has_discount && event.discounted_price ? event.discounted_price : event.price}
                           onSuccess={handleBookingSuccess}
                         />
                       )}

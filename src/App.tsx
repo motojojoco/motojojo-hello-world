@@ -15,9 +15,13 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ExplorePremium from "./pages/ExplorePremium";
 import PricingPage from "./pages/PricingPage";
+import Membership from "./pages/Membership";
+import MjMember from "./pages/MjMember";
+import JoJoGang from "./pages/JoJoGang";
 import TicketPreview from "./pages/TicketPreview";
 import BookingTicketDemo from "./pages/BookingTicketDemo";
 import Feedback from "./pages/Feedback";
+import Response from "./pages/Response";
 
 const queryClient = new QueryClient();
 
@@ -46,7 +50,11 @@ const App = () => (
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/explorepremium" element={<ExplorePremium />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/membership" element={<Membership />} />
+          <Route path="/mjmember" element={<MjMember />} />
+          <Route path="/jojogang" element={<JoJoGang />} />
           <Route path="/feedback" element={<Feedback />} />
+          <Route path="/response" element={<Response />} />
           {/* Ticket preview route with booking ID */}
           <Route path="/ticket-preview/:bookingId" element={<TicketPreview />} />
           {/* QR code scan route with ticket ID */}

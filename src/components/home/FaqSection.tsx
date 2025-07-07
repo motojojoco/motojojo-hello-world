@@ -28,6 +28,10 @@ const FaqSection = () => {
     {
       question: "What happens if an event is cancelled?",
       answer: "If an event is cancelled, you'll receive a full refund of your ticket purchase. You'll be notified via email about the cancellation and refund process."
+    },
+    {
+      question: "What is your return policy for tickets?",
+      answer: "Tickets cannot be cancelled once booked. All sales are final and non-refundable, except if the event itself is cancelled. Please review your booking carefully before purchase."
     }
   ];
 

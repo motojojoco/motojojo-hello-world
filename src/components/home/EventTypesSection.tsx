@@ -80,42 +80,38 @@ const EventTypesSection = () => {
           {eventTypes.map((type, index) => (
             <FadeIn key={type.id} delay={100 * index}>
               <Link to={`/events?type=${type.id}`}>
-                <Card 
-                  className="w-[200px] hover-scale overflow-hidden border-none shadow-soft"
-                >
-                  <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full">
-                    {type.image_url ? (
-                      <div className="w-16 h-16 mb-3 rounded-full overflow-hidden">
-                        <img
-                          src={type.image_url}
-                          alt={type.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            // Fallback to icon if image fails to load
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const parent = target.parentElement;
-                            if (parent) {
-                              parent.innerHTML = `<div class="w-full h-full flex items-center justify-center text-2xl">${type.icon || "🎭"}</div>`;
-                            }
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div 
-                        className="rounded-full p-4 bg-violet/10 text-violet mb-3 text-2xl"
-                      >
-                        {type.icon || "🎭"}
-                      </div>
-                    )}
-                    <h3 className="font-semibold text-lg">{type.name}</h3>
-                    {type.description && (
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                        {type.description}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
+                <div className="w-[200px] flex flex-col items-center justify-center text-center h-full">
+                  {type.image_url ? (
+                    <div className="w-32 h-48 mb-3">
+                      <img
+                        src={type.image_url}
+                        alt={type.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback to icon if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = `<div class="w-full h-full flex items-center justify-center text-2xl">${type.icon || "🎭"}</div>`;
+                          }
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div 
+                      className="rounded-full p-4 bg-violet/10 text-violet mb-3 text-2xl"
+                    >
+                      {type.icon || "🎭"}
+                    </div>
+                  )}
+                  <h3 className="font-semibold text-lg">{type.name}</h3>
+                  {type.description && (
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      {type.description}
+                    </p>
+                  )}
+                </div>
               </Link>
             </FadeIn>
           ))}

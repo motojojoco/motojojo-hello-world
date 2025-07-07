@@ -72,6 +72,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -1944,6 +1945,13 @@ const AdminDashboard = () => {
           )}
         </DialogContent>
       </Dialog>
+      <div className="mt-8 flex flex-col items-center">
+        <Link to="/response">
+          <Button className="bg-violet text-white font-bold px-6 py-3 rounded-lg shadow-md hover:bg-violet-700 transition-colors">
+            Responses
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };

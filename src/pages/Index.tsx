@@ -32,7 +32,6 @@ const Index = () => {
         <FaqSection />
       </main>
       <Footer />
-      <PremiumPopup />
     </div>
   );
 };

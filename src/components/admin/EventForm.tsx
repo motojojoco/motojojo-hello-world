@@ -43,6 +43,9 @@ const formSchema = z.object({
   event_type: z.string().optional(),
   host: z.string().optional(),
   is_published: z.boolean().default(true),
+  has_discount: z.boolean().default(false),
+  real_price: z.number().nullable().optional(),
+  discounted_price: z.number().nullable().optional(),
 });
 
 type EventFormData = z.infer<typeof formSchema>;
@@ -81,6 +84,9 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
       event_type: initialData?.event_type || "",
       host: initialData?.host || "",
       is_published: initialData?.is_published ?? true,
+      has_discount: initialData?.has_discount ?? false,
+      real_price: initialData?.real_price ?? null,
+      discounted_price: initialData?.discounted_price ?? null,
     },
   });
 
@@ -366,6 +372,50 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="has_discount"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Event has discount?</FormLabel>
+                    <FormControl>
+                      <input type="checkbox" checked={field.value} onChange={e => field.onChange(e.target.checked)} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {form.watch("has_discount") && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="real_price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Real Price</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="discounted_price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Discounted Price</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
             </div>
 
             <Button type="submit" disabled={isSubmitting}>

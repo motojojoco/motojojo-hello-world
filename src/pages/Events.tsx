@@ -393,10 +393,17 @@ const Events = () => {
                       </div>
                     </CardContent>
                     <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
-                      <div className="text-lg font-bold">₹{event.price}</div>
-                        <Button asChild>
-                          <Link to={`/event/${event.id}`}>Book Now</Link>
-                        </Button>
+                      {event.has_discount && event.real_price && event.discounted_price ? (
+                        <div className="flex flex-col items-start">
+                          <span className="text-base text-muted-foreground opacity-60 line-through decoration-2 decoration-red-500">₹{event.real_price}</span>
+                          <span className="text-lg font-bold text-red-600">₹{event.discounted_price}</span>
+                        </div>
+                      ) : (
+                        <div className="text-lg font-bold">₹{event.price}</div>
+                      )}
+                      <Button asChild>
+                        <Link to={`/event/${event.id}`}>Book Now</Link>
+                      </Button>
                     </CardFooter>
                   </Card>
                 </FadeIn>

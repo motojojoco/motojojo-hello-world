@@ -19,6 +19,9 @@ export interface CreateEventInput {
   event_type?: string;
   host?: string;
   is_published?: boolean;
+  has_discount?: boolean;
+  real_price?: number | null;
+  discounted_price?: number | null;
 }
 
 export const createEvent = async (eventData: CreateEventInput) => {

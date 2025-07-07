@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, User } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -116,6 +117,13 @@ const Admin = () => {
       </main>
       
       <Footer />
+      <div className="mt-8 flex flex-col items-center">
+        <Link to="/response">
+          <Button className="bg-violet text-white font-bold px-6 py-3 rounded-lg shadow-md hover:bg-violet-700 transition-colors">
+            Responses
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };

@@ -301,6 +301,120 @@ export type Database = {
         }
         Relationships: []
       }
+      motojojo_members: {
+        Row: {
+          id: string;
+          name: string;
+          identify_as: string | null;
+          identify_as_other: string | null;
+          phone_number: string;
+          birthday: string;
+          city: string;
+          area_and_pincode: string;
+          social_handles: string;
+          mood: string | null;
+          mood_other: string | null;
+          group_role: string | null;
+          group_role_other: string | null;
+          interests: string;
+          art_inspiration: string | null;
+          been_to_gathering: string;
+          how_found_us: string;
+          how_found_us_other: string | null;
+          why_join_community: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          identify_as?: string | null;
+          identify_as_other?: string | null;
+          phone_number: string;
+          birthday: string;
+          city: string;
+          area_and_pincode: string;
+          social_handles: string;
+          mood?: string | null;
+          mood_other?: string | null;
+          group_role?: string | null;
+          group_role_other?: string | null;
+          interests: string;
+          art_inspiration?: string | null;
+          been_to_gathering: string;
+          how_found_us: string;
+          how_found_us_other?: string | null;
+          why_join_community: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          identify_as?: string | null;
+          identify_as_other?: string | null;
+          phone_number?: string;
+          birthday?: string;
+          city?: string;
+          area_and_pincode?: string;
+          social_handles?: string;
+          mood?: string | null;
+          mood_other?: string | null;
+          group_role?: string | null;
+          group_role_other?: string | null;
+          interests?: string;
+          art_inspiration?: string | null;
+          been_to_gathering?: string;
+          how_found_us?: string;
+          how_found_us_other?: string | null;
+          why_join_community?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      jojo_gang_members: {
+        Row: {
+          id: string;
+          name: string;
+          email: string;
+          phone_number: string;
+          age: number;
+          city: string;
+          area_pincode: string;
+          instagram_link: string;
+          attended_gathering: string;
+          position: string;
+          additional_info: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          email: string;
+          phone_number: string;
+          age: number;
+          city: string;
+          area_pincode: string;
+          instagram_link: string;
+          attended_gathering: string;
+          position: string;
+          additional_info?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          email?: string;
+          phone_number?: string;
+          age?: number;
+          city?: string;
+          area_pincode?: string;
+          instagram_link?: string;
+          attended_gathering?: string;
+          position?: string;
+          additional_info?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     }
     Views: {
       [_ in never]: never
