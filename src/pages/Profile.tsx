@@ -418,54 +418,7 @@ const Profile = () => {
                   </Card>
                 </FadeIn>
                 
-                <FadeIn delay={200}>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Interests & Preferences</CardTitle>
-                      <CardDescription>
-                        Select your interests to get personalized recommendations
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {categoriesLoading ? (
-                          // Loading skeleton for categories
-                          Array.from({ length: 8 }).map((_, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                              <Skeleton className="h-4 w-4" />
-                              <Skeleton className="h-4 w-24" />
-                            </div>
-                          ))
-                        ) : (
-                          categories.map(category => (
-                            <div key={category.id} className="flex items-center space-x-2">
-                              <Checkbox 
-                                id={`category-${category.id}`}
-                                checked={userProfile.preferences.includes(Number(category.id))}
-                                onCheckedChange={() => handleInterestToggle(Number(category.id))}
-                              />
-                              <Label 
-                                htmlFor={`category-${category.id}`}
-                                className="cursor-pointer"
-                              >
-                                {category.name}
-                              </Label>
-                            </div>
-                          ))
-                        )}
-                        
-                        <Button 
-                          type="button" 
-                          className="w-full mt-4"
-                          onClick={handleSavePreferences}
-                          disabled={categoriesLoading || isSavingPreferences}
-                        >
-                          {isSavingPreferences ? "Saving..." : "Save Preferences"}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </FadeIn>
+                {/* Removed Interests & Preferences section */}
               </div>
             </TabsContent>
             
@@ -557,14 +510,7 @@ const Profile = () => {
                                     <Ticket className="h-4 w-4" />
                                     View Tickets
                                   </Button>
-                                <Button 
-                                  variant="outline"
-                                  onClick={() => handleResendEmailForBooking(booking)}
-                                  className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
-                                >
-                                  <Mail className="h-4 w-4" />
-                                  Resend Email
-                                </Button>
+                                {/* Removed Resend Email button from bookings list */}
                                 {booking.event && (
                                   <Button 
                                     variant="outline"

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 function toCSV(data, columns) {
   const header = columns.join(",");
@@ -199,4 +200,10 @@ const Response = () => {
   );
 };
 
-export default Response; 
+export default function ResponseProtected() {
+  return (
+    <ProtectedRoute adminOnly>
+      <Response />
+    </ProtectedRoute>
+  );
+} 

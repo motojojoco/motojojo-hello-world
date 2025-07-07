@@ -113,7 +113,8 @@ export const createBookingFromCart = async (
         tickets,
         amount,
         status: 'confirmed',
-        booking_date: new Date().toISOString()
+        booking_date: new Date().toISOString(),
+        ticket_names: ticketNames && Array.isArray(ticketNames) ? ticketNames : null
       })
       .select()
       .single();
@@ -123,38 +124,49 @@ export const createBookingFromCart = async (
       return null;
     }
 
+    // Debug: log ticket creation
+    console.log('Creating', tickets, 'tickets for booking', booking.id, 'with names:', ticketNames);
+
     // Generate tickets for the booking
     const ticketNumbers: string[] = [];
     const qrCodes: string[] = [];
 
     for (let i = 0; i < tickets; i++) {
+      let ticketHolderName = name;
+      if (ticketNames && Array.isArray(ticketNames)) {
+        if (ticketNames[i] && ticketNames[i].trim()) {
+          ticketHolderName = ticketNames[i].trim();
+        } else if (ticketNames.length < tickets) {
+          // If not enough names, fallback to numbered names
+          ticketHolderName = `${name} ${i + 1}`;
+        }
+      } else {
+        ticketHolderName = `${name} ${i + 1}`;
+      }
       const ticketNumber = `MJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`;
-      
-      // Use individual name if provided and valid, otherwise use main name
-      const ticketHolderName = ticketNames && ticketNames[i] && ticketNames[i].trim() 
-        ? ticketNames[i] 
-        : name;
-      
-      const { data: ticketData, error: ticketError } = await supabase
-        .from('tickets')
-        .insert({
-          booking_id: booking.id,
-          ticket_number: ticketNumber,
-          qr_code: qrCode,
-          username: ticketHolderName,
-        })
-        .select()
-        .single();
-
-      if (ticketError) {
-        console.error("Error creating ticket:", ticketError);
+      try {
+        const { data: ticketData, error: ticketError } = await supabase
+          .from('tickets')
+          .insert({
+            booking_id: booking.id,
+            ticket_number: ticketNumber,
+            qr_code: qrCode,
+            username: ticketHolderName,
+          })
+          .select()
+          .single();
+        if (ticketError) {
+          console.error("Error creating ticket:", ticketError);
+          continue;
+        }
+        if (ticketData) {
+          ticketNumbers.push(ticketData.ticket_number);
+          qrCodes.push(ticketData.qr_code || '');
+        }
+      } catch (err) {
+        console.error('Exception during ticket creation:', err);
         continue;
-      }
-
-      if (ticketData) {
-        ticketNumbers.push(ticketData.ticket_number);
-        qrCodes.push(ticketData.qr_code || '');
       }
     }
 

@@ -26,6 +26,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const totalItems = useCartStore(state => state.getTotalItems());
+  const [searchValue, setSearchValue] = useState("");
 
   // Detect location and set city (mock implementation)
   const detectLocation = () => {
@@ -72,6 +73,18 @@ const Navbar = () => {
     }
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const keyword = searchValue.trim().toLowerCase();
+    const cityMatch = cities.find(city => city.name.toLowerCase() === keyword);
+    if (cityMatch) {
+      navigate(`/events?city=${encodeURIComponent(cityMatch.name)}`);
+    } else if (keyword) {
+      navigate(`/events?search=${encodeURIComponent(searchValue)}`);
+    }
+    setSearchValue("");
+  };
+
   return (
     <>
       {/* Top Header - Simplified for mobile */}
@@ -91,13 +104,15 @@ const Navbar = () => {
           {/* Desktop Nav Items */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Search Bar */}
-            <div className="relative w-80">
+            <form className="relative w-80" onSubmit={handleSearch}>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search events, artists, venues..."
                 className="pl-10 bg-muted/30 border-none focus-visible:ring-violet hover:bg-muted/50 transition-colors"
+                value={searchValue}
+                onChange={e => setSearchValue(e.target.value)}
               />
-            </div>
+            </form>
 
             {/* City Selector */}
             <DropdownMenu>
@@ -184,15 +199,9 @@ const Navbar = () => {
                 {!isAdmin && (
                   <Button variant="ghost" onClick={() => { setShowInviteModal(true); setInviteStatus('idle'); setInviteEmail(''); setInviteError(null); }}>Invite Friends</Button>
                 )}
-                {isAdmin && (
-                  <Button variant="ghost" onClick={() => navigate("/admin")}>Admin</Button>
-                )}
                 <Button variant="ghost" onClick={handleSignOut}><LogOut className="h-4 w-4 mr-2" />Sign Out</Button>
               </>
             )}
-
-            {/* Admin */}
-            {/* This section is now handled by the auth buttons */}
 
             {/* Feedback */}
             <Button variant="ghost" asChild>
@@ -233,13 +242,16 @@ const Navbar = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-background/95 backdrop-blur-sm p-4 shadow-md border-t">
             <div className="flex flex-col space-y-4">
-              <div className="relative">
+              {/* Mobile Search Bar */}
+              <form className="relative" onSubmit={handleSearch}>
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder="Search events, artists, venues..."
                   className="pl-10 bg-muted/30 border-none focus-visible:ring-violet hover:bg-muted/50 transition-colors"
+                  value={searchValue}
+                  onChange={e => setSearchValue(e.target.value)}
                 />
-              </div>
+              </form>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -318,12 +330,6 @@ const Navbar = () => {
                     <Button variant="ghost" className="w-full justify-start" onClick={() => { setShowInviteModal(true); setInviteStatus('idle'); setInviteEmail(''); setInviteError(null); }}>
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Invite Friends
-                    </Button>
-                  )}
-                  {isAdmin && (
-                    <Button variant="ghost" className="w-full justify-start" onClick={() => navigate("/admin")}>
-                      <User className="h-4 w-4 mr-2" />
-                      Admin
                     </Button>
                   )}
                   <Button variant="ghost" className="w-full justify-center" onClick={handleSignOut}>

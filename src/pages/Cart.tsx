@@ -19,6 +19,7 @@ import { Trash2, Minus, Plus, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCartStore, CartItem } from "@/store/cart-store";
 import { createBookingFromCart } from "@/services/bookingService";
+import BookingTicket from "@/components/BookingTicket";
 
 const Cart = () => {
   const { toast } = useToast();
@@ -122,6 +123,7 @@ const Cart = () => {
       const createdBookings: any[] = [];
       for (const item of items) {
         const itemTicketNames = ticketNames[item.id] || [];
+        console.log('Booking', item.eventTitle, 'ticketNames:', itemTicketNames);
         const booking = await createBookingFromCart(
           user.id,
           item.eventId,

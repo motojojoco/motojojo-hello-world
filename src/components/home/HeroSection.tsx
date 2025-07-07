@@ -120,13 +120,7 @@ const HeroSection = () => {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-            {banners[activeBanner]?.link_url && (
-              <Button size="lg" variant="outline" className="border-violet text-violet hover:bg-violet/10 transition-colors">
-                <Link to={banners[activeBanner].link_url} className="flex items-center">
-                  {banners[activeBanner].link_text || "Featured Event"}
-                </Link>
-              </Button>
-            )}
+ 
           </div>
         </FadeIn>
         

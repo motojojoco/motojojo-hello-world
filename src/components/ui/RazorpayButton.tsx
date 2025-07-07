@@ -191,7 +191,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       const totalAmount = amount * formData.tickets;
 
       const options = {
-        key: "rzp_live_yAyC4YmewB4VQG", // Updated to live key
+        key: "rzp_live_yAyC4YmewB4VQG", // Live key
         amount: totalAmount * 100,
         currency: "INR",
         name: "Motojojo",
@@ -213,7 +213,8 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                 status: 'confirmed',
                 payment_id: response.razorpay_payment_id,
                 order_id: response.razorpay_order_id || null,
-                booking_date: new Date().toISOString()
+                booking_date: new Date().toISOString(),
+                ticket_names: formData.tickets > 1 ? ticketNames : [formData.name],
               })
               .select('id')
               .single();
@@ -537,6 +538,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               numberOfTickets={formData.tickets}
               totalAmount={amount * formData.tickets}
               isBooking={false}
+              ticketHolderNames={ticketNames}
             />
           </div>
           

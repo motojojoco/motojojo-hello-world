@@ -16,6 +16,7 @@ interface BookingTicketProps {
   totalAmount: number;
   onBookNow?: () => void;
   isBooking?: boolean;
+  ticketHolderNames?: string[];
 }
 
 export default function BookingTicket({
@@ -32,7 +33,8 @@ export default function BookingTicket({
   numberOfTickets,
   totalAmount,
   onBookNow,
-  isBooking = false
+  isBooking = false,
+  ticketHolderNames = []
 }: BookingTicketProps) {
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -119,6 +121,17 @@ export default function BookingTicket({
               <span className="text-gray-600">Booking Fee:</span>
               <span className="font-medium text-black">₹0</span>
             </div>
+            {/* Show ticket holder names if more than 1 ticket */}
+            {ticketHolderNames.length > 1 && (
+              <div className="pt-2">
+                <span className="text-gray-600 block mb-1">Ticket Holders:</span>
+                <ul className="list-disc pl-5 text-black">
+                  {ticketHolderNames.map((name, idx) => (
+                    <li key={idx} className="text-sm">Ticket {idx + 1}: {name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 

@@ -19,6 +19,7 @@ export default function TicketPreview() {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingTickets, setGeneratingTickets] = useState(false);
+  const [currentTicketIndex, setCurrentTicketIndex] = useState(0);
 
   useEffect(() => {
     const fetchTicketData = async () => {
@@ -164,10 +165,13 @@ export default function TicketPreview() {
         amount: totalAmount,
         status: 'temporary',
         booking_date: new Date().toISOString(),
-        event: event
+        event: event,
+        // Add mock ticket_names for demo (replace with real names if available)
+        ticket_names: [userProfile?.full_name || user.email || 'Guest', ...(Array(ticketCount - 1).fill('Guest'))]
       };
 
       // Generate real tickets
+      const attendeeNames = tempBooking.ticket_names || [];
       const generatedTickets = [];
       for (let i = 0; i < ticketCount; i++) {
         const ticketNumber = `MJ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -177,7 +181,7 @@ export default function TicketPreview() {
           id: `temp-ticket-${i}`,
           ticket_number: ticketNumber,
           qr_code: qrCode,
-          username: tempBooking.name,
+          username: attendeeNames[i] || `${tempBooking.name} ${i + 1}`,
           created_at: new Date().toISOString()
         };
         
@@ -194,6 +198,23 @@ export default function TicketPreview() {
       setGeneratingTickets(false);
     }
   };
+
+  // Add this helper to render booking details
+  const renderBookingDetails = (booking) => (
+    <div className="mb-6 bg-white/10 rounded-lg p-4 text-white">
+      <h3 className="font-semibold mb-2">Booking Details</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div><span className="text-white/70">Full Name:</span> {booking.name}</div>
+        <div><span className="text-white/70">Email:</span> {booking.email}</div>
+        <div><span className="text-white/70">Phone:</span> {booking.phone}</div>
+        <div><span className="text-white/70">Number of Tickets:</span> {booking.tickets}</div>
+        <div><span className="text-white/70">Total Amount:</span> ₹{booking.amount}</div>
+        {Array.isArray(booking.ticket_names) && booking.ticket_names.length > 0 && (
+          <div className="col-span-2"><span className="text-white/70">Ticket Holder Names:</span> {booking.ticket_names.join(', ')}</div>
+        )}
+      </div>
+    </div>
+  );
 
   if (loading || generatingTickets) {
     return (
@@ -244,6 +265,8 @@ export default function TicketPreview() {
 
   // If there are no tickets but booking exists, show a single ticket UI with booking info
   if (tickets.length === 0) {
+    // Try to get ticket holder names from booking (if available)
+    const ticketHolderNames = booking.ticket_names || booking.ticketHolderNames || booking.ticketNames || [];
     return (
       <div className="bg-raspberry min-h-screen flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-xl mx-auto">
@@ -265,6 +288,79 @@ export default function TicketPreview() {
               username={booking.name || 'Guest'}
               qrCode={undefined}
             />
+            {/* Show ticket holder names if more than one ticket */}
+            {Array.isArray(ticketHolderNames) && ticketHolderNames.length > 1 && (
+              <div className="mt-4 bg-white/80 rounded-xl p-4">
+                <div className="font-semibold text-black mb-2">Ticket Holders:</div>
+                <ul className="list-decimal list-inside text-black text-sm">
+                  {ticketHolderNames.map((name, idx) => (
+                    <li key={idx}>Ticket {idx + 1}: {name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <Button 
+              onClick={() => navigate('/profile')}
+              className="bg-sandstorm text-black hover:bg-sandstorm/90"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Profile
+            </Button>
+            <Button 
+              onClick={() => window.location.reload()}
+              variant="outline"
+              className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If there are multiple tickets, show one at a time with navigation
+  if (tickets.length > 1) {
+    const ticket = tickets[currentTicketIndex];
+    return (
+      <div className="bg-raspberry min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-xl mx-auto">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-white mb-2">Your Ticket</h1>
+            <p className="text-white/80">Show this ticket at the event entry</p>
+            <div className="mt-2 text-sm text-white/60">Ticket {currentTicketIndex + 1} of {tickets.length}</div>
+          </div>
+          <div className="relative ticket-container">
+            <EventTicket
+              ticketId={ticket.ticket_number}
+              imageUrl={booking.event?.image || '/placeholder.svg'}
+              eventName={booking.event?.title || 'Event'}
+              eventDescription={booking.event?.subtitle || ''}
+              date={booking.event?.date || ''}
+              time={booking.event?.time || ''}
+              venue={`${booking.event?.venue || ''}, ${booking.event?.city || ''}`}
+              price={booking.amount ? booking.amount / booking.tickets : 0}
+              username={ticket.username || booking.name || 'Guest'}
+              qrCode={ticket.qr_code}
+            />
+          </div>
+          <div className="flex flex-row gap-4 justify-center mt-8">
+            <Button 
+              onClick={() => setCurrentTicketIndex(i => Math.max(0, i - 1))}
+              disabled={currentTicketIndex === 0}
+              className="bg-sandstorm text-black hover:bg-sandstorm/90"
+            >
+              Previous
+            </Button>
+            <Button 
+              onClick={() => setCurrentTicketIndex(i => Math.min(tickets.length - 1, i + 1))}
+              disabled={currentTicketIndex === tickets.length - 1}
+              className="bg-sandstorm text-black hover:bg-sandstorm/90"
+            >
+              Next
+            </Button>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
             <Button 
@@ -300,6 +396,8 @@ export default function TicketPreview() {
             </div>
           )}
         </div>
+        {/* Booking Details */}
+        {booking && renderBookingDetails(booking)}
 
         {/* Tickets Grid */}
         <div className={`grid gap-6 ${
