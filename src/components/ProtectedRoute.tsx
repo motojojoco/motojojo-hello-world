@@ -7,10 +7,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  adminOnly?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isSignedIn, isLoaded } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly }) => {
+  const { isSignedIn, isLoaded, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -21,8 +22,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         description: "Please sign in to access this page.",
       });
       navigate("/");
+    } else if (isLoaded && adminOnly && !isAdmin) {
+      toast({
+        title: "Admin Access Required",
+        description: "You do not have permission to access this page.",
+        variant: "destructive"
+      });
+      navigate("/");
     }
-  }, [isLoaded, isSignedIn, navigate, toast]);
+  }, [isLoaded, isSignedIn, isAdmin, adminOnly, navigate, toast]);
 
   if (!isLoaded) {
     return (
@@ -44,7 +52,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!isSignedIn) {
+  if (!isSignedIn || (adminOnly && !isAdmin)) {
     return null; // We'll redirect in the useEffect
   }
 

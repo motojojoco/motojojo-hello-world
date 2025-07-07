@@ -73,6 +73,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/hooks/use-auth";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -92,6 +94,10 @@ const AdminDashboard = () => {
   const [isProcessingEvents, setIsProcessingEvents] = useState(false);
   const [currentTab, setCurrentTab] = useState('events');
   const itemsPerPage = 5;
+  const { inviteUser } = useAuth();
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteLoading, setInviteLoading] = useState(false);
 
   // Fetch events using React Query with proper query function
   const { data: events = [], isLoading } = useQuery({
@@ -730,6 +736,35 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleInviteAdmin = async () => {
+    setInviteLoading(true);
+    try {
+      const { error } = await inviteUser(inviteEmail, "admin");
+      if (error) {
+        toast({
+          title: "Invite Failed",
+          description: error.message || "Could not send invite.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Admin Invited",
+          description: `Invitation sent to ${inviteEmail}`,
+        });
+        setIsInviteDialogOpen(false);
+        setInviteEmail("");
+      }
+    } catch (err: any) {
+      toast({
+        title: "Invite Failed",
+        description: err.message || "Could not send invite.",
+        variant: "destructive",
+      });
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-muted/5">
       {/* Admin Header */}
@@ -834,6 +869,14 @@ const AdminDashboard = () => {
               >
                 <Download className="h-4 w-4 mr-2" />
                 Download
+              </Button>
+              <Button 
+                variant="default"
+                size="sm"
+                onClick={() => setIsInviteDialogOpen(true)}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Invite Admin
               </Button>
             </div>
             
@@ -1952,8 +1995,40 @@ const AdminDashboard = () => {
           </Button>
         </Link>
       </div>
+      {/* Invite Admin Dialog */}
+      <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite New Admin</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Label htmlFor="invite-admin-email">Admin Email</Label>
+            <Input
+              id="invite-admin-email"
+              type="email"
+              placeholder="admin@email.com"
+              value={inviteEmail}
+              onChange={e => setInviteEmail(e.target.value)}
+              disabled={inviteLoading}
+            />
+            <Button
+              onClick={handleInviteAdmin}
+              disabled={inviteLoading || !inviteEmail}
+              className="w-full"
+            >
+              {inviteLoading ? "Inviting..." : "Send Invite"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default AdminDashboard;
+export default function AdminDashboardProtected() {
+  return (
+    <ProtectedRoute adminOnly>
+      <AdminDashboard />
+    </ProtectedRoute>
+  );
+}

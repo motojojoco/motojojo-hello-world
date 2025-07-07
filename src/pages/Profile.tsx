@@ -40,7 +40,7 @@ import { isEventOver } from "@/lib/utils";
 
 const Profile = () => {
   const { toast } = useToast();
-  // Fetch latest Clerk data and Supabase-stored profile
+  // Fetch latest Supabase user and profile
   const { user, profile, isLoaded, isSignedIn, updateProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -113,12 +113,12 @@ const Profile = () => {
     }
   }, [showSuccessMessage, toast]);
   
-  // Keep everything in sync if user/Clerk data changes
+  // Keep everything in sync if user/profile data changes
   useEffect(() => {
     if (user && profile) {
       setUserProfile({
-        full_name: profile.full_name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-        email: profile.email || user.primaryEmailAddress?.emailAddress || "",
+        full_name: profile.full_name || user.user_metadata?.full_name || "",
+        email: profile.email || user.email || "",
         phone: profile.phone || "",
         city: profile.city || "",
         preferences: profile.preferences
@@ -378,7 +378,7 @@ const Profile = () => {
                               <Input 
                                 id="email" 
                                 type="email" 
-                                value={user?.primaryEmailAddress?.emailAddress || ''}
+                                value={user?.email || ''}
                                 disabled
                                 className="bg-gray-100"
                               />

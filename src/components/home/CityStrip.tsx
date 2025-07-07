@@ -3,9 +3,12 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cities } from "@/data/mockData";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { getEventsByCity } from "@/services/eventService";
 
 const CityStrip = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -16,6 +19,15 @@ const CityStrip = () => {
       } else {
         current.scrollBy({ left: scrollAmount, behavior: "smooth" });
       }
+    }
+  };
+
+  const handleCityClick = async (cityName: string) => {
+    const events = await getEventsByCity(cityName);
+    if (events && events.length > 0) {
+      navigate(`/events?city=${encodeURIComponent(cityName)}`);
+    } else {
+      navigate("/membership");
     }
   };
 
@@ -55,6 +67,7 @@ const CityStrip = () => {
               key={city.id}
               variant="outline"
               className="rounded-full whitespace-nowrap border-muted hover:border-violet hover:text-violet transition-colors"
+              onClick={() => handleCityClick(city.name)}
             >
               {city.name}
             </Button>

@@ -22,6 +22,7 @@ import TicketPreview from "./pages/TicketPreview";
 import BookingTicketDemo from "./pages/BookingTicketDemo";
 import Feedback from "./pages/Feedback";
 import Response from "./pages/Response";
+import SignInSignUp from "./pages/SignInSignUp";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,8 @@ const App = () => (
           <Route path="/ticket-preview" element={<TicketPreview />} />
           {/* Booking ticket demo route */}
           <Route path="/booking-ticket-demo" element={<BookingTicketDemo />} />
+          {/* AUTH ROUTE */}
+          <Route path="/auth" element={<SignInSignUp />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

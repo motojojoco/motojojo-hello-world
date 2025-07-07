@@ -8,10 +8,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket, Home, Calendar, Heart, Settings, MessageSquare, History } from "lucide-react";
+import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket, Home, Calendar, Heart, Settings, MessageSquare, History, LogOut } from "lucide-react";
 import { cities } from "@/data/mockData";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCartStore } from "@/store/cart-store";
 
@@ -19,7 +18,11 @@ const Navbar = () => {
   const [selectedCity, setSelectedCity] = useState("Mumbai");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isSignedIn } = useAuth();
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteStatus, setInviteStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const { isSignedIn, isAdmin, signIn, signUp, signOut, inviteUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const totalItems = useCartStore(state => state.getTotalItems());
@@ -50,6 +53,24 @@ const Navbar = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
+
+  const handleSignOut = async () => {
+    await useAuth().signOut();
+    navigate("/");
+  };
+
+  const handleInviteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInviteStatus('loading');
+    setInviteError(null);
+    const { error } = await inviteUser(inviteEmail, 'user');
+    if (error) {
+      setInviteStatus('error');
+      setInviteError(error.message);
+    } else {
+      setInviteStatus('success');
+    }
+  };
 
   return (
     <>
@@ -117,8 +138,8 @@ const Navbar = () => {
             )}
 
             {/* Premium Button */}
-            <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity" onClick={() => navigate("/explorepremium")}>
-              Explore Premium
+            <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity" onClick={() => navigate("/membership")}>
+              Membership
             </Button>
 
             {/* Events Navigation */}
@@ -139,12 +160,8 @@ const Navbar = () => {
             {/* Auth Buttons */}
             {!isSignedIn ? (
               <>
-                <SignInButton mode="modal">
-                  <Button variant="outline">Sign In</Button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <Button>Sign Up</Button>
-                </SignUpButton>
+                <Button variant="outline" onClick={() => navigate('/auth')}>Sign In</Button>
+                <Button onClick={() => navigate('/auth')}>Sign Up</Button>
               </>
             ) : (
               <>
@@ -164,17 +181,18 @@ const Navbar = () => {
                   <Ticket className="h-4 w-4" />
                   My Bookings
                 </Button>
-                <UserButton afterSignOutUrl="/" />
+                {!isAdmin && (
+                  <Button variant="ghost" onClick={() => { setShowInviteModal(true); setInviteStatus('idle'); setInviteEmail(''); setInviteError(null); }}>Invite Friends</Button>
+                )}
+                {isAdmin && (
+                  <Button variant="ghost" onClick={() => navigate("/admin")}>Admin</Button>
+                )}
+                <Button variant="ghost" onClick={handleSignOut}><LogOut className="h-4 w-4 mr-2" />Sign Out</Button>
               </>
             )}
 
             {/* Admin */}
-            <Button variant="ghost" asChild>
-              <Link to="/admin">
-                <User className="h-4 w-4 mr-2" />
-                Admin
-              </Link>
-            </Button>
+            {/* This section is now handled by the auth buttons */}
 
             {/* Feedback */}
             <Button variant="ghost" asChild>
@@ -263,8 +281,8 @@ const Navbar = () => {
                 </Button>
               )}
               
-              <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity w-full" onClick={() => navigate("/explorepremium")}>
-                Explore Premium
+              <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity w-full" onClick={() => navigate("/membership")}>
+                Membership
               </Button>
               
               <Button variant="ghost" className="w-full" asChild>
@@ -283,12 +301,8 @@ const Navbar = () => {
 
               {!isSignedIn ? (
                 <>
-                  <SignInButton mode="modal">
-                    <Button variant="outline" className="w-full">Sign In</Button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <Button className="w-full">Sign Up</Button>
-                  </SignUpButton>
+                  <Button variant="outline" onClick={() => navigate('/auth')} className="w-full">Sign In</Button>
+                  <Button onClick={() => navigate('/auth')} className="w-full">Sign Up</Button>
                 </>
               ) : (
                 <>
@@ -300,19 +314,25 @@ const Navbar = () => {
                     <Ticket className="h-4 w-4 mr-2" />
                     My Bookings
                   </Button>
-                  <div className="flex justify-center py-2">
-                    <UserButton afterSignOutUrl="/" />
-                  </div>
+                  {!isAdmin && (
+                    <Button variant="ghost" className="w-full justify-start" onClick={() => { setShowInviteModal(true); setInviteStatus('idle'); setInviteEmail(''); setInviteError(null); }}>
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Invite Friends
+                    </Button>
+                  )}
+                  {isAdmin && (
+                    <Button variant="ghost" className="w-full justify-start" onClick={() => navigate("/admin")}>
+                      <User className="h-4 w-4 mr-2" />
+                      Admin
+                    </Button>
+                  )}
+                  <Button variant="ghost" className="w-full justify-center" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
                 </>
               )}
               
-              <Button variant="ghost" className="w-full" asChild>
-                <Link to="/admin">
-                  <User className="h-4 w-4 mr-2" />
-                  Admin
-                </Link>
-              </Button>
-
               <Button variant="ghost" className="w-full" asChild>
                 <Link to="/feedback">
                   <MessageSquare className="h-4 w-4 mr-2" />
@@ -379,15 +399,15 @@ const Navbar = () => {
             <span className="text-xs">Profile</span>
           </Button>
 
-          {/* Premium */}
+          {/* Membership (was Premium) */}
           <Button
             variant="ghost"
             size="sm"
             className="flex flex-col items-center gap-1 h-auto py-2 px-3"
-            onClick={() => navigate("/explorepremium")}
+            onClick={() => navigate("/membership")}
           >
             <Heart className="h-5 w-5 text-raspberry" />
-            <span className="text-xs text-raspberry">Premium</span>
+            <span className="text-xs text-raspberry">Membership</span>
           </Button>
 
           {/* Feedback */}
@@ -404,6 +424,35 @@ const Navbar = () => {
           </Button>
         </div>
       </nav>
+
+      {/* Invite Friends Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm">
+            <h2 className="text-xl font-bold mb-4">Invite a Friend</h2>
+            <form onSubmit={handleInviteSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1" htmlFor="invite_email">Friend's Email</label>
+                <Input
+                  id="invite_email"
+                  type="email"
+                  value={inviteEmail}
+                  onChange={e => setInviteEmail(e.target.value)}
+                  required
+                  autoFocus
+                  disabled={inviteStatus === 'loading' || inviteStatus === 'success'}
+                />
+              </div>
+              {inviteStatus === 'error' && inviteError && <div className="text-red-600 text-sm">{inviteError}</div>}
+              {inviteStatus === 'success' && <div className="text-green-600 text-sm">Invite sent! Your friend will receive an email.</div>}
+              <Button type="submit" className="w-full" disabled={inviteStatus === 'loading' || inviteStatus === 'success'}>
+                {inviteStatus === 'loading' ? 'Sending...' : 'Send Invite'}
+              </Button>
+            </form>
+            <Button onClick={() => setShowInviteModal(false)} variant="ghost" className="w-full mt-2">Close</Button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

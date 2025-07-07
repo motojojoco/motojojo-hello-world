@@ -1,124 +1,82 @@
 import { useEffect, useState } from "react";
-import { useClerk, useUser } from "@clerk/clerk-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useAuth = () => {
-  const { user, isSignedIn, isLoaded: isClerkLoaded } = useUser();
-  const { signOut } = useClerk();
-  const [isProfileLoaded, setIsProfileLoaded] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  // Always upsert user into users table after login/signup
+  const upsertUserToTable = async (authUser: any) => {
+    if (!authUser) return;
+    const { id, email, user_metadata, created_at } = authUser;
+    await supabase.from('users').upsert({
+      id,
+      email,
+      full_name: user_metadata?.full_name || '',
+      avatar_url: user_metadata?.avatar_url || '',
+      created_at: created_at || new Date().toISOString(),
+    });
+  };
 
   useEffect(() => {
     let isMounted = true;
-
-    const syncUserWithSupabase = async () => {
-      try {
-        if (!user?.id) return;
-
-        // Gather latest user info from Clerk
-        const newUserProfile = {
-          id: user.id,
-          email: user.primaryEmailAddress?.emailAddress,
-          full_name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-          avatar_url: user.imageUrl,
-          created_at: new Date().toISOString(),
-        };
-
-        // Try fetching user from Supabase
-        const { data, error } = await supabase
+    const getSession = async () => {
+      setIsLoaded(false);
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        setError(sessionError);
+        setIsLoaded(true);
+        setIsSignedIn(false);
+        setUser(null);
+        setProfile(null);
+        setIsAdmin(false);
+        return;
+      }
+      if (session && session.user) {
+        setUser(session.user);
+        setIsSignedIn(true);
+        // Upsert user into users table
+        await upsertUserToTable(session.user);
+        // Fetch profile from users table
+        const { data, error: profileError } = await supabase
           .from('users')
           .select('*')
-          .eq('id', user.id)
+          .eq('id', session.user.id)
           .single();
-
-        if (error && error.code !== "PGRST116") {
-          console.error("Error checking user:", error);
-          if (isMounted) {
-            setError(error);
-            setIsProfileLoaded(true);
-          }
-          return;
+        if (profileError) {
+          setError(profileError);
+          setProfile(null);
+          setIsAdmin(false);
+        } else {
+          setProfile(data);
+          setIsAdmin(data?.role === 'admin');
         }
-
-        if (!data && isMounted && user) {
-          // User not in DB: Insert from Clerk info
-          const { data: insertedProfile, error: insertError } = await supabase
-            .from('users')
-            .insert(newUserProfile)
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error("Error creating user profile:", insertError);
-            setError(insertError);
-          } else {
-            setProfile(insertedProfile);
-          }
-        } else if (isMounted && user) {
-          // Found, but possibly outdated
-          let needsUpdate = false;
-          const currentName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
-          
-          if (
-            data.email !== user.primaryEmailAddress?.emailAddress ||
-            data.full_name !== currentName ||
-            data.avatar_url !== user.imageUrl
-          ) {
-            needsUpdate = true;
-          }
-          
-          if (needsUpdate) {
-            const { data: updated, error: updateError } = await supabase
-              .from('users')
-              .update({
-                email: user.primaryEmailAddress?.emailAddress,
-                full_name: currentName,
-                avatar_url: user.imageUrl,
-              })
-              .eq('id', user.id)
-              .select()
-              .single();
-              
-            if (updateError) {
-              setError(updateError);
-            } else {
-              setProfile(updated);
-            }
-          } else {
-            setProfile(data);
-          }
-        }
-      } catch (err) {
-        console.error("Error syncing user:", err);
-        if (isMounted) {
-          setError(err as Error);
-        }
-      } finally {
-        if (isMounted) {
-          setIsProfileLoaded(true);
-        }
-      }
-    };
-
-    if (isClerkLoaded) {
-      if (isSignedIn && user) {
-        syncUserWithSupabase();
       } else {
+        setUser(null);
         setProfile(null);
-        setIsProfileLoaded(true);
+        setIsSignedIn(false);
+        setIsAdmin(false);
       }
-    }
-
+      setIsLoaded(true);
+    };
+    getSession();
+    // Listen for auth state changes
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      getSession();
+    });
     return () => {
       isMounted = false;
+      listener?.subscription.unsubscribe();
     };
-  }, [isClerkLoaded, isSignedIn, user]);
+  }, []);
 
   // Real-time subscription for profile updates
   useEffect(() => {
     if (!user?.id) return;
-
     const channel = supabase
       .channel(`user-profile-${user.id}`)
       .on(
@@ -130,39 +88,83 @@ export const useAuth = () => {
           filter: `id=eq.${user.id}`
         },
         (payload) => {
-          console.log('Profile update received:', payload);
           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
             setProfile(payload.new);
+            setIsAdmin(payload.new?.role === 'admin');
           }
         }
       )
       .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
     };
   }, [user?.id]);
 
-  const logout = async () => {
-    await signOut();
+  // Sign in with email/password
+  const signIn = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setError(error);
+      return { error };
+    }
+    // Upsert user after sign in
+    if (data?.user) await upsertUserToTable(data.user);
+    return { data };
   };
 
+  // Sign up with email/password (user only)
+  const signUp = async (email: string, password: string, full_name?: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name, role: 'user' },
+      },
+    });
+    if (error) {
+      setError(error);
+      return { error };
+    }
+    // Upsert user after sign up
+    if (data?.user) await upsertUserToTable(data.user);
+    return { data };
+  };
+
+  // Sign out
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setProfile(null);
+    setIsSignedIn(false);
+    setIsAdmin(false);
+  };
+
+  // Invite user (send invite link)
+  const inviteUser = async (email: string, role: 'user' | 'admin' = 'user') => {
+    if (role === 'admin' && !isAdmin) {
+      throw new Error('Only admins can invite other admins.');
+    }
+    const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, { data: { role } });
+    if (error) {
+      setError(error);
+      return { error };
+    }
+    return { data };
+  };
+
+  // Update profile
   const updateProfile = async (updatedProfile: any) => {
     try {
       if (!user?.id) {
         throw new Error("User not authenticated");
       }
-      
-      // Ensure preferences is properly formatted as JSONB
       if (updatedProfile.preferences && typeof updatedProfile.preferences === 'string') {
         try {
           updatedProfile.preferences = JSON.parse(updatedProfile.preferences);
         } catch (e) {
-          console.error("Invalid preferences format:", e);
           updatedProfile.preferences = [];
         }
       }
-      
       const { data, error } = await supabase
         .from('users')
         .update({
@@ -172,16 +174,14 @@ export const useAuth = () => {
         .eq('id', user.id)
         .select()
         .single();
-        
       if (error) {
-        console.error("Error updating profile:", error);
+        setError(error);
         throw error;
       }
-      
       setProfile(data);
       return data;
     } catch (err) {
-      console.error("Error in updateProfile:", err);
+      setError(err as Error);
       throw err;
     }
   };
@@ -189,9 +189,13 @@ export const useAuth = () => {
   return {
     user,
     profile,
-    isLoaded: isClerkLoaded && isProfileLoaded,
+    isLoaded,
     isSignedIn,
-    logout,
+    isAdmin,
+    signIn,
+    signUp,
+    signOut,
+    inviteUser,
     updateProfile,
     error
   };
