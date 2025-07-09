@@ -108,7 +108,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       <main className="flex-grow flex items-center justify-center py-16 pb-20 md:pb-16">
         <div className="container-padding max-w-md w-full">
@@ -124,7 +124,7 @@ const Admin = () => {
                 <Button
                   type="button"
                   onClick={handleGoogleAuth}
-                  className="w-full flex items-center justify-center gap-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 mb-6"
+                  className="w-full flex items-center justify-center gap-2 border border-gray-300 bg-white text-black hover:bg-gray-50 mb-6"
                   disabled={googleLoading}
                 >
                   <FcGoogle className="w-5 h-5" />
@@ -132,20 +132,20 @@ const Admin = () => {
                 </Button>
                 <div className="w-full flex items-center gap-2 mb-4">
                   <div className="flex-1 h-px bg-gray-200" />
-                  <span className="text-xs text-gray-400">or</span>
+                  <span className="text-xs text-black">or</span>
                   <div className="flex-1 h-px bg-gray-200" />
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-black">Email</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <User className="absolute left-3 top-3 h-4 w-4 text-black" />
                       <Input 
                         id="email" 
                         name="email"
                         type="email"
                         placeholder="Enter your email"
-                        className="pl-10"
+                        className="pl-10 text-black"
                         value={credentials.email}
                         onChange={handleInputChange}
                         required
@@ -153,28 +153,28 @@ const Admin = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-black">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-black" />
                       <Input 
                         id="password" 
                         name="password"
                         type="password" 
                         placeholder="Enter your password"
-                        className="pl-10"
+                        className="pl-10 text-black"
                         value={credentials.password}
                         onChange={handleInputChange}
                         required
                       />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full text-black" disabled={loading}>
                     {loading ? "Signing In..." : "Sign In"}
                   </Button>
                 </form>
               </CardContent>
               <CardFooter className="flex justify-center">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-black">
                   Only invited admins can sign in here.
                 </p>
               </CardFooter>
@@ -185,7 +185,7 @@ const Admin = () => {
       <Footer />
       <div className="mt-8 flex flex-col items-center">
         <Link to="/response">
-          <Button className="bg-violet text-white font-bold px-6 py-3 rounded-lg shadow-md hover:bg-violet-700 transition-colors">
+          <Button className="bg-violet text-black font-bold px-6 py-3 rounded-lg shadow-md hover:bg-violet-700 transition-colors">
             Responses
           </Button>
         </Link>

@@ -13,7 +13,7 @@ interface TicketPreviewProps {
 }
 
 export default function TicketPreview() {
-  const { bookingId, ticketId } = useParams<TicketPreviewProps>();
+  const { bookingId, ticketId } = useParams<{ bookingId?: string; ticketId?: string }>();
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<any[]>([]);
   const [booking, setBooking] = useState<Booking | null>(null);
@@ -266,7 +266,7 @@ export default function TicketPreview() {
   // If there are no tickets but booking exists, show a single ticket UI with booking info
   if (tickets.length === 0) {
     // Try to get ticket holder names from booking (if available)
-    const ticketHolderNames = booking.ticket_names || booking.ticketHolderNames || booking.ticketNames || [];
+    const ticketHolderNames = booking.ticket_names || [];
     return (
       <div className="bg-raspberry min-h-screen flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-xl mx-auto">

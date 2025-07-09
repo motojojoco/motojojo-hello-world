@@ -75,14 +75,14 @@ const EventTypesSection = () => {
         
         <div 
           ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+          className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth justify-center"
         >
           {eventTypes.map((type, index) => (
             <FadeIn key={type.id} delay={100 * index}>
               <Link to={`/events?type=${type.id}`}>
-                <div className="w-[200px] flex flex-col items-center justify-center text-center h-full">
+                <div className="w-full max-w-[170px] md:w-[170px] flex flex-col items-center justify-center text-center h-full">
                   {type.image_url ? (
-                    <div className="w-32 h-48 mb-3">
+                    <div className="w-32 h-44 md:w-48 md:h-64 mb-3">
                       <img
                         src={type.image_url}
                         alt={type.name}
@@ -120,7 +120,7 @@ const EventTypesSection = () => {
         <div className="mt-8 text-center">
           <Button 
             variant="outline" 
-            className="border-violet text-violet hover:bg-violet/10 rounded-full px-8"
+            className="border-violet text-white hover:bg-violet/10 rounded-full px-8"
             asChild
           >
             <Link to="/events">View All Event Types</Link>

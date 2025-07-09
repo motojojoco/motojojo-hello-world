@@ -156,9 +156,16 @@ const ExperiencesSection = () => {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <CardContent className="p-5">
+                  <CardContent className="p-5 text-black">
+                    {experience.location || experience.city ? (
+                      <div className="text-black mb-1 text-base font-medium">
+                        {experience.location ? experience.location : ''}
+                        {experience.location && experience.city ? ', ' : ''}
+                        {experience.city ? experience.city : ''}
+                      </div>
+                    ) : null}
                     <h3 className="text-lg font-bold mb-2">{experience.name}</h3>
-                    <p className="text-muted-foreground text-sm">{experience.description}</p>
+                    <p className="text-sm">{experience.description}</p>
                   </CardContent>
                 </Card>
               </Link>

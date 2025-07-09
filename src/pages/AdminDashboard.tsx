@@ -766,7 +766,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-muted/5">
+    <div className="min-h-screen flex flex-col bg-white">
       {/* Admin Header */}
       <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm shadow-sm py-4">
         <div className="container-padding flex justify-between items-center">
@@ -996,30 +996,30 @@ const AdminDashboard = () => {
                           </DialogContent>
                         </Dialog>
                       </CardTitle>
-                      <CardDescription>
+                      <CardDescription className="text-black">
                         Manage your events and their details
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="rounded-md border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Name</TableHead>
-                              <TableHead>Category</TableHead>
-                              <TableHead>Date</TableHead>
-                              <TableHead>Price</TableHead>
-                              <TableHead className="text-right">Actions</TableHead>
+                    <CardContent className="text-black">
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Name</TableHead>
+                              <TableHead className="text-black">Category</TableHead>
+                              <TableHead className="text-black">Date</TableHead>
+                              <TableHead className="text-black">Price</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
                             </TableRow>
                           </TableHeader>
-                          <TableBody>
+                          <TableBody className="text-black">
                             {getCurrentItems(events).map((event) => (
-                              <TableRow key={event.id}>
-                                <TableCell className="font-medium">{event.title}</TableCell>
-                                <TableCell>{event.category}</TableCell>
-                                <TableCell>{formatDate(event.date)}</TableCell>
-                                <TableCell>₹{event.price}</TableCell>
-                                <TableCell className="text-right">
+                              <TableRow key={event.id} className="text-black">
+                                <TableCell className="font-medium text-black">{event.title}</TableCell>
+                                <TableCell className="text-black">{event.category}</TableCell>
+                                <TableCell className="text-black">{formatDate(event.date)}</TableCell>
+                                <TableCell className="text-black">₹{event.price}</TableCell>
+                                <TableCell className="text-black text-right">
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -1046,7 +1046,7 @@ const AdminDashboard = () => {
                           >
                             <ChevronLeft className="h-4 w-4" />
                           </Button>
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-sm text-black">
                             Page {currentPage} of {Math.ceil(events.length / itemsPerPage)}
                           </span>
                           <Button
@@ -1089,28 +1089,28 @@ const AdminDashboard = () => {
                           </DialogContent>
                         </Dialog>
                       </CardTitle>
-                      <CardDescription>
+                      <CardDescription className="text-black">
                         Manage your event types and their images
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="rounded-md border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Name</TableHead>
-                              <TableHead>Icon</TableHead>
-                              <TableHead>Image</TableHead>
-                              <TableHead>Sort Order</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead className="text-right">Actions</TableHead>
+                    <CardContent className="text-black">
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Name</TableHead>
+                              <TableHead className="text-black">Icon</TableHead>
+                              <TableHead className="text-black">Image</TableHead>
+                              <TableHead className="text-black">Sort Order</TableHead>
+                              <TableHead className="text-black">Status</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
                             </TableRow>
                           </TableHeader>
-                          <TableBody>
+                          <TableBody className="text-black">
                             {eventTypes.map((eventType) => (
-                              <TableRow key={eventType.id}>
-                                <TableCell className="font-medium">{eventType.name}</TableCell>
-                                <TableCell className="text-2xl">{eventType.icon || "🎭"}</TableCell>
+                              <TableRow key={eventType.id} className="text-black">
+                                <TableCell className="font-medium text-black">{eventType.name}</TableCell>
+                                <TableCell className="text-2xl text-black">{eventType.icon || "🎭"}</TableCell>
                                 <TableCell>
                                   {eventType.image_url ? (
                                     <img
@@ -1123,20 +1123,16 @@ const AdminDashboard = () => {
                                       }}
                                     />
                                   ) : (
-                                    <span className="text-muted-foreground text-sm">No image</span>
+                                    <span className="text-black text-sm">No image</span>
                                   )}
                                 </TableCell>
-                                <TableCell>{eventType.sort_order}</TableCell>
+                                <TableCell className="text-black">{eventType.sort_order}</TableCell>
                                 <TableCell>
-                                  <span className={`px-2 py-1 rounded-full text-xs ${
-                                    eventType.is_active 
-                                      ? 'bg-green-100 text-green-800' 
-                                      : 'bg-red-100 text-red-800'
-                                  }`}>
+                                  <span className={`px-2 py-1 rounded-full text-xs text-black ${eventType.is_active ? 'bg-green-100' : 'bg-red-100'}`}>
                                     {eventType.is_active ? 'Active' : 'Inactive'}
                                   </span>
                                 </TableCell>
-                                <TableCell className="text-right space-x-2">
+                                <TableCell className="text-black text-right space-x-2">
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -1209,21 +1205,21 @@ const AdminDashboard = () => {
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="rounded-md border">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                        <div className="rounded-md border text-black">
+                          <Table className="text-black">
+                            <TableHeader className="text-black">
+                              <TableRow className="text-black">
+                                <TableHead className="text-black">Name</TableHead>
+                                <TableHead className="text-black">Description</TableHead>
+                                <TableHead className="text-black text-right">Actions</TableHead>
                               </TableRow>
                             </TableHeader>
-                            <TableBody>
+                            <TableBody className="text-black">
                               {experiences.map((experience) => (
-                                <TableRow key={experience.id}>
-                                  <TableCell className="font-medium">{experience.name}</TableCell>
-                                  <TableCell>{experience.description}</TableCell>
-                                  <TableCell className="text-right space-x-2">
+                                <TableRow key={experience.id} className="text-black">
+                                  <TableCell className="font-medium text-black">{experience.name}</TableCell>
+                                  <TableCell className="text-black">{experience.description}</TableCell>
+                                  <TableCell className="text-black text-right space-x-2">
                                     <Button size="icon" variant="ghost">
                                       <Edit className="h-4 w-4" />
                                     </Button>
@@ -1312,25 +1308,25 @@ const AdminDashboard = () => {
                         Manage your homepage banner sliders
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="rounded-md border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Title</TableHead>
-                              <TableHead>Subtitle</TableHead>
-                              <TableHead>Image</TableHead>
-                              <TableHead>Link</TableHead>
-                              <TableHead>Sort Order</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead className="text-right">Actions</TableHead>
+                    <CardContent className="text-black">
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Title</TableHead>
+                              <TableHead className="text-black">Subtitle</TableHead>
+                              <TableHead className="text-black">Image</TableHead>
+                              <TableHead className="text-black">Link</TableHead>
+                              <TableHead className="text-black">Sort Order</TableHead>
+                              <TableHead className="text-black">Status</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
                             </TableRow>
                           </TableHeader>
-                          <TableBody>
+                          <TableBody className="text-black">
                             {banners.map((banner) => (
-                              <TableRow key={banner.id}>
-                                <TableCell className="font-medium">{banner.title}</TableCell>
-                                <TableCell className="max-w-[200px] truncate">
+                              <TableRow key={banner.id} className="text-black">
+                                <TableCell className="font-medium text-black">{banner.title}</TableCell>
+                                <TableCell className="max-w-[200px] truncate text-black">
                                   {banner.subtitle || "No subtitle"}
                                 </TableCell>
                                 <TableCell>
@@ -1342,20 +1338,20 @@ const AdminDashboard = () => {
                                     />
                                   </div>
                                 </TableCell>
-                                <TableCell className="max-w-[150px] truncate">
+                                <TableCell className="max-w-[150px] truncate text-black">
                                   {banner.link_url || "No link"}
                                 </TableCell>
-                                <TableCell>{banner.sort_order}</TableCell>
+                                <TableCell className="text-black">{banner.sort_order}</TableCell>
                                 <TableCell>
-                                  <span className={`px-2 py-1 rounded-full text-xs ${
+                                  <span className={`px-2 py-1 rounded-full text-xs text-black ${
                                     banner.is_active 
-                                      ? 'bg-green-100 text-green-800' 
-                                      : 'bg-red-100 text-red-800'
+                                      ? 'bg-green-100' 
+                                      : 'bg-red-100'
                                   }`}>
                                     {banner.is_active ? 'Active' : 'Inactive'}
                                   </span>
                                 </TableCell>
-                                <TableCell className="text-right space-x-2">
+                                <TableCell className="text-black text-right space-x-2">
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -1414,19 +1410,19 @@ const AdminDashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="rounded-md border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Name</TableHead>
-                              <TableHead>Role</TableHead>
-                              <TableHead>Rating</TableHead>
-                              <TableHead>Content</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead className="text-right">Actions</TableHead>
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Name</TableHead>
+                              <TableHead className="text-black">Role</TableHead>
+                              <TableHead className="text-black">Rating</TableHead>
+                              <TableHead className="text-black">Content</TableHead>
+                              <TableHead className="text-black">Status</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
                             </TableRow>
                           </TableHeader>
-                          <TableBody>
+                          <TableBody className="text-black">
                             {pendingTestimonials.length === 0 ? (
                               <TableRow>
                                 <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
@@ -1434,9 +1430,9 @@ const AdminDashboard = () => {
                                 </TableCell>
                               </TableRow>
                             ) : pendingTestimonials.map((testimonial) => (
-                              <TableRow key={testimonial.id}>
-                                <TableCell className="font-medium">{testimonial.name}</TableCell>
-                                <TableCell className="capitalize">{testimonial.role}</TableCell>
+                              <TableRow key={testimonial.id} className="text-black">
+                                <TableCell className="font-medium text-black">{testimonial.name}</TableCell>
+                                <TableCell className="capitalize text-black">{testimonial.role}</TableCell>
                                 <TableCell>
                                   <div className="flex items-center gap-1">
                                     {Array.from({ length: testimonial.rating }).map((_, i) => (
@@ -1444,11 +1440,11 @@ const AdminDashboard = () => {
                                     ))}
                                   </div>
                                 </TableCell>
-                                <TableCell className="max-w-md truncate">{testimonial.content}</TableCell>
+                                <TableCell className="max-w-md truncate text-black">{testimonial.content}</TableCell>
                                 <TableCell>
                                   <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">Pending</span>
                                 </TableCell>
-                                <TableCell className="text-right space-x-2">
+                                <TableCell className="text-black text-right space-x-2">
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -1503,31 +1499,31 @@ const AdminDashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="rounded-md border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Name</TableHead>
-                              <TableHead>Testimonial</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead className="text-right">Actions</TableHead>
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Name</TableHead>
+                              <TableHead className="text-black">Testimonial</TableHead>
+                              <TableHead className="text-black">Status</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
                             </TableRow>
                           </TableHeader>
-                          <TableBody>
+                          <TableBody className="text-black">
                             {testimonials.map((testimonial) => (
-                              <TableRow key={testimonial.id}>
-                                <TableCell className="font-medium">{testimonial.name}</TableCell>
-                                <TableCell className="max-w-md truncate">{testimonial.content}</TableCell>
+                              <TableRow key={testimonial.id} className="text-black">
+                                <TableCell className="font-medium text-black">{testimonial.name}</TableCell>
+                                <TableCell className="max-w-md truncate text-black">{testimonial.content}</TableCell>
                                 <TableCell>
-                                  <span className={`px-2 py-1 rounded-full text-xs ${
+                                  <span className={`px-2 py-1 rounded-full text-xs text-black ${
                                     testimonial.is_approved 
-                                      ? 'bg-green-100 text-green-800' 
-                                      : 'bg-red-100 text-red-800'
+                                      ? 'bg-green-100' 
+                                      : 'bg-red-100'
                                   }`}>
                                     {testimonial.is_approved ? 'Approved' : 'Pending'}
                                   </span>
                                 </TableCell>
-                                <TableCell className="text-right space-x-2">
+                                <TableCell className="text-black text-right space-x-2">
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -1740,33 +1736,33 @@ const AdminDashboard = () => {
                           </p>
                         </div>
 
-                        <div className="rounded-md border">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Event</TableHead>
-                                <TableHead>User</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Phone</TableHead>
-                                <TableHead>Tickets</TableHead>
-                                <TableHead>Amount</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Booking Date</TableHead>
+                        <div className="rounded-md border text-black">
+                          <Table className="text-black">
+                            <TableHeader className="text-black">
+                              <TableRow className="text-black">
+                                <TableHead className="text-black">Event</TableHead>
+                                <TableHead className="text-black">User</TableHead>
+                                <TableHead className="text-black">Email</TableHead>
+                                <TableHead className="text-black">Phone</TableHead>
+                                <TableHead className="text-black">Tickets</TableHead>
+                                <TableHead className="text-black">Amount</TableHead>
+                                <TableHead className="text-black">Status</TableHead>
+                                <TableHead className="text-black">Booking Date</TableHead>
                               </TableRow>
                             </TableHeader>
-                            <TableBody>
+                            <TableBody className="text-black">
                               {getCurrentItems(filteredBookings).map((booking) => (
-                                <TableRow key={booking.id}>
-                                  <TableCell className="font-medium">
+                                <TableRow key={booking.id} className="text-black">
+                                  <TableCell className="font-medium text-black">
                                     {booking.event?.title || 'Event not found'}
                                   </TableCell>
-                                  <TableCell>{booking.name}</TableCell>
-                                  <TableCell>{booking.email}</TableCell>
-                                  <TableCell>{booking.phone}</TableCell>
-                                  <TableCell>{booking.tickets}</TableCell>
-                                  <TableCell>₹{booking.amount.toLocaleString()}</TableCell>
+                                  <TableCell className="text-black">{booking.name}</TableCell>
+                                  <TableCell className="text-black">{booking.email}</TableCell>
+                                  <TableCell className="text-black">{booking.phone}</TableCell>
+                                  <TableCell className="text-black">{booking.tickets}</TableCell>
+                                  <TableCell className="text-black">₹{booking.amount.toLocaleString()}</TableCell>
                                   <TableCell>
-                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-black ${
                                       booking.status === 'confirmed' 
                                         ? 'bg-green-100 text-green-800' 
                                         : 'bg-yellow-100 text-yellow-800'
@@ -1774,7 +1770,7 @@ const AdminDashboard = () => {
                                       {booking.status}
                                     </span>
                                   </TableCell>
-                                  <TableCell>{formatDate(booking.booking_date)}</TableCell>
+                                  <TableCell className="text-black">{formatDate(booking.booking_date)}</TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
@@ -1820,7 +1816,7 @@ const AdminDashboard = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Total Events</p>
-                          <p className="text-2xl font-bold">{events?.length || 0}</p>
+                          <p className="text-2xl font-bold text-black">{events?.length || 0}</p>
                         </div>
                         <Calendar className="h-8 w-8 text-blue-500" />
                       </div>
@@ -1832,7 +1828,7 @@ const AdminDashboard = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Total Bookings</p>
-                          <p className="text-2xl font-bold">{bookings.length}</p>
+                          <p className="text-2xl font-bold text-black">{bookings.length}</p>
                         </div>
                         <Users className="h-8 w-8 text-green-500" />
                       </div>
@@ -1844,7 +1840,7 @@ const AdminDashboard = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Revenue</p>
-                          <p className="text-2xl font-bold">₹{bookings.reduce((sum, booking) => sum + booking.amount, 0).toLocaleString()}</p>
+                          <p className="text-2xl font-bold text-black">₹{bookings.reduce((sum, booking) => sum + booking.amount, 0).toLocaleString()}</p>
                         </div>
                         <DollarSign className="h-8 w-8 text-yellow-500" />
                       </div>
@@ -1856,7 +1852,7 @@ const AdminDashboard = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Completed Events</p>
-                          <p className="text-2xl font-bold">
+                          <p className="text-2xl font-bold text-black">
                             {events?.filter(event => {
                               const eventDate = new Date(event.date);
                               const now = new Date();
@@ -1990,7 +1986,7 @@ const AdminDashboard = () => {
       </Dialog>
       <div className="mt-8 flex flex-col items-center">
         <Link to="/response">
-          <Button className="bg-violet text-white font-bold px-6 py-3 rounded-lg shadow-md hover:bg-violet-700 transition-colors">
+          <Button className="bg-violet text-black font-bold px-6 py-3 rounded-lg shadow-md hover:bg-violet-700 transition-colors">
             Responses
           </Button>
         </Link>

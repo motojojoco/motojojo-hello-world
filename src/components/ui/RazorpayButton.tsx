@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ScrollableNumberInput } from "@/components/ui/scrollable-number-input";
 import BookingTicket from "@/components/tickets/BookingTicket";
+import { cn } from "@/lib/utils";
 
 interface RazorpayButtonProps {
   eventId: string; // Changed to string only since we're using UUIDs
@@ -191,7 +192,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       const totalAmount = amount * formData.tickets;
 
       const options = {
-        key: "rzp_live_yAyC4YmewB4VQG", // Live key
+        key: "rzp_test_AIaN0EfXmfZgMk", // Live key
         amount: totalAmount * 100,
         currency: "INR",
         name: "Motojojo",
@@ -347,7 +348,10 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
   return (
     <>
       <Button 
-        className={className || "bg-gradient-to-r from-sandstorm to-sandstorm hover:opacity-90 transition-opacity"}
+        className={cn(
+          "bg-raspberry text-black font-bold px-6 py-3 rounded-lg shadow-md hover:bg-raspberry/80 transition-colors",
+          className
+        )}
         onClick={handleButtonClick}
       >
         Book Now
@@ -406,14 +410,11 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               <div className="grid gap-2">
                 <Label htmlFor="tickets">Number of Tickets</Label>
                 <ScrollableNumberInput
-                  id="tickets"
-                  name="tickets"
                   value={formData.tickets}
                   onChange={handleTicketCountChange}
                   min={1}
                   max={15}
                   className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  required
                 />
               </div>
 

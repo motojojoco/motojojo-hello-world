@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCartStore, CartItem } from "@/store/cart-store";
 import { createBookingFromCart } from "@/services/bookingService";
 import BookingTicket from "@/components/BookingTicket";
+import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 
 const Cart = () => {
   const { toast } = useToast();
@@ -190,6 +191,7 @@ const Cart = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <MovingPartyBackground />
       
       <main className="flex-grow pt-24 pb-20 md:pb-16">
         <div className="container-padding">

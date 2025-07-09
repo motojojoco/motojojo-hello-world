@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, User, Mail, Phone, Ticket } from "lucide-react";
+import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 
 export default function BookingTicketDemo() {
   const navigate = useNavigate();
@@ -57,6 +58,7 @@ export default function BookingTicketDemo() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <MovingPartyBackground />
       
       <main className="flex-grow bg-gradient-to-br from-raspberry/10 to-purple-600/10 py-8">
         <div className="container mx-auto px-4">

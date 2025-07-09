@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -28,19 +28,26 @@ import {
   Search,
   AlertCircle,
   History,
-  Eye
+  Eye,
+  ShoppingCart
 } from "lucide-react";
 import { FadeIn } from "@/components/ui/motion";
 import { getEvents, getEventCities, Event } from "@/services/eventService";
 import { getEventTypes, EventType } from "@/services/eventTypeService";
 import { Separator } from "@/components/ui/separator";
 import { getEventStatus, formatEventStatus } from "@/lib/utils";
+import { useCartStore } from "@/store/cart-store";
+import { useToast } from "@/hooks/use-toast";
 
 const Events = () => {
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [selectedEventType, setSelectedEventType] = useState<string>("");
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [showAllPreviousEvents, setShowAllPreviousEvents] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { addItem } = useCartStore();
+  const { toast } = useToast();
   
   // Fetch all events
   const { data: events = [], isLoading: eventsLoading } = useQuery({
@@ -59,6 +66,26 @@ const Events = () => {
     queryKey: ['event-types'],
     queryFn: getEventTypes
   });
+
+  // Read city from query string and set filter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const city = params.get('city');
+    if (city) {
+      setSelectedCity(city);
+    }
+  }, [location.search]);
+
+  // If no events for selected city, show coming soon and redirect
+  useEffect(() => {
+    if (selectedCity && events.length > 0) {
+      const cityEvents = events.filter(event => event.city === selectedCity);
+      if (cityEvents.length === 0) {
+        alert('We are coming soon in your city!');
+        navigate('/membership');
+      }
+    }
+  }, [selectedCity, events, navigate]);
 
   // Get all previous events
   const allPreviousEvents = events.filter(event => {
@@ -129,6 +156,27 @@ const Events = () => {
       acc[date] = grouped[date];
       return acc;
     }, {} as { [key: string]: Event[] });
+  };
+
+  // Add to cart function
+  const handleAddToCart = (event: Event) => {
+    const cartItem = {
+      id: `cart-${event.id}-${Date.now()}`,
+      eventId: event.id,
+      eventTitle: event.title,
+      eventImage: event.image,
+      quantity: 1,
+      price: event.has_discount && event.discounted_price ? event.discounted_price : event.price,
+      date: event.date,
+      venue: event.venue,
+      city: event.city,
+    };
+    
+    addItem(cartItem);
+    toast({
+      title: "Added to Cart",
+      description: `${event.title} has been added to your cart.`,
+    });
   };
 
   // Format date for display
@@ -348,12 +396,9 @@ const Events = () => {
               {Object.entries(groupedEvents).map(([date, dateEvents]) => (
                 <div key={date}>
                   <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h2 className="text-2xl font-bold text-white mb-2">
                       {formatDateHeader(date)}
                     </h2>
-                    <p className="text-muted-foreground">
-                      {formatDate(date)}
-                    </p>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -379,31 +424,42 @@ const Events = () => {
                         })()}
                       </div>
                     </div>
-                    <CardContent className="p-5">
+                    <CardContent className="p-5 text-black">
                       <h3 className="text-lg font-bold mb-1">{event.title}</h3>
-                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{event.subtitle}</p>
+                      <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
                       
                       <div className="flex items-center gap-2 text-sm mb-2">
-                        <MapPin className="h-4 w-4 text-red" />
+                        <MapPin className="h-4 w-4" />
                         <span>{event.city}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
-                              <Clock className="h-4 w-4 text-violet" />
+                              <Clock className="h-4 w-4" />
                               <span>{event.time}</span>
                       </div>
                     </CardContent>
-                    <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
+                    <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-black">
                       {event.has_discount && event.real_price && event.discounted_price ? (
                         <div className="flex flex-col items-start">
-                          <span className="text-base text-muted-foreground opacity-60 line-through decoration-2 decoration-red-500">₹{event.real_price}</span>
+                          <span className="text-base opacity-60 line-through decoration-2 decoration-red-500">₹{event.real_price}</span>
                           <span className="text-lg font-bold text-red-600">₹{event.discounted_price}</span>
                         </div>
                       ) : (
                         <div className="text-lg font-bold">₹{event.price}</div>
                       )}
-                      <Button asChild>
-                        <Link to={`/event/${event.id}`}>Book Now</Link>
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleAddToCart(event)}
+                          className="flex items-center gap-1 bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          Add to Cart
+                        </Button>
+                        <Button asChild size="sm">
+                          <Link to={`/event/${event.id}`}>Book Now</Link>
+                        </Button>
+                      </div>
                     </CardFooter>
                   </Card>
                 </FadeIn>

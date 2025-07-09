@@ -1,4 +1,5 @@
 
+import React, { useRef } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -23,6 +24,16 @@ const FaqSection = () => {
     }
   ];
 
+  // Refs for each FAQ item
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [openIndex, setOpenIndex] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    if (openIndex !== null && itemRefs.current[openIndex]) {
+      itemRefs.current[openIndex]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [openIndex]);
+
   return (
     <section className="py-16">
       <div className="container-padding">
@@ -36,17 +47,26 @@ const FaqSection = () => {
         </FadeIn>
 
         <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="w-full" value={openIndex !== null ? `item-${openIndex}` : undefined} onValueChange={val => {
+            if (val) {
+              const idx = parseInt((val as string).replace('item-', ''));
+              setOpenIndex(idx);
+            } else {
+              setOpenIndex(null);
+            }
+          }}>
             {faqs.map((faq, index) => (
               <FadeIn key={index} delay={100 * index}>
-                <AccordionItem value={`item-${index}`}>
-                  <AccordionTrigger className="text-left font-medium">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
+                <div ref={el => itemRefs.current[index] = el}>
+                  <AccordionItem value={`item-${index}`}>
+                    <AccordionTrigger className="text-left font-medium">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                </div>
               </FadeIn>
             ))}
           </Accordion>

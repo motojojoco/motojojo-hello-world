@@ -129,7 +129,7 @@ const MjMember = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-raspberry via-violet to-raspberry">
+    <div className="min-h-screen bg-raspberry">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -155,32 +155,32 @@ const MjMember = () => {
 
         {/* Introduction */}
         <FadeIn delay={300}>
-          <Card className="bg-white/90 mb-8">
+          <Card className="bg-white/10 mb-8 text-white">
             <CardContent className="p-6">
               <div className="prose prose-lg max-w-none">
-                <p className="text-lg text-violet mb-4">
+                <p className="text-lg text-white mb-4">
                   <strong>Hello Jojos!!</strong>
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-white/70 mb-4">
                   We're a community-led platform bringing together artists, storytellers, musicians, poets, and the beautiful misfits of the world — one intimate gathering at a time. In the past 6 years, we've hosted over 550+ events across 22 cities, with 2000+ independent artists and 20,000+ guests — all made possible by people like you.
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-white/70 mb-4">
                   Now, after a long pause, we're ready to make magic again. We're looking for curious, creative, kind humans across India to help restart the fire — by hosting, volunteering, or just showing up with their whole heart.
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-white/70 mb-4">
                   This is not a place where we aim to sell tickets for an event. We aim to build, to connect, to inspire and to create. This community is led by it's members, you host, you curate, you lead, you ideate and you take charge. There is no difference between those who perform, those who curate and those who listen; at Motojojo, we're all just a bunch of incomplete people trying to build a safe space to be ourselves.
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-white/70 mb-4">
                   If you believe in warm lights, deep conversations, and art that brings people closer — you're in the right place.
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-white/70 mb-4">
                   Tell us a bit about yourself, and let's see where this journey takes us.
                 </p>
                 <div className="bg-yellow/20 p-4 rounded-lg">
-                  <p className="text-violet font-semibold mb-2">Fill out the form — We will see you very soon!</p>
-                  <p className="text-sm text-gray-600 mb-1">📞 +91 88288 81117</p>
-                  <p className="text-sm text-gray-600 mb-1">📸 @motojojo.co (our Instagram to show you a glimpse of what we do)</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-yellow font-semibold mb-2">Fill out the form  We will see you very soon!</p>
+                  <p className="text-sm text-white/70 mb-1">📞 +91 88288 81117</p>
+                  <p className="text-sm text-white/70 mb-1">📸 @motojojo.co (our Instagram to show you a glimpse of what we do)</p>
+                  <p className="text-sm text-white/70">
                     Here is a virtual gallery for you to dive deep into our world:{" "}
                     <a href="https://motojojomemories.my.canva.site/" target="_blank" rel="noopener noreferrer" className="text-violet hover:underline">
                       https://motojojomemories.my.canva.site/
@@ -194,7 +194,7 @@ const MjMember = () => {
 
         {/* Form */}
         <FadeIn delay={400}>
-          <Card className="bg-white/90">
+          <Card className="bg-white/10 text-white">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-violet text-center">
                 Join the Motojojo Community
@@ -337,7 +337,7 @@ const MjMember = () => {
                   <Label className="text-violet font-semibold">
                     If you were a mood, what mood would you be right now? *
                   </Label>
-                  <p className="text-sm text-gray-600 mt-1 mb-3">
+                  <p className="text-sm text-white/70 mt-1 mb-3">
                     Feel free to describe your vibe in your own words in the "Other" option below.
                   </p>
                   <RadioGroup 
@@ -442,7 +442,7 @@ const MjMember = () => {
                   <Label htmlFor="interests" className="text-violet font-semibold">
                     What do you do when you are not working? *
                   </Label>
-                  <p className="text-sm text-gray-600 mt-1 mb-2">
+                  <p className="text-sm text-white/70 mt-1 mb-2">
                     Tell us your interests, hobbies, passions etc
                   </p>
                   <Textarea
@@ -546,7 +546,7 @@ const MjMember = () => {
                   <Label htmlFor="whyJoinCommunity" className="text-violet font-semibold">
                     Why do you want to be a part of the Motojojo community? *
                   </Label>
-                  <p className="text-sm text-gray-600 mt-1 mb-2">
+                  <p className="text-sm text-white/70 mt-1 mb-2">
                     What do you seek? What is your intention? This question is more for you than for us :)
                   </p>
                   <Textarea

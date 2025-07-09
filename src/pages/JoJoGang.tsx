@@ -164,7 +164,7 @@ const JoJoGang = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-raspberry via-violet to-raspberry">
+    <div className="min-h-screen bg-raspberry">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -190,34 +190,34 @@ const JoJoGang = () => {
 
         {/* Introduction */}
         <FadeIn delay={300}>
-          <Card className="bg-white/90 mb-8">
+          <Card className="bg-white/10 mb-8 text-white">
             <CardContent className="p-6">
               <div className="prose prose-lg max-w-none">
-                <p className="text-lg text-sandstorm mb-4">
+                <p className="text-lg text-white mb-4">
                   Motojojo is a lively and breathing community with the motive to build a safe, independent and exploratory space of artists, musicians, film-makers, photographers, poets and the misfits all across the country.
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-white/70 mb-4">
                   Motojojo is all about creating platforms to support different types of art. We organize mindful and intimate gatherings in everyday spaces, focused on different kinds of independent art including music, cooking, poetry, film-making, and story-telling. In the last seven years, Motojojo has done over 550+ events across 22+ cities in India, hosting over 20,000 guests and 2000 independent/originals artists; all with the help of YOU!
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-white/70 mb-4">
                   We are onboarding the next set of community members who will fuel up the coming months. We are restarting gatherings after a good long break and we want to revolutionize the scene of the community-based gatherings in India by the help of YOU! We are on a lookout for each one of you who can help make a gathering possible in your city.
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-white/70 mb-4">
                   So whoever you are, fill-up the form because there is something for everyone here!
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-white/70 mb-4">
                   We look forward to connecting & working with you :)
                 </p>
                 <div className="bg-yellow/20 p-4 rounded-lg">
-                  <p className="text-violet font-semibold mb-2">Contact us:</p>
-                  <p className="text-sm text-gray-600 mb-1">📞 +91 88288 81117</p>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <p className="text-yellow font-semibold mb-2">Fill out the form  We will see you very soon!</p>
+                  <p className="text-sm text-white/70 mb-1">📞 +91 88288 81117</p>
+                  <p className="text-sm text-white/70 mb-1">
                     📸 <a href="https://www.instagram.com/motojojo.co/" target="_blank" rel="noopener noreferrer" className="text-violet hover:underline">@motojojo.co</a>
                   </p>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <p className="text-sm text-white/70 mb-1">
                     📘 <a href="https://www.facebook.com/motojojo.co/" target="_blank" rel="noopener noreferrer" className="text-violet hover:underline">Facebook</a>
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-white/70">
                     🖼️ <a href="https://motojojomemories.my.canva.site/" target="_blank" rel="noopener noreferrer" className="text-violet hover:underline">Photo Gallery</a>
                   </p>
                 </div>
@@ -228,7 +228,7 @@ const JoJoGang = () => {
 
         {/* Form */}
         <FadeIn delay={400}>
-          <Card className="bg-white/90">
+          <Card className="bg-white/10 text-white">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-violet text-center">
                 Join the JoJo Gang
@@ -390,17 +390,23 @@ const JoJoGang = () => {
                     className="mt-2"
                   >
                     <div className="space-y-3">
-                      {positionOptions.map((option) => (
-                        <div key={option.value} className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                          <RadioGroupItem value={option.value} id={option.value} className="mt-1" />
-                          <div className="flex items-center space-x-2">
-                            <span className="text-raspberry">{option.icon}</span>
-                            <Label htmlFor={option.value} className="text-sm cursor-pointer">
-                              {option.label}
-                            </Label>
+                      {positionOptions.map((option) => {
+                        const isSelected = formData.position === option.value;
+                        return (
+                          <div
+                            key={option.value}
+                            className={`flex items-start space-x-3 p-3 border border-gray-200 rounded-lg transition-colors ${isSelected ? 'bg-violet/30' : 'bg-transparent'} hover:bg-violet/20`}
+                          >
+                            <RadioGroupItem value={option.value} id={option.value} className="mt-1" />
+                            <div className="flex items-center space-x-2">
+                              <span className="text-raspberry">{option.icon}</span>
+                              <Label htmlFor={option.value} className="text-sm cursor-pointer">
+                                {option.label}
+                              </Label>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </RadioGroup>
                 </div>

@@ -3,18 +3,20 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn } from "@/components/ui/motion";
-import { Calendar, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, Clock, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getEvents, Event } from "@/services/eventService";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { isEventOver } from "@/lib/utils";
+import { useCartStore } from "@/store/cart-store";
 
 const EventsSection = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { addItem } = useCartStore();
 
   // Fetch events on component mount
   useEffect(() => {
@@ -77,6 +79,27 @@ const EventsSection = () => {
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  // Add to cart function
+  const handleAddToCart = (event: Event) => {
+    const cartItem = {
+      id: `cart-${event.id}-${Date.now()}`,
+      eventId: event.id,
+      eventTitle: event.title,
+      eventImage: event.image,
+      quantity: 1,
+      price: event.has_discount && event.discounted_price ? event.discounted_price : event.price,
+      date: event.date,
+      venue: event.venue,
+      city: event.city,
+    };
+    
+    addItem(cartItem);
+    toast({
+      title: "Added to Cart",
+      description: `${event.title} has been added to your cart.`,
+    });
   };
 
   // Split events into upcoming and previous
@@ -165,29 +188,40 @@ const EventsSection = () => {
                       <Badge className="bg-violet hover:bg-violet-700">{event.category}</Badge>
                     </div>
                   </div>
-                  <CardContent className="p-5">
+                  <CardContent className="p-5 text-black">
                     <h3 className="text-lg font-bold mb-1 line-clamp-1">{event.title}</h3>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{event.subtitle}</p>
+                    <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
                     <div className="flex flex-col gap-2 text-sm">
                       <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-red" />
+                        <MapPin className="h-4 w-4" />
                         <span>{event.city}, {event.venue}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-violet" />
+                        <Calendar className="h-4 w-4" />
                         <span>{formatDate(event.date)}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-yellow" />
+                        <Clock className="h-4 w-4" />
                         <span>{event.time} • {event.duration || "2 hours"}</span>
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
+                  <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-black">
                     <div className="text-lg font-bold">₹{event.price}</div>
-                    <Button asChild>
-                      <Link to={`/event/${event.id}`}>Book Now</Link>
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleAddToCart(event)}
+                        className="flex items-center gap-1 bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        Add to Cart
+                      </Button>
+                      <Button asChild size="sm">
+                        <Link to={`/event/${event.id}`}>Book Now</Link>
+                      </Button>
+                    </div>
                   </CardFooter>
                 </Card>
               </FadeIn>
@@ -231,25 +265,25 @@ const EventsSection = () => {
                       <Badge className="bg-gray-400">{event.category}</Badge>
                     </div>
                   </div>
-                  <CardContent className="p-5">
+                  <CardContent className="p-5 text-black">
                     <h3 className="text-lg font-bold mb-1 line-clamp-1">{event.title}</h3>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{event.subtitle}</p>
+                    <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
                     <div className="flex flex-col gap-2 text-sm">
                       <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-red" />
+                        <MapPin className="h-4 w-4" />
                         <span>{event.city}, {event.venue}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-violet" />
+                        <Calendar className="h-4 w-4" />
                         <span>{formatDate(event.date)}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-yellow" />
+                        <Clock className="h-4 w-4" />
                         <span>{event.time} • {event.duration || "2 hours"}</span>
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
+                  <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-black">
                     <div className="text-lg font-bold">₹{event.price}</div>
                     <Button asChild variant="outline" disabled>
                       <span>Event Over</span>

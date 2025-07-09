@@ -37,6 +37,7 @@ import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subs
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEventOver } from "@/lib/utils";
+import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -332,6 +333,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <MovingPartyBackground />
       
       <main className="flex-grow pt-24 pb-20 md:pb-16">
         <div className="container-padding">

@@ -28,17 +28,21 @@ import {
   Users, 
   DollarSign,
   Star,
-  AlertCircle
+  AlertCircle,
+  ShoppingCart
 } from "lucide-react";
 import { getEvent, getEventsByCategory, Event } from "@/services/eventService";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { isEventOver, getEventStatus, formatEventStatus } from "@/lib/utils";
+import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
+import { useCartStore } from "@/store/cart-store";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addItem } = useCartStore();
   
   // Fetch event details
   const { 
@@ -88,6 +92,28 @@ const EventDetail = () => {
     console.log("Booking successful for event:", id);
   };
 
+  const handleAddToCart = () => {
+    if (!event) return;
+    
+    const cartItem = {
+      id: `cart-${event.id}-${Date.now()}`,
+      eventId: event.id,
+      eventTitle: event.title,
+      eventImage: event.image,
+      quantity: 1,
+      price: event.has_discount && event.discounted_price ? event.discounted_price : event.price,
+      date: event.date,
+      venue: event.venue,
+      city: event.city,
+    };
+    
+    addItem(cartItem);
+    toast({
+      title: "Added to Cart",
+      description: `${event.title} has been added to your cart.`,
+    });
+  };
+
   if (eventLoading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -129,6 +155,7 @@ const EventDetail = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <MovingPartyBackground />
       
       <main className="flex-grow pt-16 pb-20 md:pb-0">
         {/* Event Banner */}
@@ -212,60 +239,60 @@ const EventDetail = () => {
                 <div className="sticky top-24">
                   <Card className="border-none shadow-soft overflow-hidden">
                     <CardContent className="p-6">
-                      <h3 className="text-xl font-bold mb-4">Event Details</h3>
+                      <h3 className="text-xl font-bold mb-4 text-black">Event Details</h3>
                       
                       <div className="space-y-4 mb-6">
                         <div className="flex items-start">
-                          <MapPin className="h-5 w-5 text-red mr-3 mt-0.5" />
+                          <MapPin className="h-5 w-5 text-raspberry mr-3 mt-0.5" />
                           <div>
-                            <div className="font-medium">Venue</div>
-                            <div className="text-muted-foreground">{event.venue}, {event.city}</div>
+                            <div className="font-semibold text-black">Venue</div>
+                            <div className="text-black">{event.venue}, {event.city}</div>
                           </div>
                         </div>
                         
                         <div className="flex items-start">
                           <Calendar className="h-5 w-5 text-violet mr-3 mt-0.5" />
                           <div>
-                            <div className="font-medium">Date</div>
-                            <div className="text-muted-foreground">{formatDate(event.date)}</div>
+                            <div className="font-semibold text-black">Date</div>
+                            <div className="text-black">{formatDate(event.date)}</div>
                           </div>
                         </div>
                         
                         <div className="flex items-start">
                           <Clock className="h-5 w-5 text-yellow mr-3 mt-0.5" />
                           <div>
-                            <div className="font-medium">Time & Duration</div>
-                            <div className="text-muted-foreground">{event.time} • {event.duration || 'TBD'}</div>
+                            <div className="font-semibold text-black">Time & Duration</div>
+                            <div className="text-black">{event.time} • {event.duration || 'TBD'}</div>
                           </div>
                         </div>
                         
                         <div className="flex items-start">
                           <User className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
                           <div>
-                            <div className="font-medium">Host</div>
-                            <div className="text-muted-foreground">{event.host || 'Motojojo'}</div>
+                            <div className="font-semibold text-black">Host</div>
+                            <div className="text-black">{event.host || 'Motojojo'}</div>
                           </div>
                         </div>
                         
                         <div className="flex items-start">
                           <Tag className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />
                           <div>
-                            <div className="font-medium">Category</div>
-                            <div className="text-muted-foreground">{event.category}</div>
+                            <div className="font-semibold text-black">Category</div>
+                            <div className="text-black">{event.category}</div>
                           </div>
                         </div>
                         
                         <div className="flex items-start">
                           <DollarSign className="h-5 w-5 text-purple-500 mr-3 mt-0.5" />
                           <div>
-                            <div className="font-medium">Price</div>
+                            <div className="font-semibold text-black">Price</div>
                             {event.has_discount && event.real_price && event.discounted_price ? (
                               <div className="flex flex-col items-start">
-                                <span className="text-base text-muted-foreground opacity-60 line-through decoration-2 decoration-red-500">₹{formatPrice(event.real_price)}</span>
+                                <span className="text-base text-black opacity-60 line-through decoration-2 decoration-red-500">₹{formatPrice(event.real_price)}</span>
                                 <span className="text-xl font-bold text-red-600">₹{formatPrice(event.discounted_price)}</span>
                               </div>
                             ) : (
-                              <div className="text-xl font-bold">₹{formatPrice(event.price)}</div>
+                              <div className="text-xl font-bold text-black">₹{formatPrice(event.price)}</div>
                             )}
                           </div>
                         </div>
@@ -291,12 +318,22 @@ const EventDetail = () => {
                           </Button>
                         </div>
                       ) : (
-                        <RazorpayButton 
-                          eventId={event.id} 
-                          eventName={event.title}
-                          amount={event.has_discount && event.discounted_price ? event.discounted_price : event.price}
-                          onSuccess={handleBookingSuccess}
-                        />
+                        <div className="w-full space-y-3">
+                          <Button 
+                            variant="outline" 
+                            className="w-full flex items-center gap-2"
+                            onClick={handleAddToCart}
+                          >
+                            <ShoppingCart className="h-4 w-4" />
+                            Add to Cart
+                          </Button>
+                          <RazorpayButton 
+                            eventId={event.id} 
+                            eventName={event.title}
+                            amount={event.has_discount && event.discounted_price ? event.discounted_price : event.price}
+                            onSuccess={handleBookingSuccess}
+                          />
+                        </div>
                       )}
                     </CardFooter>
                   </Card>
@@ -322,27 +359,56 @@ const EventDetail = () => {
                         <Badge className="bg-violet hover:bg-violet-700">{event.category}</Badge>
                       </div>
                     </div>
-                    <CardContent className="p-5">
+                    <CardContent className="p-5 text-black">
                       <h3 className="text-lg font-bold mb-1">{event.title}</h3>
-                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{event.subtitle}</p>
+                      <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
                       
                       <div className="flex items-center gap-2 text-sm mb-2">
-                        <MapPin className="h-4 w-4 text-red" />
+                        <MapPin className="h-4 w-4" />
                         <span>{event.city}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4 text-violet" />
+                        <Calendar className="h-4 w-4" />
                         <span>{formatDate(event.date)}</span>
                       </div>
                     </CardContent>
-                    <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center">
+                    <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-black">
                       <div className="text-lg font-bold">₹{formatPrice(event.price)}</div>
-                      <Button 
-                        variant="outline"
-                        onClick={() => navigate(`/event/${event.id}`)}
-                      >
-                        View Details
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const cartItem = {
+                              id: `cart-${event.id}-${Date.now()}`,
+                              eventId: event.id,
+                              eventTitle: event.title,
+                              eventImage: event.image,
+                              quantity: 1,
+                              price: event.has_discount && event.discounted_price ? event.discounted_price : event.price,
+                              date: event.date,
+                              venue: event.venue,
+                              city: event.city,
+                            };
+                            addItem(cartItem);
+                            toast({
+                              title: "Added to Cart",
+                              description: `${event.title} has been added to your cart.`,
+                            });
+                          }}
+                          className="flex items-center gap-1 bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          Add to Cart
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/event/${event.id}`)}
+                        >
+                          View Details
+                        </Button>
+                      </div>
                     </CardFooter>
                   </Card>
                 ))}

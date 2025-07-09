@@ -41,6 +41,11 @@ const Footer = () => {
               <a href="https://youtube.com" className="text-muted-foreground hover:text-violet transition-colors">
                 <Youtube className="h-5 w-5" />
               </a>
+              <a href="https://wa.me/919876543210" className="text-muted-foreground hover:text-violet transition-colors" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" className="h-5 w-5">
+                  <path d="M16 3C9.373 3 4 8.373 4 15c0 2.385.832 4.584 2.236 6.393L4 29l7.824-2.05C13.7 27.633 14.836 28 16 28c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22c-1.04 0-2.062-.162-3.027-.48l-.216-.07-4.65 1.22 1.24-4.53-.14-.22C7.08 18.13 6.25 16.61 6.25 15c0-5.376 4.374-9.75 9.75-9.75s9.75 4.374 9.75 9.75S21.376 25 16 25zm5.13-7.13c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.43-2.25-1.37-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.32.42-.48.14-.16.18-.28.28-.46.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.61-.47-.16-.01-.34-.01-.52-.01-.18 0-.48.07-.73.34-.25.27-.97.95-.97 2.3s.99 2.67 1.13 2.85c.14.18 1.95 2.98 4.73 4.06.66.28 1.18.45 1.58.58.66.21 1.26.18 1.73.11.53-.08 1.65-.67 1.89-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"/>
+                </svg>
+              </a>
             </div>
           </div>
           
@@ -61,11 +66,6 @@ const Footer = () => {
               <li>
                 <Link to="/artists" className="text-muted-foreground hover:text-violet transition-colors">
                   Artists
-                </Link>
-              </li>
-              <li>
-                <Link to="/premium" className="text-muted-foreground hover:text-violet transition-colors">
-                  Premium Membership
                 </Link>
               </li>
               <li>
@@ -115,16 +115,16 @@ const Footer = () => {
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 mr-3 text-violet mt-0.5" />
                 <span className="text-muted-foreground">
-                  123 Event Street, Mumbai, <br />Maharashtra, India - 400001
+                  Motojojo House No. 10, Asha Nagar, Pestom Sagar Rd Number 2, Chembur, Mumbai, Maharashtra 400089
                 </span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-3 text-violet" />
                 <a 
-                  href="tel:+919876543210" 
+                  href="tel:+918828881117" 
                   className="text-muted-foreground hover:text-violet transition-colors"
                 >
-                  +91 98765 43210
+                  88288 81117
                 </a>
               </li>
               <li className="flex items-center">

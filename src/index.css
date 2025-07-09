@@ -6,26 +6,28 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 342 65% 49%;  /* French Raspberry */
-    --primary-foreground: 0 0% 98%;
+    --background: 262 83% 18%; /* violet-900 */
+    --foreground: 0 0% 100%; /* white */
+    --card: 262 83% 18%; /* violet-900 */
+    --card-foreground: 0 0% 100%; /* white */
+    --popover: 262 83% 18%; /* violet-900 */
+    --popover-foreground: 0 0% 100%; /* white */
+    --primary: 262 83% 18%;  /* violet-900 */
+    --primary-foreground: 0 0% 100%; /* white */
     --secondary: 49 78% 62%;  /* Sandstorm */
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --secondary-foreground: 262 83% 18%; /* violet-900 */
+    --muted: 262 83% 18%;
+    --muted-foreground: 0 0% 100%; /* white */
+    --accent: 262 83% 18%;
+    --accent-foreground: 0 0% 100%; /* white */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --destructive-foreground: 0 0% 100%; /* white */
+    --border: 262 83% 18%;
+    --input: 262 83% 18%;
+    --ring: 262 83% 18%;
     --radius: 0.75rem;
+    --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 }
 
@@ -36,6 +38,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 }
 
@@ -72,6 +75,32 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  .ticket-card {
+    @apply bg-sandstorm rounded-3xl border-4 border-sandstorm shadow-glow-yellow p-0 overflow-visible relative;
+  }
+  .ticket-cutout-left {
+    @apply absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-raspberry rounded-full z-10;
+  }
+  .ticket-cutout-right {
+    @apply absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-raspberry rounded-full z-10;
+  }
+  .section-title-jolly {
+    @apply text-3xl md:text-4xl font-extrabold mb-6 relative text-transparent bg-clip-text bg-gradient-to-r from-raspberry via-sandstorm to-violet flex items-center gap-2;
+  }
+  .section-title-jolly::after {
+    @apply content-[''] absolute left-0 -bottom-2 w-20 h-1 bg-gradient-to-r from-raspberry via-sandstorm to-violet rounded-full;
+  }
+  .btn-jolly {
+    @apply bg-gradient-to-r from-sandstorm via-raspberry to-violet text-black font-bold rounded-full shadow-glow-yellow transition-transform duration-200 hover:scale-105 hover:shadow-glow-red focus:scale-95;
+  }
+  .confetti-bg {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='2' fill='%23E8CD53'/%3E%3Ccircle cx='50' cy='20' r='2' fill='%23CF2B56'/%3E%3Ccircle cx='30' cy='50' r='2' fill='%2325174F'/%3E%3Crect x='40' y='40' width='3' height='3' fill='%23E8CD53'/%3E%3Crect x='20' y='30' width='3' height='3' fill='%23CF2B56'/%3E%3Crect x='10' y='50' width='3' height='3' fill='%2325174F'/%3E%3C/svg%3E");
+    background-size: 120px 120px;
+    background-repeat: repeat;
+    background-position: center;
+    opacity: 0.12;
+  }
 }
 
 
@@ -84,6 +113,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-    font-family: 'Inter', 'Montserrat', 'sans-serif';
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 }

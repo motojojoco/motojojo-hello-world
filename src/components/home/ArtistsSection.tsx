@@ -145,7 +145,7 @@ const ArtistsSection = () => {
           {artists.map((artist, index) => (
             <FadeIn key={artist.id} delay={100 * index}>
               <Card className="w-[220px] hover-scale border-none shadow-soft text-center">
-                <CardContent className="p-6 flex flex-col items-center">
+                <CardContent className="p-6 flex flex-col items-center text-black">
                   <Avatar className="w-24 h-24 mb-4 border-2 border-violet">
                     <AvatarImage src={artist.image || undefined} alt={artist.name} />
                     <AvatarFallback className="bg-violet text-white">
@@ -153,10 +153,10 @@ const ArtistsSection = () => {
                     </AvatarFallback>
                   </Avatar>
                   <h3 className="font-bold mb-1">{artist.name}</h3>
-                  <div className="text-xs text-muted-foreground mb-2">
+                  <div className="text-xs mb-2">
                     {artist.profile}
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
+                  <div className="flex items-center text-sm">
                     <Music className="h-3 w-3 mr-1" />
                     {artist.genre}
                   </div>

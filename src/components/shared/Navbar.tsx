@@ -14,8 +14,12 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { useCartStore } from "@/store/cart-store";
 
-const Navbar = () => {
-  const [selectedCity, setSelectedCity] = useState("Mumbai");
+type NavbarProps = {
+  selectedCity: string;
+  setSelectedCity: (city: string) => void;
+};
+
+const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -28,14 +32,6 @@ const Navbar = () => {
   const totalItems = useCartStore(state => state.getTotalItems());
   const [searchValue, setSearchValue] = useState("");
 
-  // Detect location and set city (mock implementation)
-  const detectLocation = () => {
-    // In a real app, this would use the Geolocation API
-    setTimeout(() => {
-      setSelectedCity("Mumbai");
-    }, 500);
-  };
-
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -43,11 +39,6 @@ const Navbar = () => {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Initialize location detection
-  useEffect(() => {
-    detectLocation();
   }, []);
 
   // Close mobile menu on navigation
@@ -95,20 +86,21 @@ const Navbar = () => {
             : "bg-transparent py-4"
         }`}
       >
-        <div className="container-padding flex items-center justify-between">
-          {/* Logo */}
-            <Link to="/" className="flex items-center">
-            <img src="/motojojo.png" alt="Motojojo Logo" className="h-16 w-auto" />
-            </Link>
+        {/* Responsive container with max width and horizontal centering */}
+        <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-between px-2 md:px-6 lg:px-8">
+          {/* Logo - responsive and doesn't push nav items out */}
+          <Link to="/" className="flex items-center flex-shrink-0 m-0 p-0 min-w-0">
+            <img src="/motojojo.png" alt="Motojojo Logo" className="h-16 w-16 md:h-24 md:w-24 lg:h-28 lg:w-28 max-w-none m-0 p-0" />
+          </Link>
 
-          {/* Desktop Nav Items */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Desktop Nav Items - wrap and space items, allow shrinking */}
+          <div className="hidden md:flex flex-wrap items-center gap-3 min-w-0 flex-1 justify-end">
             {/* Search Bar */}
-            <form className="relative w-80" onSubmit={handleSearch}>
+            <form className="relative w-64 min-w-0" onSubmit={handleSearch}>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search events, artists, venues..."
-                className="pl-10 bg-muted/30 border-none focus-visible:ring-violet hover:bg-muted/50 transition-colors"
+                className="pl-10 bg-muted/30 border-none focus-visible:ring-violet hover:bg-muted/50 transition-colors min-w-0 truncate"
                 value={searchValue}
                 onChange={e => setSearchValue(e.target.value)}
               />
@@ -117,18 +109,18 @@ const Navbar = () => {
             {/* City Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-1">
+                <Button variant="outline" className="flex items-center gap-1 min-w-0 truncate">
                   <MapPin className="h-4 w-4 text-red" />
-                  {selectedCity}
+                  <span className="truncate max-w-[7rem]">{selectedCity}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuContent align="end" className="w-40 max-w-xs">
                 {cities.map((city) => (
                   <DropdownMenuItem 
                     key={city.id}
                     onClick={() => setSelectedCity(city.name)}
                   >
-                    {city.name}
+                    <span className="truncate max-w-[8rem]">{city.name}</span>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -138,7 +130,7 @@ const Navbar = () => {
             {isSignedIn && (
               <Button 
                 variant="outline" 
-                className="relative"
+                className="relative min-w-0"
                 onClick={() => navigate("/cart")}
               >
                 <ShoppingCart className="h-4 w-4" />
@@ -153,61 +145,59 @@ const Navbar = () => {
             )}
 
             {/* Premium Button */}
-            <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity" onClick={() => navigate("/membership")}>
-              Membership
-            </Button>
+            <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity min-w-0 truncate" onClick={() => navigate("/membership")}>Membership</Button>
 
             {/* Events Navigation */}
-            <Button variant="ghost" asChild>
-              <Link to="/events">
+            <Button variant="ghost" asChild className="min-w-0 truncate">
+              <Link to="/events" className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
-                Events
+                <span className="truncate">Events</span>
               </Link>
             </Button>
 
-            <Button variant="ghost" asChild>
-              <Link to="/previousevents">
+            <Button variant="ghost" asChild className="min-w-0 truncate">
+              <Link to="/previousevents" className="flex items-center">
                 <History className="h-4 w-4 mr-2" />
-                Past Events
+                <span className="truncate">Past Events</span>
               </Link>
             </Button>
 
             {/* Auth Buttons */}
             {!isSignedIn ? (
               <>
-                <Button variant="outline" onClick={() => navigate('/auth')}>Sign In</Button>
-                <Button onClick={() => navigate('/auth')}>Sign Up</Button>
+                <Button variant="outline" onClick={() => navigate('/auth')} className="min-w-0 truncate">Sign In</Button>
+                <Button onClick={() => navigate('/auth')} className="min-w-0 truncate">Sign Up</Button>
               </>
             ) : (
               <>
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate("/profile")}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 min-w-0 truncate"
                 >
                   <User className="h-4 w-4" />
-                  Profile
+                  <span className="truncate">Profile</span>
                 </Button>
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate("/profile?tab=bookings")}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 min-w-0 truncate"
                 >
                   <Ticket className="h-4 w-4" />
-                  My Bookings
+                  <span className="truncate">My Bookings</span>
                 </Button>
                 {!isAdmin && (
-                  <Button variant="ghost" onClick={() => { setShowInviteModal(true); setInviteStatus('idle'); setInviteEmail(''); setInviteError(null); }}>Invite Friends</Button>
+                  <Button variant="ghost" onClick={() => { setShowInviteModal(true); setInviteStatus('idle'); setInviteEmail(''); setInviteError(null); }} className="min-w-0 truncate">Invite Friends</Button>
                 )}
-                <Button variant="ghost" onClick={handleSignOut}><LogOut className="h-4 w-4 mr-2" />Sign Out</Button>
+                <Button variant="ghost" onClick={handleSignOut} className="min-w-0 truncate"><LogOut className="h-4 w-4 mr-2" /><span className="truncate">Sign Out</span></Button>
               </>
             )}
 
             {/* Feedback */}
-            <Button variant="ghost" asChild>
-              <Link to="/feedback">
+            <Button variant="ghost" asChild className="min-w-0 truncate">
+              <Link to="/feedback" className="flex items-center">
                 <MessageSquare className="h-4 w-4 mr-2" />
-                Feedback
+                <span className="truncate">Feedback</span>
               </Link>
             </Button>
           </div>
@@ -357,8 +347,10 @@ const Navbar = () => {
           <Button
             variant="ghost"
             size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 ${
-              location.pathname === "/" ? "text-violet" : "text-muted-foreground"
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
+              location.pathname === "/" 
+                ? "text-violet bg-yellow-300/30 shadow-md" 
+                : "text-muted-foreground"
             }`}
             onClick={() => navigate("/")}
           >
@@ -370,8 +362,10 @@ const Navbar = () => {
           <Button
             variant="ghost"
             size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 ${
-              location.pathname === "/events" ? "text-violet" : "text-muted-foreground"
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
+              location.pathname === "/events" 
+                ? "text-violet bg-yellow-300/30 shadow-md" 
+                : "text-muted-foreground"
             }`}
             onClick={() => navigate("/events")}
           >
@@ -383,8 +377,10 @@ const Navbar = () => {
           <Button
             variant="ghost"
             size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 ${
-              location.pathname === "/profile" && location.search.includes("tab=bookings") ? "text-violet" : "text-muted-foreground"
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
+              location.pathname === "/profile" && location.search.includes("tab=bookings")
+                ? "text-violet bg-yellow-300/30 shadow-md" 
+                : "text-muted-foreground"
             }`}
             onClick={() => navigate("/profile?tab=bookings")}
           >
@@ -396,8 +392,10 @@ const Navbar = () => {
           <Button
             variant="ghost"
             size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 ${
-              location.pathname === "/profile" && !location.search.includes("tab=bookings") ? "text-violet" : "text-muted-foreground"
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
+              location.pathname === "/profile" && !location.search.includes("tab=bookings")
+                ? "text-violet bg-yellow-300/30 shadow-md" 
+                : "text-muted-foreground"
             }`}
             onClick={() => navigate("/profile")}
           >
@@ -409,24 +407,15 @@ const Navbar = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="flex flex-col items-center gap-1 h-auto py-2 px-3"
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
+              location.pathname === "/membership"
+                ? "text-violet bg-yellow-300/30 shadow-md"
+                : "text-white"
+            }`}
             onClick={() => navigate("/membership")}
           >
-            <Heart className="h-5 w-5 text-raspberry" />
-            <span className="text-xs text-raspberry">Membership</span>
-          </Button>
-
-          {/* Feedback */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 ${
-              location.pathname === "/feedback" ? "text-violet" : "text-muted-foreground"
-            }`}
-            onClick={() => navigate("/feedback")}
-          >
-            <MessageSquare className="h-5 w-5" />
-            <span className="text-xs">Feedback</span>
+            <Heart className="h-5 w-5" />
+            <span className="text-xs">Membership</span>
           </Button>
         </div>
       </nav>

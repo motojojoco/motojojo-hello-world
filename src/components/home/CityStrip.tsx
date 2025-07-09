@@ -6,7 +6,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getEventsByCity } from "@/services/eventService";
 
-const CityStrip = () => {
+type CityStripProps = {
+  selectedCity: string;
+  setSelectedCity: (city: string) => void;
+};
+
+const CityStrip = ({ selectedCity, setSelectedCity }: CityStripProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -19,15 +24,6 @@ const CityStrip = () => {
       } else {
         current.scrollBy({ left: scrollAmount, behavior: "smooth" });
       }
-    }
-  };
-
-  const handleCityClick = async (cityName: string) => {
-    const events = await getEventsByCity(cityName);
-    if (events && events.length > 0) {
-      navigate(`/events?city=${encodeURIComponent(cityName)}`);
-    } else {
-      navigate("/membership");
     }
   };
 
@@ -65,9 +61,13 @@ const CityStrip = () => {
           {cities.map((city) => (
             <Button
               key={city.id}
-              variant="outline"
-              className="rounded-full whitespace-nowrap border-muted hover:border-violet hover:text-violet transition-colors"
-              onClick={() => handleCityClick(city.name)}
+              variant={selectedCity === city.name ? "default" : "outline"}
+              className={
+                selectedCity === city.name
+                  ? "rounded-full whitespace-nowrap border-violet text-white bg-violet"
+                  : "rounded-full whitespace-nowrap border-muted hover:border-violet hover:text-violet transition-colors text-white border-white"
+              }
+              onClick={() => setSelectedCity(city.name)}
             >
               {city.name}
             </Button>

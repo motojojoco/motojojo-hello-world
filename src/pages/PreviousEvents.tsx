@@ -28,13 +28,16 @@ import {
   Search,
   AlertCircle,
   Calendar as CalendarIcon,
-  List
+  List,
+  ShoppingCart
 } from "lucide-react";
 import { FadeIn } from "@/components/ui/motion";
 import { getEvents, getEventCities, Event } from "@/services/eventService";
 import { getEventTypes, EventType } from "@/services/eventTypeService";
 import { Separator } from "@/components/ui/separator";
 import { getEventStatus, formatEventStatus } from "@/lib/utils";
+import { useCartStore } from "@/store/cart-store";
+import { useToast } from "@/hooks/use-toast";
 
 const PreviousEvents = () => {
   const [selectedCity, setSelectedCity] = useState<string>("");
@@ -141,6 +144,27 @@ const PreviousEvents = () => {
   const clearFilters = () => {
     setSelectedCity("");
     setSelectedEventType("");
+  };
+
+  // Add to cart function
+  const handleAddToCart = (event: Event) => {
+    const cartItem = {
+      id: `cart-${event.id}-${Date.now()}`,
+      eventId: event.id,
+      eventTitle: event.title,
+      eventImage: event.image,
+      quantity: 1,
+      price: event.has_discount && event.discounted_price ? event.discounted_price : event.price,
+      date: event.date,
+      venue: event.venue,
+      city: event.city,
+    };
+    
+    addItem(cartItem);
+    toast({
+      title: "Added to Cart",
+      description: `${event.title} has been added to your cart.`,
+    });
   };
 
   const groupedEvents = groupEventsByDate(filteredEvents);
