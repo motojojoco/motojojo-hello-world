@@ -162,6 +162,13 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
               </Link>
             </Button>
 
+            {/* Contact Us Navigation */}
+            <Button variant="ghost" asChild className="min-w-0 truncate">
+              <Link to="/contact" className="flex items-center">
+                <span className="truncate">Contact</span>
+              </Link>
+            </Button>
+
             {/* Auth Buttons */}
             {!isSignedIn ? (
               <>
@@ -301,6 +308,13 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
                 </Link>
               </Button>
 
+              {/* Contact Us Navigation */}
+              <Button variant="ghost" className="w-full" asChild>
+                <Link to="/contact">
+                  Contact
+                </Link>
+              </Button>
+
               {!isSignedIn ? (
                 <>
                   <Button variant="outline" onClick={() => navigate('/auth')} className="w-full">Sign In</Button>
@@ -416,6 +430,21 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
           >
             <Heart className="h-5 w-5" />
             <span className="text-xs">Membership</span>
+          </Button>
+
+          {/* Contact Us Navigation */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
+              location.pathname === "/contact"
+                ? "text-violet bg-yellow-300/30 shadow-md"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => navigate("/contact")}
+          >
+            <MessageSquare className="h-5 w-5" />
+            <span className="text-xs">Contact</span>
           </Button>
         </div>
       </nav>

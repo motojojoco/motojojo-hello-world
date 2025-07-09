@@ -23,6 +23,7 @@ import BookingTicketDemo from "./pages/BookingTicketDemo";
 import Feedback from "./pages/Feedback";
 import Response from "./pages/Response";
 import SignInSignUp from "./pages/SignInSignUp";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
           <Route path="/jojogang" element={<JoJoGang />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/response" element={<Response />} />
+          <Route path="/contact" element={<Contact />} />
           {/* Ticket preview route with booking ID */}
           <Route path="/ticket-preview/:bookingId" element={<TicketPreview />} />
           {/* QR code scan route with ticket ID */}

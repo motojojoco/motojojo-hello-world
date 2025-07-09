@@ -129,12 +129,12 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-violet" />
-                <a 
-                  href="mailto:info@motojojo.com" 
+                <Link 
+                  to="/contact" 
                   className="text-muted-foreground hover:text-violet transition-colors"
                 >
-                  info@motojojo.com
-                </a>
+                  Contact Us
+                </Link>
               </li>
             </ul>
           </div>

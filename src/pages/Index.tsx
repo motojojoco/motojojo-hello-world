@@ -58,7 +58,7 @@ const Index = () => {
       <MovingPartyBackground />
       <main className="flex-grow pb-20 md:pb-0">
         <HeroSection />
-        <CityStrip selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
+        {/* <CityStrip selectedCity={selectedCity} setSelectedCity={setSelectedCity} /> */}
         <EventTypesSection />
         <CityExperiencesSection selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
         <EventsSection />
