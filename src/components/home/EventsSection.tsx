@@ -230,7 +230,7 @@ const EventsSection = () => {
           <div className="mt-8 text-center">
             <Button 
               variant="outline" 
-              className="border-violet text-violet hover:bg-violet/10 rounded-full px-8"
+              className="border-violet text-white hover:bg-violet/10 rounded-full px-8"
               asChild
             >
               <Link to="/events">View All Events</Link>

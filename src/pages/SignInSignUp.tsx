@@ -50,7 +50,7 @@ const SignInSignUp = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-100 to-red-100">
       <Navbar />
       <main className="flex-grow flex items-center justify-center py-12">
-        <div className="w-full max-w-md bg-white rounded-xl shadow-xl p-8 flex flex-col items-center">
+        <div className="w-full max-w-md bg-yellow-200/80 rounded-xl shadow-xl p-8 flex flex-col items-center">
           <img src="/public/motojojo.png" alt="Motojojo" className="w-20 h-20 mb-4" />
           <h1 className="text-3xl font-bold mb-2 text-violet">Welcome to Motojojo</h1>
           <p className="mb-6 text-center text-gray-600">{authMode === 'signIn' ? 'Sign in to discover and book unique experiences.' : 'Create your Motojojo account and join the community!'}</p>

@@ -32,35 +32,16 @@ const MotojojoIconBigEyes = () => (
 );
 
 export default function MovingPartyBackground() {
-  const [events, setEvents] = useState<any[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      const featured = await getFeaturedEvents();
-      setEvents(featured && featured.length > 0 ? featured : []);
-    })();
-  }, []);
-
-  const tickets =
-    events.length > 0
-      ? events.map((event, i) => ({
-          ticketId: `BG-${event.id}`,
-        }))
-      : [
-          { ticketId: "BG-001" },
-          { ticketId: "BG-002" },
-          { ticketId: "BG-003" },
-          { ticketId: "BG-004" },
-        ];
-
-  const ticketStyles = [
-    { top: "10%", left: "8%", width: 100, height: 100, rotate: "-8deg", opacity: 0.44, animation: "float90s 7s ease-in-out infinite alternate", scale: 1 },
-    { top: "22%", right: "10%", width: 100, height: 100, rotate: "10deg", opacity: 0.38, animation: "float90s 8s ease-in-out infinite alternate-reverse", scale: 1 },
-    { top: "60%", left: "18%", width: 100, height: 100, rotate: "-12deg", opacity: 0.35, animation: "float90s 6.5s ease-in-out infinite alternate", scale: 1 },
-    { top: "70%", right: "16%", width: 100, height: 100, rotate: "7deg", opacity: 0.41, animation: "float90s 7.5s ease-in-out infinite alternate-reverse", scale: 1 },
+  // Define positions and styles for each small image
+  const bgImages = [
+    { top: '10%', left: '8%', width: 100, opacity: 0.44, rotate: '-8deg', animation: 'float90s 7s ease-in-out infinite alternate' },
+    { top: '22%', right: '10%', width: 100, opacity: 0.38, rotate: '10deg', animation: 'float90s 8s ease-in-out infinite alternate-reverse' },
+    { top: '60%', left: '18%', width: 100, opacity: 0.35, rotate: '-12deg', animation: 'float90s 6.5s ease-in-out infinite alternate' },
+    { top: '70%', right: '16%', width: 100, opacity: 0.41, rotate: '7deg', animation: 'float90s 7.5s ease-in-out infinite alternate-reverse' },
   ];
 
-  useEffect(() => {
+  // Add keyframes for floating animation
+  React.useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
       @keyframes float90s {
@@ -78,37 +59,32 @@ export default function MovingPartyBackground() {
   return (
     <div
       style={{
-        position: "fixed",
+        position: 'fixed',
         inset: 0,
         zIndex: 0,
-        pointerEvents: "none",
-        width: "100vw",
-        height: "100vh",
-        background: `#300030 url('${patternSvg}') repeat`,
+        pointerEvents: 'none',
+        width: '100vw',
+        height: '100vh',
       }}
     >
-      {tickets.map((ticket, i) => (
-        <div
-          key={ticket.ticketId}
-          style={
-            {
-              position: "absolute",
-              ...ticketStyles[i % ticketStyles.length],
-              transform: `rotate(${ticketStyles[i % ticketStyles.length].rotate}) scale(${ticketStyles[i % ticketStyles.length].scale})`,
-              opacity: ticketStyles[i % ticketStyles.length].opacity,
-              pointerEvents: "none",
-              width: ticketStyles[i % ticketStyles.length].width,
-              height: ticketStyles[i % ticketStyles.length].height,
-              animation: ticketStyles[i % ticketStyles.length].animation,
-              ['--rotate' as any]: ticketStyles[i % ticketStyles.length].rotate,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            } as any
-          }
-        >
-          <MotojojoIconBigEyes />
-        </div>
+      {bgImages.map((style, i) => (
+        <img
+          key={i}
+          src="/motojojbgEYE.png"
+          alt="bg-eye"
+          style={{
+            position: 'absolute',
+            ...style,
+            height: style.width,
+            width: style.width,
+            opacity: style.opacity,
+            transform: `rotate(${style.rotate})`,
+            animation: style.animation,
+            ['--rotate' as any]: style.rotate,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          } as React.CSSProperties}
+        />
       ))}
     </div>
   );
