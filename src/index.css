@@ -6,25 +6,25 @@
 
 @layer base {
   :root {
-    --background: 262 83% 18%; /* violet-900 */
+    --background: 340 63% 51%; /* lighter raspberry (#D32E5E) */
     --foreground: 0 0% 100%; /* white */
-    --card: 262 83% 18%; /* violet-900 */
+    --card: 340 63% 51%; /* lighter raspberry */
     --card-foreground: 0 0% 100%; /* white */
-    --popover: 262 83% 18%; /* violet-900 */
+    --popover: 340 63% 51%; /* lighter raspberry */
     --popover-foreground: 0 0% 100%; /* white */
-    --primary: 262 83% 18%;  /* violet-900 */
+    --primary: 340 63% 51%;  /* lighter raspberry */
     --primary-foreground: 0 0% 100%; /* white */
     --secondary: 49 78% 62%;  /* Sandstorm */
-    --secondary-foreground: 262 83% 18%; /* violet-900 */
-    --muted: 262 83% 18%;
+    --secondary-foreground: 340 63% 51%; /* lighter raspberry */
+    --muted: 340 63% 51%;
     --muted-foreground: 0 0% 100%; /* white */
-    --accent: 262 83% 18%;
+    --accent: 340 63% 51%;
     --accent-foreground: 0 0% 100%; /* white */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%; /* white */
-    --border: 262 83% 18%;
-    --input: 262 83% 18%;
-    --ring: 262 83% 18%;
+    --border: 340 63% 51%;
+    --input: 340 63% 51%;
+    --ring: 340 63% 51%;
     --radius: 0.75rem;
     --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -36,7 +36,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-raspberry text-white antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
@@ -100,6 +100,9 @@
     background-repeat: repeat;
     background-position: center;
     opacity: 0.12;
+  }
+  .text-mapcream {
+    color: #F7E1B5;
   }
 }
 

@@ -17,16 +17,14 @@ import { useCartStore } from "@/store/cart-store";
 type NavbarProps = {
   selectedCity: string;
   setSelectedCity: (city: string) => void;
+  bgColor?: string; // Optional background color override
+  logoSrc?: string; // Optional logo override
 };
 
-const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
+const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteStatus, setInviteStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [inviteError, setInviteError] = useState<string | null>(null);
-  const { isSignedIn, isAdmin, signIn, signUp, signOut, inviteUser } = useAuth();
+  const { isSignedIn, isAdmin, signIn, signUp, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const totalItems = useCartStore(state => state.getTotalItems());
@@ -51,19 +49,6 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
     navigate("/");
   };
 
-  const handleInviteSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setInviteStatus('loading');
-    setInviteError(null);
-    const { error } = await inviteUser(inviteEmail, 'user');
-    if (error) {
-      setInviteStatus('error');
-      setInviteError(error.message);
-    } else {
-      setInviteStatus('success');
-    }
-  };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const keyword = searchValue.trim().toLowerCase();
@@ -82,25 +67,26 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled 
-            ? "bg-background/95 backdrop-blur-sm shadow-md py-2" 
-            : "bg-transparent py-4"
+            ? (bgColor ? '' : 'bg-background/95') + ' backdrop-blur-sm shadow-md py-2' 
+            : (bgColor ? '' : 'bg-transparent py-4')
         }`}
+        style={bgColor ? { backgroundColor: bgColor, ...(isScrolled ? { boxShadow: '0 2px 8px rgba(0,0,0,0.08)' } : {}), paddingTop: isScrolled ? '0.5rem' : '1rem', paddingBottom: isScrolled ? '0.5rem' : '1.5rem' } : {}}
       >
         {/* Responsive container with max width and horizontal centering */}
         <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-between px-2 md:px-6 lg:px-8">
           {/* Logo - responsive and doesn't push nav items out */}
           <Link to="/" className="flex items-center flex-shrink-0 m-0 p-0 min-w-0">
-            <img src="/motojojo.png" alt="Motojojo Logo" className="h-16 w-16 md:h-24 md:w-24 lg:h-28 lg:w-28 max-w-none m-0 p-0" />
+            <img src={logoSrc || "/motojojo.png"} alt="Logo" className="h-16 w-16 md:h-24 md:w-24 lg:h-28 lg:w-28 max-w-none m-0 p-0" />
           </Link>
 
           {/* Desktop Nav Items - wrap and space items, allow shrinking */}
           <div className="hidden md:flex flex-wrap items-center gap-3 min-w-0 flex-1 justify-end">
             {/* Search Bar */}
             <form className="relative w-64 min-w-0" onSubmit={handleSearch}>
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-mapcream h-4 w-4" />
               <Input
                 placeholder="Search events, artists, venues..."
-                className="pl-10 bg-muted/30 border-none focus-visible:ring-violet hover:bg-muted/50 transition-colors min-w-0 truncate"
+                className="pl-10 bg-muted/30 border-none focus-visible:ring-violet hover:bg-muted/50 transition-colors min-w-0 truncate text-mapcream placeholder:text-mapcream"
                 value={searchValue}
                 onChange={e => setSearchValue(e.target.value)}
               />
@@ -109,9 +95,9 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
             {/* City Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-1 min-w-0 truncate">
-                  <MapPin className="h-4 w-4 text-red" />
-                  <span className="truncate max-w-[7rem]">{selectedCity}</span>
+                <Button className="flex items-center gap-1 min-w-0 truncate" style={{ backgroundColor: '#F7E1B5', color: 'black' }}>
+                  <MapPin className="h-4 w-4 text-black" />
+                  <span className="truncate max-w-[7rem] text-black">{selectedCity}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40 max-w-xs">
@@ -129,11 +115,11 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
             {/* Cart Button */}
             {isSignedIn && (
               <Button 
-                variant="outline" 
-                className="relative min-w-0"
+                className="relative min-w-0" 
+                style={{ backgroundColor: '#F7E1B5', color: 'black' }}
                 onClick={() => navigate("/cart")}
               >
-                <ShoppingCart className="h-4 w-4" />
+                <ShoppingCart className="h-4 w-4 text-black" />
                 {totalItems > 0 && (
                   <Badge 
                     className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0"
@@ -145,27 +131,20 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
             )}
 
             {/* Premium Button */}
-            <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity min-w-0 truncate" onClick={() => navigate("/membership")}>Membership</Button>
+            <Button className="min-w-0 truncate text-mapcream bg-transparent hover:bg-transparent" onClick={() => navigate("/membership")}>Membership</Button>
 
             {/* Events Navigation */}
-            <Button variant="ghost" asChild className="min-w-0 truncate">
-              <Link to="/events" className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                <span className="truncate">Events</span>
+            <Button variant="ghost" asChild className="min-w-0 truncate text-mapcream">
+              <Link to="/events" className="flex items-center text-mapcream">
+                <Calendar className="h-4 w-4 mr-2 text-mapcream" />
+                <span className="truncate text-mapcream">Events</span>
               </Link>
             </Button>
 
-            <Button variant="ghost" asChild className="min-w-0 truncate">
-              <Link to="/previousevents" className="flex items-center">
-                <History className="h-4 w-4 mr-2" />
-                <span className="truncate">Past Events</span>
-              </Link>
-            </Button>
-
-            {/* Contact Us Navigation */}
-            <Button variant="ghost" asChild className="min-w-0 truncate">
-              <Link to="/contact" className="flex items-center">
-                <span className="truncate">Contact</span>
+            <Button variant="ghost" asChild className="min-w-0 truncate text-mapcream">
+              <Link to="/previousevents" className="flex items-center text-mapcream">
+                <History className="h-4 w-4 mr-2 text-mapcream" />
+                <span className="truncate text-mapcream">Past Events</span>
               </Link>
             </Button>
 
@@ -180,33 +159,22 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate("/profile")}
-                  className="flex items-center gap-2 min-w-0 truncate"
+                  className="flex items-center gap-2 min-w-0 truncate text-mapcream"
                 >
-                  <User className="h-4 w-4" />
-                  <span className="truncate">Profile</span>
+                  <User className="h-4 w-4 text-mapcream" />
+                  <span className="truncate text-mapcream">Profile</span>
                 </Button>
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate("/profile?tab=bookings")}
-                  className="flex items-center gap-2 min-w-0 truncate"
+                  className="flex items-center gap-2 min-w-0 truncate text-mapcream"
                 >
-                  <Ticket className="h-4 w-4" />
-                  <span className="truncate">My Bookings</span>
+                  <Ticket className="h-4 w-4 text-mapcream" />
+                  <span className="truncate text-mapcream">My Bookings</span>
                 </Button>
-                {!isAdmin && (
-                  <Button variant="ghost" onClick={() => { setShowInviteModal(true); setInviteStatus('idle'); setInviteEmail(''); setInviteError(null); }} className="min-w-0 truncate">Invite Friends</Button>
-                )}
-                <Button variant="ghost" onClick={handleSignOut} className="min-w-0 truncate"><LogOut className="h-4 w-4 mr-2" /><span className="truncate">Sign Out</span></Button>
+                <Button variant="ghost" onClick={handleSignOut} className="min-w-0 truncate text-mapcream"><LogOut className="h-4 w-4 mr-2 text-mapcream" /><span className="truncate text-mapcream">Sign Out</span></Button>
               </>
             )}
-
-            {/* Feedback */}
-            <Button variant="ghost" asChild className="min-w-0 truncate">
-              <Link to="/feedback" className="flex items-center">
-                <MessageSquare className="h-4 w-4 mr-2" />
-                <span className="truncate">Feedback</span>
-              </Link>
-            </Button>
           </div>
           
           {/* Mobile Search and Menu */}
@@ -237,7 +205,7 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
 
         {/* Mobile Search and Menu Overlay */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-background/95 backdrop-blur-sm p-4 shadow-md border-t">
+          <div className="md:hidden p-4 shadow-md border-t" style={bgColor ? { backgroundColor: bgColor, backdropFilter: 'blur(8px)' } : {}}>
             <div className="flex flex-col space-y-4">
               {/* Mobile Search Bar */}
               <form className="relative" onSubmit={handleSearch}>
@@ -252,9 +220,9 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex items-center justify-between w-full">
+                  <Button variant="outline" className="flex items-center justify-between w-full" style={{ backgroundColor: '#F7E1B5', color: 'black' }}>
                     <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4 text-red" />
+                      <MapPin className="h-4 w-4 text-black" />
                       {selectedCity}
                     </div>
                   </Button>
@@ -277,9 +245,10 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
                   variant="outline" 
                   className="w-full flex items-center justify-between"
                   onClick={() => navigate("/cart")}
+                  style={{ backgroundColor: '#F7E1B5', color: 'black' }}
                 >
                   <div className="flex items-center gap-2">
-                    <ShoppingCart className="h-4 w-4" />
+                    <ShoppingCart className="h-4 w-4 text-black" />
                     Cart
                   </div>
                   {totalItems > 0 && (
@@ -308,13 +277,6 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
                 </Link>
               </Button>
 
-              {/* Contact Us Navigation */}
-              <Button variant="ghost" className="w-full" asChild>
-                <Link to="/contact">
-                  Contact
-                </Link>
-              </Button>
-
               {!isSignedIn ? (
                 <>
                   <Button variant="outline" onClick={() => navigate('/auth')} className="w-full">Sign In</Button>
@@ -330,12 +292,6 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
                     <Ticket className="h-4 w-4 mr-2" />
                     My Bookings
                   </Button>
-                  {!isAdmin && (
-                    <Button variant="ghost" className="w-full justify-start" onClick={() => { setShowInviteModal(true); setInviteStatus('idle'); setInviteEmail(''); setInviteError(null); }}>
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Invite Friends
-                    </Button>
-                  )}
                   <Button variant="ghost" className="w-full justify-center" onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
@@ -343,19 +299,16 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
                 </>
               )}
               
-              <Button variant="ghost" className="w-full" asChild>
-                <Link to="/feedback">
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Feedback
-                </Link>
-              </Button>
             </div>
           </div>
         )}
       </header>
 
       {/* Bottom Navigation - Mobile Only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg">
+      <nav
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 ${location.pathname === '/local-gathering' ? '' : 'bg-background/95'} backdrop-blur-sm border-t border-border shadow-lg`}
+        style={location.pathname === '/local-gathering' ? { backgroundColor: '#0CA678' } : {}}
+      >
         <div className="flex items-center justify-around py-2">
           {/* Home */}
           <Button
@@ -432,51 +385,9 @@ const Navbar = ({ selectedCity, setSelectedCity }: NavbarProps) => {
             <span className="text-xs">Membership</span>
           </Button>
 
-          {/* Contact Us Navigation */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
-              location.pathname === "/contact"
-                ? "text-violet bg-yellow-300/30 shadow-md"
-                : "text-muted-foreground"
-            }`}
-            onClick={() => navigate("/contact")}
-          >
-            <MessageSquare className="h-5 w-5" />
-            <span className="text-xs">Contact</span>
-          </Button>
         </div>
       </nav>
 
-      {/* Invite Friends Modal */}
-      {showInviteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm">
-            <h2 className="text-xl font-bold mb-4">Invite a Friend</h2>
-            <form onSubmit={handleInviteSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="invite_email">Friend's Email</label>
-                <Input
-                  id="invite_email"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={e => setInviteEmail(e.target.value)}
-                  required
-                  autoFocus
-                  disabled={inviteStatus === 'loading' || inviteStatus === 'success'}
-                />
-              </div>
-              {inviteStatus === 'error' && inviteError && <div className="text-red-600 text-sm">{inviteError}</div>}
-              {inviteStatus === 'success' && <div className="text-green-600 text-sm">Invite sent! Your friend will receive an email.</div>}
-              <Button type="submit" className="w-full" disabled={inviteStatus === 'loading' || inviteStatus === 'success'}>
-                {inviteStatus === 'loading' ? 'Sending...' : 'Send Invite'}
-              </Button>
-            </form>
-            <Button onClick={() => setShowInviteModal(false)} variant="ghost" className="w-full mt-2">Close</Button>
-          </div>
-        </div>
-      )}
     </>
   );
 };

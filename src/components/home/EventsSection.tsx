@@ -166,66 +166,68 @@ const EventsSection = () => {
               </div>
             </div>
           </FadeIn>
-          {/* Events Carousel */}
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
-          >
-            {upcomingEvents.length === 0 ? (
-              <div className="text-muted-foreground flex items-center justify-center w-full py-12">
-                No upcoming events. Please check back later.
-              </div>
-            ) : upcomingEvents.map((event, index) => (
-              <FadeIn key={event.id} delay={100 * index}>
-                <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft">
-                  <div className="relative h-44 overflow-hidden">
-                    <img 
-                      src={event.image} 
-                      alt={event.title} 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-3 right-3">
-                      <Badge className="bg-violet hover:bg-violet-700">{event.category}</Badge>
-                    </div>
-                  </div>
-                  <CardContent className="p-5 text-black">
-                    <h3 className="text-lg font-bold mb-1 line-clamp-1">{event.title}</h3>
-                    <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
-                    <div className="flex flex-col gap-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        <span>{event.city}, {event.venue}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        <span>{formatDate(event.date)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        <span>{event.time} • {event.duration || "2 hours"}</span>
+          {/* Events Carousel with yellow padding */}
+          <div className="bg-sandstorm rounded-3xl px-8 py-8">
+            <div 
+              ref={scrollContainerRef}
+              className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+            >
+              {upcomingEvents.length === 0 ? (
+                <div className="text-muted-foreground flex items-center justify-center w-full py-12">
+                  No upcoming events. Please check back later.
+                </div>
+              ) : upcomingEvents.map((event, index) => (
+                <FadeIn key={event.id} delay={100 * index}>
+                  <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft">
+                    <div className="relative h-44 overflow-hidden">
+                      <img 
+                        src={event.image} 
+                        alt={event.title} 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-3 right-3">
+                        <Badge className="bg-violet hover:bg-violet-700">{event.category}</Badge>
                       </div>
                     </div>
-                  </CardContent>
-                  <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-black">
-                    <div className="text-lg font-bold">₹{event.price}</div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleAddToCart(event)}
-                        className="flex items-center gap-1 bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        Add to Cart
-                      </Button>
-                      <Button asChild size="sm">
-                        <Link to={`/event/${event.id}`}>Book Now</Link>
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              </FadeIn>
-            ))}
+                    <CardContent className="p-5 text-violet">
+                      <h3 className="text-lg font-bold mb-1 line-clamp-1">{event.title}</h3>
+                      <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
+                      <div className="flex flex-col gap-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          <span>{event.city}, {event.venue}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>{formatDate(event.date)}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          <span>{event.time} • {event.duration || "2 hours"}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-violet">
+                      <div className="text-lg font-bold">₹{event.price}</div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          onClick={() => handleAddToCart(event)}
+                          className="bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
+                          aria-label="Add to Cart"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                        </Button>
+                        <Button asChild size="sm">
+                          <Link to={`/event/${event.id}`}>Book Now</Link>
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                </FadeIn>
+              ))}
+            </div>
           </div>
           <div className="mt-8 text-center">
             <Button 
@@ -265,7 +267,7 @@ const EventsSection = () => {
                       <Badge className="bg-gray-400">{event.category}</Badge>
                     </div>
                   </div>
-                  <CardContent className="p-5 text-black">
+                  <CardContent className="p-5 text-violet">
                     <h3 className="text-lg font-bold mb-1 line-clamp-1">{event.title}</h3>
                     <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
                     <div className="flex flex-col gap-2 text-sm">
@@ -283,7 +285,7 @@ const EventsSection = () => {
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-black">
+                  <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-violet">
                     <div className="text-lg font-bold">₹{event.price}</div>
                     <Button asChild variant="outline" disabled>
                       <span>Event Over</span>

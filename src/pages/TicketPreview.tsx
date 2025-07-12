@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Share2 } from "lucide-react";
 import { getBookingTickets, Booking } from "@/services/bookingService";
 import { supabase } from "@/integrations/supabase/client";
+import QRCode from "qrcode";
 
 interface TicketPreviewProps {
   bookingId?: string;
@@ -20,6 +21,7 @@ export default function TicketPreview() {
   const [loading, setLoading] = useState(true);
   const [generatingTickets, setGeneratingTickets] = useState(false);
   const [currentTicketIndex, setCurrentTicketIndex] = useState(0);
+  const [qrCodes, setQrCodes] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     const fetchTicketData = async () => {
@@ -93,6 +95,28 @@ export default function TicketPreview() {
 
     fetchTicketData();
   }, [bookingId, ticketId]);
+
+  useEffect(() => {
+    // Generate QR codes for all tickets if not present
+    const generateQRCodes = async () => {
+      if (tickets.length > 0) {
+        const newQRCodes: { [key: string]: string } = {};
+        for (const ticket of tickets) {
+          if (!ticket.qr_code && ticket.ticket_number) {
+            newQRCodes[ticket.ticket_number] = await QRCode.toDataURL(ticket.ticket_number);
+          } else if (ticket.qr_code && ticket.ticket_number) {
+            newQRCodes[ticket.ticket_number] = ticket.qr_code;
+          }
+        }
+        setQrCodes(newQRCodes);
+      } else if (booking && booking.id) {
+        // Fallback: generate QR for booking id
+        const qr = await QRCode.toDataURL(booking.id);
+        setQrCodes({ [booking.id]: qr });
+      }
+    };
+    generateQRCodes();
+  }, [tickets, booking]);
 
   const handleDownloadTicket = () => {
     // Create a canvas to capture the ticket
@@ -250,13 +274,6 @@ export default function TicketPreview() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Profile
             </Button>
-            <Button 
-              onClick={() => window.location.reload()}
-              variant="outline"
-              className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
-            >
-              Try Again
-            </Button>
           </div>
         </div>
       </div>
@@ -286,7 +303,7 @@ export default function TicketPreview() {
               venue={`${booking.event?.venue || ''}, ${booking.event?.city || ''}`}
               price={booking.amount ? booking.amount / (booking.tickets || 1) : 0}
               username={booking.name || 'Guest'}
-              qrCode={undefined}
+              qrCode={qrCodes[booking.id]}
             />
             {/* Show ticket holder names if more than one ticket */}
             {Array.isArray(ticketHolderNames) && ticketHolderNames.length > 1 && (
@@ -307,13 +324,6 @@ export default function TicketPreview() {
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Profile
-            </Button>
-            <Button 
-              onClick={() => window.location.reload()}
-              variant="outline"
-              className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
-            >
-              Try Again
             </Button>
           </div>
         </div>
@@ -343,7 +353,7 @@ export default function TicketPreview() {
               venue={`${booking.event?.venue || ''}, ${booking.event?.city || ''}`}
               price={booking.amount ? booking.amount / booking.tickets : 0}
               username={ticket.username || booking.name || 'Guest'}
-              qrCode={ticket.qr_code}
+              qrCode={qrCodes[ticket.ticket_number]}
             />
           </div>
           <div className="flex flex-row gap-4 justify-center mt-8">
@@ -369,13 +379,6 @@ export default function TicketPreview() {
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Profile
-            </Button>
-            <Button 
-              onClick={() => window.location.reload()}
-              variant="outline"
-              className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
-            >
-              Try Again
             </Button>
           </div>
         </div>
@@ -424,7 +427,7 @@ export default function TicketPreview() {
                 venue={`${booking.event?.venue || ''}, ${booking.event?.city || ''}`}
                 price={booking.amount ? booking.amount / booking.tickets : 0}
                 username={ticket.username || booking.name || 'Guest'}
-                qrCode={ticket.qr_code}
+                qrCode={qrCodes[ticket.ticket_number]}
               />
             </div>
           ))}

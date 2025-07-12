@@ -11,6 +11,9 @@ import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
+import HostLogin from "./pages/HostLogin";
+import HostDashboard from "./pages/HostDashboard";
+import HostInvitation from "./pages/HostInvitation";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ExplorePremium from "./pages/ExplorePremium";
@@ -24,6 +27,13 @@ import Feedback from "./pages/Feedback";
 import Response from "./pages/Response";
 import SignInSignUp from "./pages/SignInSignUp";
 import Contact from "./pages/Contact";
+import Help from "./pages/Help";
+import LocalGathering from "./pages/LocalGathering";
+import Addebazi from "./pages/Addebazi";
+import KitchenGathering from "./pages/KitchenGathering";
+import PardahGathering from "./pages/PardahGathering";
+import GhumakariKalakar from "./pages/GhumakariKalakar";
+import WhatsAppButton from "./components/shared/WhatsAppButton";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +60,9 @@ const App = () => (
           } />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/host/login" element={<HostLogin />} />
+          <Route path="/host/dashboard" element={<HostDashboard />} />
+          <Route path="/host/invitation" element={<HostInvitation />} />
           <Route path="/explorepremium" element={<ExplorePremium />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/membership" element={<Membership />} />
@@ -58,6 +71,12 @@ const App = () => (
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/response" element={<Response />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/local-gathering" element={<LocalGathering />} />
+          <Route path="/addebazi" element={<Addebazi />} />
+          <Route path="/kitchen-gathering" element={<KitchenGathering />} />
+          <Route path="/pardah-gathering" element={<PardahGathering />} />
+          <Route path="/ghumakari-kalakar" element={<GhumakariKalakar />} />
           {/* Ticket preview route with booking ID */}
           <Route path="/ticket-preview/:bookingId" element={<TicketPreview />} />
           {/* QR code scan route with ticket ID */}
@@ -71,6 +90,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <WhatsAppButton />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

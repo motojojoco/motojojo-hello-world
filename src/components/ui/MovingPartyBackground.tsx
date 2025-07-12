@@ -67,25 +67,7 @@ export default function MovingPartyBackground() {
         height: '100vh',
       }}
     >
-      {bgImages.map((style, i) => (
-        <img
-          key={i}
-          src="/motojojbgEYE.png"
-          alt="bg-eye"
-          style={{
-            position: 'absolute',
-            ...style,
-            height: style.width,
-            width: style.width,
-            opacity: style.opacity,
-            transform: `rotate(${style.rotate})`,
-            animation: style.animation,
-            ['--rotate' as any]: style.rotate,
-            pointerEvents: 'none',
-            userSelect: 'none',
-          } as React.CSSProperties}
-        />
-      ))}
+      {/* Background images removed */}
     </div>
   );
 }

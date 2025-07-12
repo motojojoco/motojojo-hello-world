@@ -375,21 +375,9 @@ const Events = () => {
                 </div>
               </div>
             </div>
-          ) : Object.keys(groupedEvents).length === 0 ? (
+          ) : Object.entries(groupedEvents).length === 0 ? (
             <div className="text-center py-16">
-              <h3 className="text-xl font-medium mb-2">No upcoming events found</h3>
-              <p className="text-muted-foreground">
-                Try adjusting your filters or check back later for new events.
-              </p>
-              {(selectedCity || selectedEventType) && (
-                <Button 
-                  variant="outline" 
-                  className="mt-4" 
-                  onClick={clearFilters}
-                >
-                  Clear All Filters
-                </Button>
-              )}
+              <p className="text-muted-foreground text-lg">No events found for the selected filters.</p>
             </div>
           ) : (
             <div className="space-y-12">
@@ -400,70 +388,71 @@ const Events = () => {
                       {formatDateHeader(date)}
                     </h2>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {dateEvents.map((event, index) => (
-                <FadeIn key={event.id} delay={index * 100}>
-                  <Card className="hover-scale border-none shadow-soft overflow-hidden">
-                    <div className="h-48 relative">
-                      <img 
-                        src={event.image} 
-                        alt={event.title} 
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-3 right-3 flex flex-col gap-2">
-                        <Badge className="bg-violet hover:bg-violet-700">{event.category}</Badge>
-                        {(() => {
-                          const status = getEventStatus(event.date, event.time);
-                          const statusInfo = formatEventStatus(status);
-                          return (
-                            <Badge className={`${statusInfo.bgColor} ${statusInfo.color} border-0`}>
-                              {statusInfo.text}
-                            </Badge>
-                          );
-                        })()}
-                      </div>
+                  {/* Event cards grid with yellow padding */}
+                  <div className="bg-sandstorm rounded-3xl px-8 py-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {dateEvents.map((event, index) => (
+                        <FadeIn key={event.id} delay={index * 100}>
+                          <Card className="hover-scale border-none shadow-soft overflow-hidden">
+                            <div className="h-48 relative">
+                              <img 
+                                src={event.image} 
+                                alt={event.title} 
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute top-3 right-3 flex flex-col gap-2">
+                                <Badge className="bg-violet hover:bg-violet-700">{event.category}</Badge>
+                                {(() => {
+                                  const status = getEventStatus(event.date, event.time);
+                                  const statusInfo = formatEventStatus(status);
+                                  return (
+                                    <Badge className={`${statusInfo.bgColor} ${statusInfo.color} border-0`}>
+                                      {statusInfo.text}
+                                    </Badge>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                            <CardContent className="p-5 text-black">
+                              <h3 className="text-lg font-bold mb-1">{event.title}</h3>
+                              <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
+                              <div className="flex items-center gap-2 text-sm mb-2">
+                                <MapPin className="h-4 w-4" />
+                                <span>{event.city}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Clock className="h-4 w-4" />
+                                <span>{event.time}</span>
+                              </div>
+                            </CardContent>
+                            <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-black">
+                              {event.has_discount && event.real_price && event.discounted_price ? (
+                                <div className="flex flex-col items-start">
+                                  <span className="text-base opacity-60 line-through decoration-2 decoration-red-500">₹{event.real_price}</span>
+                                  <span className="text-lg font-bold text-red-600">₹{event.discounted_price}</span>
+                                </div>
+                              ) : (
+                                <div className="text-lg font-bold">₹{event.price}</div>
+                              )}
+                              <div className="flex gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => handleAddToCart(event)}
+                                  className="flex items-center gap-1 bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
+                                >
+                                  <ShoppingCart className="h-4 w-4" />
+                                  Add to Cart
+                                </Button>
+                                <Button asChild size="sm">
+                                  <Link to={`/event/${event.id}`}>Book Now</Link>
+                                </Button>
+                              </div>
+                            </CardFooter>
+                          </Card>
+                        </FadeIn>
+                      ))}
                     </div>
-                    <CardContent className="p-5 text-black">
-                      <h3 className="text-lg font-bold mb-1">{event.title}</h3>
-                      <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
-                      
-                      <div className="flex items-center gap-2 text-sm mb-2">
-                        <MapPin className="h-4 w-4" />
-                        <span>{event.city}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                              <Clock className="h-4 w-4" />
-                              <span>{event.time}</span>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-black">
-                      {event.has_discount && event.real_price && event.discounted_price ? (
-                        <div className="flex flex-col items-start">
-                          <span className="text-base opacity-60 line-through decoration-2 decoration-red-500">₹{event.real_price}</span>
-                          <span className="text-lg font-bold text-red-600">₹{event.discounted_price}</span>
-                        </div>
-                      ) : (
-                        <div className="text-lg font-bold">₹{event.price}</div>
-                      )}
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleAddToCart(event)}
-                          className="flex items-center gap-1 bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
-                        >
-                          <ShoppingCart className="h-4 w-4" />
-                          Add to Cart
-                        </Button>
-                        <Button asChild size="sm">
-                          <Link to={`/event/${event.id}`}>Book Now</Link>
-                        </Button>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                </FadeIn>
-                    ))}
                   </div>
                 </div>
               ))}

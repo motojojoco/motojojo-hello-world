@@ -138,32 +138,33 @@ const ArtistsSection = () => {
             </div>
           </div>
         </FadeIn>
-        <div 
-          ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
-        >
-          {artists.map((artist, index) => (
-            <FadeIn key={artist.id} delay={100 * index}>
-              <Card className="w-[220px] hover-scale border-none shadow-soft text-center">
-                <CardContent className="p-6 flex flex-col items-center text-black">
-                  <Avatar className="w-24 h-24 mb-4 border-2 border-violet">
-                    <AvatarImage src={artist.image || undefined} alt={artist.name} />
-                    <AvatarFallback className="bg-violet text-white">
-                      {artist.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <h3 className="font-bold mb-1">{artist.name}</h3>
-                  <div className="text-xs mb-2">
-                    {artist.profile}
+        {/* Artists Carousel with yellow padding */}
+        <div className="bg-sandstorm rounded-3xl px-8 py-8">
+          <div 
+            ref={scrollContainerRef}
+            className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+          >
+            {artists.map((artist, index) => (
+              <FadeIn key={artist.id} delay={100 * index}>
+                <Card className="w-[300px] md:w-[350px] hover-scale cursor-pointer overflow-hidden border-none shadow-soft">
+                  <div className="flex flex-col items-center p-6">
+                    <img
+                      src={artist.image}
+                      alt={artist.name}
+                      className="w-32 h-32 rounded-full object-cover mb-4 border-4 border-violet"
+                    />
+                    <h3 className="text-xl font-bold mb-2 text-center">{artist.name}</h3>
+                    <p className="text-sm text-center mb-2">{artist.bio}</p>
+                    <div className="flex flex-col items-center gap-1">
+                      {artist.tags && artist.tags.map((tag, i) => (
+                        <span key={i} className="text-xs text-violet bg-violet/10 rounded-full px-3 py-1 mb-1">{tag}</span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex items-center text-sm">
-                    <Music className="h-3 w-3 mr-1" />
-                    {artist.genre}
-                  </div>
-                </CardContent>
-              </Card>
-            </FadeIn>
-          ))}
+                </Card>
+              </FadeIn>
+            ))}
+          </div>
         </div>
       </div>
     </section>

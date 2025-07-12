@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { useCategories } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
-import { Check, UserRound, MapPin, Phone, Mail, Ticket, Clock, CheckCircle } from "lucide-react";
+import { Check, UserRound, MapPin, Phone, Mail, Ticket, Clock, CheckCircle, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates, generateTicketsForBooking, resendTicketEmail, markTicketsAsAttended } from "@/services/bookingService";
 import { useQuery } from "@tanstack/react-query";
@@ -42,7 +42,7 @@ import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 const Profile = () => {
   const { toast } = useToast();
   // Fetch latest Supabase user and profile
-  const { user, profile, isLoaded, isSignedIn, updateProfile } = useAuth();
+  const { user, profile, isLoaded, isSignedIn, updateProfile, inviteUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -62,6 +62,11 @@ const Profile = () => {
   const [ticketsForBooking, setTicketsForBooking] = useState<TicketType[]>([]);
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteStatus, setInviteStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string>("");
   
   // Get categories for preferences
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
@@ -200,7 +205,7 @@ const Profile = () => {
       if (result) {
         toast({
           title: "Preferences Saved",
-          description: "Your interests have been successfully updated.",
+          description: "Your preferences have been successfully saved.",
         });
       }
     } catch (error) {
@@ -212,6 +217,20 @@ const Profile = () => {
       });
     } finally {
       setIsSavingPreferences(false);
+    }
+  };
+
+  const handleInviteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInviteStatus('loading');
+    setInviteError(null);
+    const { error } = await inviteUser(inviteEmail, 'user');
+    if (error) {
+      setInviteStatus('error');
+      setInviteError(error.message);
+    } else {
+      setInviteStatus('success');
+      setInviteEmail('');
     }
   };
 
@@ -314,7 +333,7 @@ const Profile = () => {
   if (!isLoaded || !isSignedIn) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
+        <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
         <div className="flex-grow flex items-center justify-center">
           <div className="w-full max-w-md mx-auto p-6">
             <Skeleton className="h-8 w-3/4 mb-6" />
@@ -332,7 +351,7 @@ const Profile = () => {
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
       <MovingPartyBackground />
       
       <main className="flex-grow pt-24 pb-20 md:pb-16">
@@ -420,7 +439,30 @@ const Profile = () => {
                   </Card>
                 </FadeIn>
                 
-                {/* Removed Interests & Preferences section */}
+                {/* Invite Friends Section */}
+                <FadeIn delay={200}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MessageSquare className="h-5 w-5" />
+                        Invite Friends
+                      </CardTitle>
+                      <CardDescription>
+                        Share the fun with your friends and family
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button 
+                        onClick={() => { setShowInviteModal(true); setInviteStatus('idle'); setInviteEmail(''); setInviteError(null); }}
+                        className="w-full"
+                        variant="outline"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Invite Friends
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </FadeIn>
               </div>
             </TabsContent>
             
@@ -629,6 +671,35 @@ const Profile = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Invite Friends Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm">
+            <h2 className="text-xl font-bold mb-4">Invite a Friend</h2>
+            <form onSubmit={handleInviteSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1" htmlFor="invite_email">Friend's Email</label>
+                <Input
+                  id="invite_email"
+                  type="email"
+                  value={inviteEmail}
+                  onChange={e => setInviteEmail(e.target.value)}
+                  required
+                  autoFocus
+                  disabled={inviteStatus === 'loading' || inviteStatus === 'success'}
+                />
+              </div>
+              {inviteStatus === 'error' && inviteError && <div className="text-red-600 text-sm">{inviteError}</div>}
+              {inviteStatus === 'success' && <div className="text-green-600 text-sm">Invite sent! Your friend will receive an email.</div>}
+              <Button type="submit" className="w-full" disabled={inviteStatus === 'loading' || inviteStatus === 'success'}>
+                {inviteStatus === 'loading' ? 'Sending...' : 'Send Invite'}
+              </Button>
+            </form>
+            <Button onClick={() => setShowInviteModal(false)} variant="ghost" className="w-full mt-2">Close</Button>
+          </div>
+        </div>
+      )}
       
       <Footer />
     </div>

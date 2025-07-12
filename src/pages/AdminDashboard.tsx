@@ -49,6 +49,14 @@ import { LogOut, Plus, Edit, Trash2, ChevronLeft, ChevronRight, Search, Filter, 
 import { experiences } from "@/data/mockData";
 import ArtistForm from "@/components/admin/ArtistForm";
 import { processCompletedEvents, getUserBookings, Booking, getAllBookings, checkAttendanceFields } from "@/services/bookingService";
+import { 
+  createHostInvitation, 
+  getHostInvitations, 
+  deleteHostInvitation,
+  assignHostToEvent,
+  removeHostFromEvent,
+  getHostProfile
+} from "@/services/hostService";
 import {
   Select,
   SelectContent,
@@ -75,6 +83,7 @@ import {
 import { Link } from "react-router-dom";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/hooks/use-auth";
+import { getAllEvents } from "@/services/eventService";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -98,6 +107,10 @@ const AdminDashboard = () => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [hostInviteEmail, setHostInviteEmail] = useState("");
+  const [hostInviteLoading, setHostInviteLoading] = useState(false);
+  const [isHostInviteDialogOpen, setIsHostInviteDialogOpen] = useState(false);
+  const [hostActivity, setHostActivity] = useState([]);
 
   // Fetch events using React Query with proper query function
   const { data: events = [], isLoading } = useQuery({
@@ -135,6 +148,12 @@ const AdminDashboard = () => {
   const { data: pendingTestimonials = [], isLoading: pendingTestimonialsLoading } = useQuery({
     queryKey: ['admin-pending-testimonials'],
     queryFn: getPendingTestimonials
+  });
+
+  // Fetch host invitations using React Query
+  const { data: hostInvitations = [], isLoading: hostInvitationsLoading } = useQuery({
+    queryKey: ['admin-host-invitations'],
+    queryFn: getHostInvitations
   });
 
   // Subscribe to real-time updates
@@ -765,6 +784,96 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleInviteHost = async () => {
+    if (!hostInviteEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an email address.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setHostInviteLoading(true);
+    try {
+      const result = await createHostInvitation(hostInviteEmail);
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Host invitation sent successfully!",
+        });
+        setHostInviteEmail("");
+        setIsHostInviteDialogOpen(false);
+        queryClient.invalidateQueries({ queryKey: ['admin-host-invitations'] });
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to send invitation",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setHostInviteLoading(false);
+    }
+  };
+
+  const handleDeleteHostInvitation = async (invitationId: string) => {
+    if (confirm("Are you sure you want to delete this host invitation?")) {
+      const success = await deleteHostInvitation(invitationId);
+      if (success) {
+        toast({
+          title: "Success",
+          description: "Host invitation deleted successfully",
+        });
+        queryClient.invalidateQueries({ queryKey: ['admin-host-invitations'] });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete host invitation",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    async function fetchHostActivity() {
+      // Get all events with host info
+      const events = await getAllEvents();
+      // Get all hosts
+      const { data: hosts } = await supabase.from('hosts').select('*');
+      // Get all bookings
+      const { data: bookings } = await supabase.from('bookings').select('*');
+      // Get all tickets
+      const { data: tickets } = await supabase.from('tickets').select('*');
+      // Aggregate
+      const activity = events.filter(e => e.host).map(event => {
+        const host = hosts?.find(h => h.id === event.host);
+        const eventBookings = bookings?.filter(b => b.event_id === event.id) || [];
+        const eventTickets = tickets?.filter(t => eventBookings.map(b => b.id).includes(t.booking_id)) || [];
+        const ticketsSold = eventTickets.length;
+        const attendees = eventTickets.filter(t => t.attended).length;
+        const revenue = eventBookings.reduce((sum, b) => sum + (b.amount || 0), 0);
+        return {
+          hostName: host?.host_name || 'Unknown',
+          eventTitle: event.title,
+          eventDate: event.date,
+          ticketsSold,
+          attendees,
+          revenue,
+        };
+      });
+      setHostActivity(activity);
+    }
+    fetchHostActivity();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Admin Header */}
@@ -963,7 +1072,7 @@ const AdminDashboard = () => {
           </FadeIn>
 
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-            <TabsList className="grid grid-cols-7 mb-8">
+            <TabsList className="grid grid-cols-9 mb-8">
               <TabsTrigger value="events">Manage Events</TabsTrigger>
               <TabsTrigger value="event-types">Event Types</TabsTrigger>
               <TabsTrigger value="categories">Manage Categories</TabsTrigger>
@@ -971,7 +1080,8 @@ const AdminDashboard = () => {
               <TabsTrigger value="banners">Manage Banners</TabsTrigger>
               <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
               <TabsTrigger value="bookings">View Bookings</TabsTrigger>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="hosts">Host Management</TabsTrigger>
+              <TabsTrigger value="host-activity">Host Activity</TabsTrigger>
             </TabsList>
 
             <TabsContent value="events">
@@ -1808,6 +1918,164 @@ const AdminDashboard = () => {
               </FadeIn>
             </TabsContent>
 
+            <TabsContent value="hosts">
+              <FadeIn delay={100}>
+                <div className="grid grid-cols-1 gap-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex justify-between items-center">
+                        <span>Host Management</span>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Invite Host
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Invite New Host</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <Label htmlFor="invite-host-email">Host Email</Label>
+                              <Input
+                                id="invite-host-email"
+                                type="email"
+                                placeholder="Enter host email"
+                                value={hostInviteEmail}
+                                onChange={(e) => setHostInviteEmail(e.target.value)}
+                              />
+                              <Button 
+                                onClick={handleInviteHost} 
+                                disabled={hostInviteLoading}
+                                className="w-full"
+                              >
+                                {hostInviteLoading ? "Sending..." : "Send Invitation"}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </CardTitle>
+                      <CardDescription>
+                        Manage host invitations and assignments
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {hostInvitationsLoading ? (
+                        <div className="space-y-4">
+                          {[1, 2, 3].map((i) => (
+                            <Skeleton key={i} className="h-16 w-full" />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {hostInvitations.length === 0 ? (
+                            <div className="text-center py-8">
+                              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                              <h3 className="text-lg font-medium text-gray-900 mb-2">No Host Invitations</h3>
+                              <p className="text-gray-500 mb-4">
+                                Start by inviting hosts to manage your events.
+                              </p>
+                              <Button onClick={() => setIsHostInviteDialogOpen(true)}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Invite First Host
+                              </Button>
+                            </div>
+                          ) : (
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Email</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Invited By</TableHead>
+                                  <TableHead>Created</TableHead>
+                                  <TableHead>Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {hostInvitations.map((invitation) => (
+                                  <TableRow key={invitation.id}>
+                                    <TableCell>{invitation.email}</TableCell>
+                                    <TableCell>
+                                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                        invitation.status === 'pending' 
+                                          ? 'bg-yellow-100 text-yellow-800'
+                                          : invitation.status === 'accepted'
+                                          ? 'bg-green-100 text-green-800'
+                                          : 'bg-red-100 text-red-800'
+                                      }`}>
+                                        {invitation.status}
+                                      </span>
+                                    </TableCell>
+                                    <TableCell>{invitation.invited_by}</TableCell>
+                                    <TableCell>{formatDate(invitation.created_at)}</TableCell>
+                                    <TableCell>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleDeleteHostInvitation(invitation.id)}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </FadeIn>
+            </TabsContent>
+
+            <TabsContent value="host-activity">
+              <FadeIn delay={100}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Host Activity</CardTitle>
+                    <CardDescription>See which host is managing which event, tickets sold, attendees, and revenue.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="rounded-md border text-black overflow-x-auto">
+                      <Table className="text-black">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Host</TableHead>
+                            <TableHead>Event</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Tickets Sold</TableHead>
+                            <TableHead>Attendees</TableHead>
+                            <TableHead>Revenue</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {hostActivity.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={6} className="text-center">No host activity found.</TableCell>
+                            </TableRow>
+                          ) : (
+                            hostActivity.map((row, idx) => (
+                              <TableRow key={idx}>
+                                <TableCell>{row.hostName}</TableCell>
+                                <TableCell>{row.eventTitle}</TableCell>
+                                <TableCell>{row.eventDate}</TableCell>
+                                <TableCell>{row.ticketsSold}</TableCell>
+                                <TableCell>{row.attendees}</TableCell>
+                                <TableCell>₹{row.revenue.toLocaleString()}</TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </FadeIn>
+            </TabsContent>
+
             <TabsContent value="overview">
               <FadeIn delay={100}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -2002,17 +2270,42 @@ const AdminDashboard = () => {
             <Input
               id="invite-admin-email"
               type="email"
-              placeholder="admin@email.com"
+              placeholder="Enter admin email"
               value={inviteEmail}
-              onChange={e => setInviteEmail(e.target.value)}
-              disabled={inviteLoading}
+              onChange={(e) => setInviteEmail(e.target.value)}
             />
-            <Button
-              onClick={handleInviteAdmin}
-              disabled={inviteLoading || !inviteEmail}
+            <Button 
+              onClick={handleInviteAdmin} 
+              disabled={inviteLoading}
               className="w-full"
             >
-              {inviteLoading ? "Inviting..." : "Send Invite"}
+              {inviteLoading ? "Sending..." : "Send Invitation"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invite Host Dialog */}
+      <Dialog open={isHostInviteDialogOpen} onOpenChange={setIsHostInviteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite New Host</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Label htmlFor="invite-host-email">Host Email</Label>
+            <Input
+              id="invite-host-email"
+              type="email"
+              placeholder="Enter host email"
+              value={hostInviteEmail}
+              onChange={e => setHostInviteEmail(e.target.value)}
+            />
+            <Button
+              onClick={handleInviteHost}
+              disabled={hostInviteLoading}
+              className="w-full"
+            >
+              {hostInviteLoading ? "Sending..." : "Send Invitation"}
             </Button>
           </div>
         </DialogContent>

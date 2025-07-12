@@ -37,12 +37,15 @@ import { useToast } from "@/hooks/use-toast";
 import { isEventOver, getEventStatus, formatEventStatus } from "@/lib/utils";
 import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 import { useCartStore } from "@/store/cart-store";
+import { getEventTypes } from "@/services/eventTypeService";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { addItem } = useCartStore();
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [isLocalGathering, setIsLocalGathering] = useState(false);
   
   // Fetch event details
   const { 
@@ -65,6 +68,24 @@ const EventDetail = () => {
     enabled: !!event?.category,
     select: (data) => data.filter(e => e.id !== event?.id).slice(0, 3)
   });
+
+  // Fetch event types to check if this is a Local Gathering event
+  const { data: eventTypes = [] } = useQuery({
+    queryKey: ["event-types"],
+    queryFn: getEventTypes,
+  });
+
+  // Check if this is a Local Gathering event
+  useEffect(() => {
+    if (event && eventTypes.length > 0) {
+      const localGatheringType = eventTypes.find(
+        (et) => et.name.toLowerCase() === "local gathering"
+      );
+      if (localGatheringType && event.event_type === localGatheringType.id) {
+        setIsLocalGathering(true);
+      }
+    }
+  }, [event, eventTypes]);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -117,7 +138,7 @@ const EventDetail = () => {
   if (eventLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
+        <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
         <div className="flex-grow flex items-center justify-center">
           <div className="animate-pulse">Loading event details...</div>
         </div>
@@ -128,7 +149,7 @@ const EventDetail = () => {
   if (eventError || !event) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
+        <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-2">Event Not Found</h2>
@@ -153,9 +174,14 @@ const EventDetail = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <MovingPartyBackground />
+    <div className={`min-h-screen flex flex-col ${isLocalGathering ? '' : ''}`} style={isLocalGathering ? { backgroundColor: '#0CA678' } : {}}>
+      <Navbar 
+        selectedCity={selectedCity} 
+        setSelectedCity={setSelectedCity} 
+        bgColor={isLocalGathering ? "#0CA678" : undefined}
+        logoSrc={isLocalGathering ? "/gatherings/local%20gat%20logo.png" : undefined}
+      />
+      {!isLocalGathering && <MovingPartyBackground />}
       
       <main className="flex-grow pt-16 pb-20 md:pb-0">
         {/* Event Banner */}
@@ -172,7 +198,7 @@ const EventDetail = () => {
             {/* Event Details */}
             <div className="lg:col-span-2">
               <FadeIn>
-                <Badge className="mb-4 bg-violet hover:bg-violet-700">{event.category}</Badge>
+                <Badge className={`mb-4 ${isLocalGathering ? 'bg-[#F7E1B5] text-[#0CA678] hover:bg-[#e6d7a8]' : 'bg-violet hover:bg-violet-700'}`}>{event.category}</Badge>
                 <div className="flex items-center gap-2 mb-4">
                   <Badge className={`${statusInfo.bgColor} ${statusInfo.color} border-0`}>
                     {statusInfo.text}
@@ -184,10 +210,10 @@ const EventDetail = () => {
                     </Badge>
                   )}
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">{event.title}</h1>
-                <h2 className="text-xl text-muted-foreground mb-6">{event.subtitle}</h2>
+                <h1 className={`text-3xl md:text-4xl font-bold mb-2 ${isLocalGathering ? 'text-mapcream' : ''}`}>{event.title}</h1>
+                <h2 className={`text-xl mb-6 ${isLocalGathering ? 'text-mapcream' : 'text-muted-foreground'}`}>{event.subtitle}</h2>
                 
-                <div className="whitespace-pre-line text-foreground max-w-none mb-8">
+                <div className={`whitespace-pre-line max-w-none mb-8 ${isLocalGathering ? 'text-mapcream' : 'text-foreground'}`}>
                   {event.description}
                   {event.long_description && <p>{event.long_description}</p>}
                 </div>
@@ -237,66 +263,66 @@ const EventDetail = () => {
             <div className="lg:col-span-1">
               <FadeIn delay={400}>
                 <div className="sticky top-24">
-                  <Card className="border-none shadow-soft overflow-hidden">
+                  <Card className={`border-none shadow-soft overflow-hidden ${isLocalGathering ? 'bg-[#F7E1B5]' : ''}`}>
                     <CardContent className="p-6">
-                      <h3 className="text-xl font-bold mb-4 text-black">Event Details</h3>
+                      <h3 className={`text-xl font-bold mb-4 ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Event Details</h3>
                       
-                      <div className="space-y-4 mb-6">
-                        <div className="flex items-start">
-                          <MapPin className="h-5 w-5 text-raspberry mr-3 mt-0.5" />
-                          <div>
-                            <div className="font-semibold text-black">Venue</div>
-                            <div className="text-black">{event.venue}, {event.city}</div>
+                                              <div className="space-y-4 mb-6">
+                          <div className="flex items-start">
+                            <MapPin className={`h-5 w-5 mr-3 mt-0.5 ${isLocalGathering ? 'text-[#0CA678]' : 'text-raspberry'}`} />
+                            <div>
+                              <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Venue</div>
+                              <div className={isLocalGathering ? 'text-[#0CA678]' : 'text-black'}>{event.venue}, {event.city}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-start">
+                            <Calendar className={`h-5 w-5 mr-3 mt-0.5 ${isLocalGathering ? 'text-[#0CA678]' : 'text-violet'}`} />
+                            <div>
+                              <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Date</div>
+                              <div className={isLocalGathering ? 'text-[#0CA678]' : 'text-black'}>{formatDate(event.date)}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-start">
+                            <Clock className={`h-5 w-5 mr-3 mt-0.5 ${isLocalGathering ? 'text-[#0CA678]' : 'text-yellow'}`} />
+                            <div>
+                              <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Time & Duration</div>
+                              <div className={isLocalGathering ? 'text-[#0CA678]' : 'text-black'}>{event.time} • {event.duration || 'TBD'}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-start">
+                            <User className={`h-5 w-5 mr-3 mt-0.5 ${isLocalGathering ? 'text-[#0CA678]' : 'text-green-500'}`} />
+                            <div>
+                              <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Host</div>
+                              <div className={isLocalGathering ? 'text-[#0CA678]' : 'text-black'}>{event.host || 'Motojojo'}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-start">
+                            <Tag className={`h-5 w-5 mr-3 mt-0.5 ${isLocalGathering ? 'text-[#0CA678]' : 'text-blue-500'}`} />
+                            <div>
+                              <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Category</div>
+                              <div className={isLocalGathering ? 'text-[#0CA678]' : 'text-black'}>{event.category}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-start">
+                            <DollarSign className={`h-5 w-5 mr-3 mt-0.5 ${isLocalGathering ? 'text-[#0CA678]' : 'text-purple-500'}`} />
+                            <div>
+                              <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Price</div>
+                              {event.has_discount && event.real_price && event.discounted_price ? (
+                                <div className="flex flex-col items-start">
+                                  <span className={`text-base opacity-60 line-through decoration-2 decoration-red-500 ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>₹{formatPrice(event.real_price)}</span>
+                                  <span className="text-xl font-bold text-red-600">₹{formatPrice(event.discounted_price)}</span>
+                                </div>
+                              ) : (
+                                <div className={`text-xl font-bold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>₹{formatPrice(event.price)}</div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        
-                        <div className="flex items-start">
-                          <Calendar className="h-5 w-5 text-violet mr-3 mt-0.5" />
-                          <div>
-                            <div className="font-semibold text-black">Date</div>
-                            <div className="text-black">{formatDate(event.date)}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <Clock className="h-5 w-5 text-yellow mr-3 mt-0.5" />
-                          <div>
-                            <div className="font-semibold text-black">Time & Duration</div>
-                            <div className="text-black">{event.time} • {event.duration || 'TBD'}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <User className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
-                          <div>
-                            <div className="font-semibold text-black">Host</div>
-                            <div className="text-black">{event.host || 'Motojojo'}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <Tag className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />
-                          <div>
-                            <div className="font-semibold text-black">Category</div>
-                            <div className="text-black">{event.category}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <DollarSign className="h-5 w-5 text-purple-500 mr-3 mt-0.5" />
-                          <div>
-                            <div className="font-semibold text-black">Price</div>
-                            {event.has_discount && event.real_price && event.discounted_price ? (
-                              <div className="flex flex-col items-start">
-                                <span className="text-base text-black opacity-60 line-through decoration-2 decoration-red-500">₹{formatPrice(event.real_price)}</span>
-                                <span className="text-xl font-bold text-red-600">₹{formatPrice(event.discounted_price)}</span>
-                              </div>
-                            ) : (
-                              <div className="text-xl font-bold text-black">₹{formatPrice(event.price)}</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
                     </CardContent>
                     <CardFooter className="px-6 pb-6 pt-0">
                       {isCompleted ? (
@@ -321,7 +347,7 @@ const EventDetail = () => {
                         <div className="w-full space-y-3">
                           <Button 
                             variant="outline" 
-                            className="w-full flex items-center gap-2"
+                            className={`w-full flex items-center gap-2 ${isLocalGathering ? 'bg-[#F7E1B5] text-[#0CA678] border-[#0CA678] hover:bg-[#e6d7a8]' : ''}`}
                             onClick={handleAddToCart}
                           >
                             <ShoppingCart className="h-4 w-4" />
@@ -332,6 +358,7 @@ const EventDetail = () => {
                             eventName={event.title}
                             amount={event.has_discount && event.discounted_price ? event.discounted_price : event.price}
                             onSuccess={handleBookingSuccess}
+                            className={isLocalGathering ? 'bg-[#0CA678] hover:bg-[#0a8a6a]' : ''}
                           />
                         </div>
                       )}
@@ -345,10 +372,10 @@ const EventDetail = () => {
           {/* Similar Events */}
           {!similarEventsLoading && similarEvents.length > 0 && (
             <FadeIn delay={500}>
-              <h3 className="text-2xl font-bold mt-12 mb-6">Similar Events</h3>
+              <h3 className={`text-2xl font-bold mt-12 mb-6 ${isLocalGathering ? 'text-mapcream' : ''}`}>Similar Events</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
                 {similarEvents.map((event: Event) => (
-                  <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden">
+                  <Card key={event.id} className={`hover-scale border-none shadow-soft overflow-hidden ${isLocalGathering ? 'bg-[#0CA678]' : ''}`}>
                     <div className="h-48 relative">
                       <img 
                         src={event.image} 
@@ -356,24 +383,24 @@ const EventDetail = () => {
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute top-3 right-3">
-                        <Badge className="bg-violet hover:bg-violet-700">{event.category}</Badge>
+                        <Badge className={isLocalGathering ? 'bg-[#F7E1B5] text-[#0CA678] hover:bg-[#e6d7a8]' : 'bg-violet hover:bg-violet-700'}>{event.category}</Badge>
                       </div>
                     </div>
-                    <CardContent className="p-5 text-black">
-                      <h3 className="text-lg font-bold mb-1">{event.title}</h3>
-                      <p className="text-sm mb-4 line-clamp-2">{event.subtitle}</p>
+                    <CardContent className={`p-5 ${isLocalGathering ? 'text-mapcream' : 'text-black'}`}>
+                      <h3 className={`text-lg font-bold mb-1 ${isLocalGathering ? 'text-mapcream' : ''}`}>{event.title}</h3>
+                      <p className={`text-sm mb-4 line-clamp-2 ${isLocalGathering ? 'text-mapcream' : ''}`}>{event.subtitle}</p>
                       
-                      <div className="flex items-center gap-2 text-sm mb-2">
-                        <MapPin className="h-4 w-4" />
-                        <span>{event.city}</span>
+                      <div className={`flex items-center gap-2 text-sm mb-2 ${isLocalGathering ? 'text-mapcream' : ''}`}>
+                        <MapPin className={`h-4 w-4 ${isLocalGathering ? 'text-mapcream' : ''}`} />
+                        <span className={isLocalGathering ? 'text-mapcream' : ''}>{event.city}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4" />
-                        <span>{formatDate(event.date)}</span>
+                      <div className={`flex items-center gap-2 text-sm ${isLocalGathering ? 'text-mapcream' : ''}`}>
+                        <Calendar className={`h-4 w-4 ${isLocalGathering ? 'text-mapcream' : ''}`} />
+                        <span className={isLocalGathering ? 'text-mapcream' : ''}>{formatDate(event.date)}</span>
                       </div>
                     </CardContent>
-                    <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-black">
-                      <div className="text-lg font-bold">₹{formatPrice(event.price)}</div>
+                    <CardFooter className={`px-5 pb-5 pt-0 flex justify-between items-center ${isLocalGathering ? 'text-mapcream' : 'text-black'}`}>
+                      <div className={`text-lg font-bold ${isLocalGathering ? 'text-mapcream' : ''}`}>₹{formatPrice(event.price)}</div>
                       <div className="flex gap-2">
                         <Button 
                           variant="outline"
@@ -396,7 +423,7 @@ const EventDetail = () => {
                               description: `${event.title} has been added to your cart.`,
                             });
                           }}
-                          className="flex items-center gap-1 bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
+                          className={`flex items-center gap-1 ${isLocalGathering ? 'bg-[#F7E1B5] text-[#0CA678] border-[#0CA678] hover:bg-[#e6d7a8]' : 'bg-[#2d014d] text-white border-none hover:bg-[#3a0166]'}`}
                         >
                           <ShoppingCart className="h-4 w-4" />
                           Add to Cart
@@ -405,6 +432,7 @@ const EventDetail = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => navigate(`/event/${event.id}`)}
+                          className={isLocalGathering ? 'bg-[#F7E1B5] text-[#0CA678] border-[#0CA678] hover:bg-[#e6d7a8]' : ''}
                         >
                           View Details
                         </Button>
@@ -418,7 +446,13 @@ const EventDetail = () => {
         </div>
       </main>
       
-      <Footer />
+      {isLocalGathering ? (
+        <div style={{ backgroundColor: '#0CA678' }}>
+          <Footer />
+        </div>
+      ) : (
+        <Footer />
+      )}
     </div>
   );
 };

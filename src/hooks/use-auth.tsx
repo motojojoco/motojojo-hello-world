@@ -7,6 +7,7 @@ export const useAuth = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isHost, setIsHost] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   // Always upsert user into users table after login/signup
@@ -54,12 +55,14 @@ export const useAuth = () => {
         } else {
           setProfile(data);
           setIsAdmin(data?.role === 'admin');
+          setIsHost(data?.role === 'host');
         }
       } else {
         setUser(null);
         setProfile(null);
         setIsSignedIn(false);
         setIsAdmin(false);
+        setIsHost(false);
       }
       setIsLoaded(true);
     };
@@ -88,10 +91,11 @@ export const useAuth = () => {
           filter: `id=eq.${user.id}`
         },
         (payload) => {
-          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
-            setProfile(payload.new);
-            setIsAdmin(payload.new?.role === 'admin');
-          }
+                  if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+          setProfile(payload.new);
+          setIsAdmin(payload.new?.role === 'admin');
+          setIsHost(payload.new?.role === 'host');
+        }
         }
       )
       .subscribe();
@@ -137,6 +141,7 @@ export const useAuth = () => {
     setProfile(null);
     setIsSignedIn(false);
     setIsAdmin(false);
+    setIsHost(false);
   };
 
   // Invite user (send invite link)
@@ -192,6 +197,7 @@ export const useAuth = () => {
     isLoaded,
     isSignedIn,
     isAdmin,
+    isHost,
     signIn,
     signUp,
     signOut,

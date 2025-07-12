@@ -9,13 +9,11 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "ticket-card",
+      // "ticket-card", // Remove ticket-card class if it adds raspberry background
       className
     )}
     {...props}
   >
-    <div className="ticket-cutout-left" />
-    <div className="ticket-cutout-right" />
     {children}
   </div>
 ))
