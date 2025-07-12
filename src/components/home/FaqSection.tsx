@@ -39,7 +39,7 @@ const FaqSection = () => {
       <div className="container-padding">
         <FadeIn>
           <div className="text-center mb-12">
-            <h2 className="section-title">Frequently Asked Questions</h2>
+            <h2 className="section-title text-white">Frequently Asked Questions</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Find answers to common questions about bookings, events, and more.
             </p>

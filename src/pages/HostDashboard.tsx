@@ -179,8 +179,12 @@ const HostDashboard = () => {
   }, [isHost, queryClient, toast, selectedEvent]);
 
   const handleLogout = async () => {
-    await signOut();
-    navigate("/");
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   };
 
   const handleMarkAttendance = async () => {

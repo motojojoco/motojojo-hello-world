@@ -53,9 +53,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
-      <MovingPartyBackground />
+    <div className="min-h-screen flex flex-col bg-raspberry">
+      <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} bgColor="#E91E63" />
       <main className="flex-grow pb-20 md:pb-0">
         <HeroSection />
         {/* <CityStrip selectedCity={selectedCity} setSelectedCity={setSelectedCity} /> */}
@@ -66,7 +65,9 @@ const Index = () => {
         <TestimonialsSection />
         <FaqSection />
       </main>
-      <Footer />
+      <div className="bg-raspberry">
+        <Footer />
+      </div>
       {/* City Selection Modal */}
       <Dialog open={showCityModal}>
         <DialogContent className="max-w-md mx-auto">

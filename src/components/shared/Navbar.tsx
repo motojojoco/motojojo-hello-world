@@ -45,8 +45,12 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
   }, [location.pathname]);
 
   const handleSignOut = async () => {
-    await useAuth().signOut();
-    navigate("/");
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {

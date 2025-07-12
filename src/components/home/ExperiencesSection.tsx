@@ -85,7 +85,7 @@ const ExperiencesSection = () => {
     return (
       <section className="py-16 bg-muted/5">
         <div className="container-padding">
-          <h2 className="section-title">Curated Experiences</h2>
+          <h2 className="section-title text-white">Curated Experiences</h2>
           <div className="flex justify-center py-16">
             <div className="animate-pulse flex space-x-4">
               <div className="h-12 w-12 bg-slate-200 rounded-full"></div>
@@ -104,7 +104,7 @@ const ExperiencesSection = () => {
     return (
       <section className="py-16 bg-muted/5">
         <div className="container-padding">
-          <h2 className="section-title">Curated Experiences</h2>
+          <h2 className="section-title text-white">Curated Experiences</h2>
           <div className="flex justify-center py-16">
             <p className="text-muted-foreground">No experiences available at this time. Please check back later.</p>
           </div>
@@ -118,7 +118,7 @@ const ExperiencesSection = () => {
       <div className="container-padding">
         <FadeIn>
           <div className="flex justify-between items-center mb-8">
-            <h2 className="section-title">Curated Experiences</h2>
+            <h2 className="section-title text-white">Curated Experiences</h2>
             <div className="hidden md:flex space-x-2">
               <Button 
                 size="icon" 

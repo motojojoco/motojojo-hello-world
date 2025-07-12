@@ -51,15 +51,14 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/30 to-background/60" />
         <div className="container-padding relative z-10 h-full flex flex-col justify-center">
           <FadeIn delay={200}>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl">
-              <span className="text-raspberry">Experience</span> the Best Events in {" "}
-              <span className="text-yellow">Your City</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl text-white">
+              <span className="text-white">Thoughtfully curated experiences in your city.</span>
             </h1>
           </FadeIn>
           
           <FadeIn delay={300}>
             <p className="text-xl md:text-2xl text-yellow mb-8 max-w-2xl">
-              Discover and book curated experiences, from concerts to workshops, all in one place.
+              Join an ever-growing community where we help you remove your everyday masks and be yourself.
             </p>
           </FadeIn>
           
@@ -99,18 +98,17 @@ const HeroSection = () => {
       
       {/* Content */}
       <div className="container-padding relative z-10 h-full flex flex-col justify-center">
-        <FadeIn delay={200}>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl">
-            <span className="text-raspberry">Experience</span> the Best Events in {" "}
-            <span className="text-yellow">Your City</span>
-          </h1>
-        </FadeIn>
-        
-        <FadeIn delay={300}>
-          <p className="text-xl md:text-2xl text-yellow mb-8 max-w-2xl">
-            Discover and book curated experiences, from concerts to workshops, all in one place.
-          </p>
-        </FadeIn>
+                  <FadeIn delay={200}>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl text-white">
+              <span className="text-white">Thoughtfully curated experiences in your city.</span>
+            </h1>
+          </FadeIn>
+          
+          <FadeIn delay={300}>
+            <p className="text-xl md:text-2xl text-yellow mb-8 max-w-2xl">
+              Join an ever-growing community where we help you remove your everyday masks and be yourself.
+            </p>
+          </FadeIn>
         
         <FadeIn delay={400}>
           <div className="flex flex-col sm:flex-row gap-4">

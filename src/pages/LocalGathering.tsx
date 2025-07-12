@@ -96,7 +96,8 @@ const LocalGathering = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4 text-mapcream">Local Gathering Events</h1>
             <p className="text-mapcream max-w-2xl mx-auto">
-              Discover and book the best upcoming Local Gathering events happening in your city. All events are organized by date for easy browsing.
+            The Local Gathering experience doesn't need you to be anyone, not a friend, not a date.. Just, yourself. Enjoy an evening of indie music, deep conversations, and no expectations.  <br />
+             For us, you are just a JoJo like everyone else.
             </p>
           </div>
           {/* Filters Section (city selector) */}

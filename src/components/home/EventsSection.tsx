@@ -110,7 +110,7 @@ const EventsSection = () => {
     return (
       <section className="py-16">
         <div className="container-padding">
-          <h2 className="section-title">Upcoming Events</h2>
+          <h2 className="section-title text-white">Upcoming Events</h2>
           <div className="flex justify-center py-16">
             <div className="animate-pulse flex space-x-4">
               <div className="h-12 w-12 bg-slate-200 rounded-full"></div>
@@ -129,7 +129,7 @@ const EventsSection = () => {
     return (
       <section className="py-16">
         <div className="container-padding">
-          <h2 className="section-title">Upcoming Events</h2>
+          <h2 className="section-title text-white">Upcoming Events</h2>
           <div className="flex justify-center py-16">
             <p className="text-muted-foreground">No events available at this time. Please check back later.</p>
           </div>
@@ -145,7 +145,7 @@ const EventsSection = () => {
         <div className="container-padding">
           <FadeIn>
             <div className="flex justify-between items-center mb-8">
-              <h2 className="section-title">Upcoming Events</h2>
+              <h2 className="section-title text-white">Upcoming Events</h2>
               <div className="hidden md:flex space-x-2">
                 <Button 
                   size="icon" 
@@ -246,7 +246,7 @@ const EventsSection = () => {
         <div className="container-padding">
           <FadeIn>
             <div className="flex justify-between items-center mb-8">
-              <h2 className="section-title">Previous Events</h2>
+              <h2 className="section-title text-white">Previous Events</h2>
             </div>
           </FadeIn>
           <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth">

@@ -63,7 +63,7 @@ const TestimonialsSection = () => {
         <div className="container-padding">
           <FadeIn>
             <div className="text-center">
-              <h2 className="section-title">What Our Community Says</h2>
+              <h2 className="section-title text-white">What Our Community Says</h2>
               <p className="text-muted-foreground mt-4 mb-6">
                 Be the first to share your experience with our platform!
               </p>
@@ -97,7 +97,7 @@ const TestimonialsSection = () => {
       <div className="container-padding">
         <FadeIn>
           <div className="flex justify-between items-center mb-8">
-            <h2 className="section-title">What Our Community Says</h2>
+            <h2 className="section-title text-white">What Our Community Says</h2>
             <div className="flex items-center gap-4">
               <Button variant="outline" asChild>
                 <Link to="/feedback">

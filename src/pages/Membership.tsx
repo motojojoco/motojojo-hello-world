@@ -29,10 +29,10 @@ const MembershipPage = () => {
       period: "per month",
       description: "",
       features: [
-        "For the curious, the kind, and the creative souls who want to be part of something bigger than just events.",
-        "If you love warm lights, deep conversations, and art that brings people closer, this is your tribe.",
-        "We’re not just selling tickets—we’re building a family of misfits, dreamers, and doers who want to host, volunteer, or simply show up with their whole heart.",
-        "Tell us your story, your vibe, and what you seek. Let’s create magic together, one gathering at a time."
+        "Join us to be a part of an ever-growing and independent community of artists, wanderers, explorers, and misfits of your own cities.",
+        "We bring people together in cities to be a part of something new. Explore art in a raw and intimate way.  Make it personal and explore the artists and people of your own neighbourhood.",
+        "We curate experiences with the help of people who crave a safe, independent, supportive, and non-judgmental space to be themselves. A space created by them for people like them.",
+        
       ],
       badge: "Most Popular",
       color: "violet"
@@ -45,10 +45,10 @@ const MembershipPage = () => {
       period: "per month",
       description: "",
       features: [
-        "Ready to take the lead and help shape the future of independent art gatherings in India?",
-        "The JoJo Gang is for those who want to do more—host, curate, create, and inspire.",
-        "Whether you’re an artist, a connector, a storyteller, a chef, or someone who just loves bringing people together, we want to know what excites you!",
-        "Share your passions, your city, and how you’d like to contribute. Let’s build a safe, vibrant space for artists and art lovers, together."
+        "The Jojo gang is made of peope who want to take the responsibility of changing the art scenes in their cities. ",
+        "Join our community of curators, hosts, artists, poets, and so many more to bring out the best in your city.",
+        "Make the most of this community by connecting, collaborating and creating impactful experiences with fellow members of the community.",
+        " Become an important part of shaping the gatherings in your neighborhood."
       ],
       badge: "Premium",
       color: "yellow"
@@ -74,7 +74,7 @@ const MembershipPage = () => {
     {
       icon: <MapPin className="h-6 w-6 text-sandstorm" />,
       title: "Find Your Tribe",
-      description: "Join intimate WhatsApp/Instagram groups and connect with like-hearted souls near you."
+      description: "Be a part of our member-only WhatsApp groups and be one step closer to the heart of the community"
     },
     {
       icon: <Zap className="h-6 w-6 text-raspberry" />,
@@ -202,8 +202,8 @@ const MembershipPage = () => {
                 Ready to Start Your Journey?
               </h3>
               <p className="text-gray-600 mb-6">
-                Join thousands of event lovers who are already part of the Motojojo community. 
-                Start exploring amazing experiences today!
+              Sounds like your vibe? Join us in this journey of creating mindful experiences in your city.
+              Become a part of our Motojojo family!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 

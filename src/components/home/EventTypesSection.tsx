@@ -52,7 +52,7 @@ const EventTypesSection = () => {
       <div>
         <FadeIn>
           <div className="flex justify-between items-center mb-8 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
-            <h2 className="section-title">Event Types</h2>
+            <h2 className="section-title text-white">Event Types</h2>
             <div className="hidden md:flex space-x-2">
               <Button 
                 size="icon" 
@@ -151,7 +151,7 @@ const EventTypesSection = () => {
         <div className="mt-8 text-center px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
           <Button 
             variant="outline" 
-            className="border-violet text-white hover:bg-violet/10 rounded-full px-8"
+            className="border-white text-white hover:bg-white/10 rounded-full px-8"
             asChild
           >
             <Link to="/events">View All Event Types</Link>

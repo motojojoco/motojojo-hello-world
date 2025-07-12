@@ -84,7 +84,7 @@ const ArtistsSection = () => {
     return (
       <section className="py-16 bg-muted/5">
         <div className="container-padding">
-          <h2 className="section-title">Featured Artists</h2>
+          <h2 className="section-title text-white">Featured Artists</h2>
           <div className="flex justify-center py-16">
             <div className="animate-pulse flex space-x-4">
               <div className="h-12 w-12 bg-slate-200 rounded-full"></div>
@@ -103,7 +103,7 @@ const ArtistsSection = () => {
     return (
       <section className="py-16 bg-muted/5">
         <div className="container-padding">
-          <h2 className="section-title">Featured Artists</h2>
+          <h2 className="section-title text-white">Featured Artists</h2>
           <div className="flex justify-center py-16">
             <p className="text-muted-foreground">No artists available at this time. Please check back later.</p>
           </div>
@@ -117,7 +117,7 @@ const ArtistsSection = () => {
       <div className="container-padding">
         <FadeIn>
           <div className="flex justify-between items-center mb-8">
-            <h2 className="section-title">Featured Artists</h2>
+            <h2 className="section-title text-white">Featured Artists</h2>
             <div className="hidden md:flex space-x-2">
               <Button 
                 size="icon" 

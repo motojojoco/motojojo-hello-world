@@ -80,7 +80,7 @@ const CategoriesSection = () => {
         <div className="container-padding">
           <FadeIn>
             <div className="text-center">
-              <h2 className="section-title">Browse Categories</h2>
+              <h2 className="section-title text-white">Browse Categories</h2>
               <p className="text-muted-foreground mt-4">
                 Unable to load categories. Please try again later.
               </p>
@@ -96,7 +96,7 @@ const CategoriesSection = () => {
       <div className="container-padding">
         <FadeIn>
           <div className="flex justify-between items-center mb-8">
-            <h2 className="section-title">Browse Categories</h2>
+            <h2 className="section-title text-white">Browse Categories</h2>
             <div className="hidden md:flex space-x-2">
               <Button 
                 size="icon" 

@@ -45,7 +45,7 @@ const CityExperiencesSection = ({ selectedCity, setSelectedCity }: CityExperienc
       <div className="container-padding">
         <FadeIn>
           <div className="flex justify-between items-center mb-8">
-            <h2 className="section-title">Unique Experiences in {selectedCity}</h2>
+            <h2 className="section-title text-white">Unique Experiences in {selectedCity}</h2>
             <div className="hidden md:flex space-x-2">
               <Button 
                 size="icon" 
