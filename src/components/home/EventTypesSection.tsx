@@ -51,9 +51,9 @@ const EventTypesSection = () => {
     <section className="py-16">
       <div>
         <FadeIn>
-          <div className="flex justify-between items-center mb-8 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
-            <h2 className="section-title text-white">Event Types</h2>
-            <div className="hidden md:flex space-x-2">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
+            <h2 className="section-title text-white text-center md:text-left mb-4 md:mb-0">Event Types</h2>
+            <div className="flex space-x-2 justify-center">
               <Button 
                 size="icon" 
                 variant="outline" 
@@ -76,7 +76,7 @@ const EventTypesSection = () => {
         
         <div 
           ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth justify-start px-4 md:px-6 lg:px-8 max-w-7xl mx-auto"
+          className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth justify-start max-w-7xl mx-auto"
         >
           {eventTypes.map((type, index) => {
             const isLocalGathering = type.name?.toLowerCase() === 'local gathering';

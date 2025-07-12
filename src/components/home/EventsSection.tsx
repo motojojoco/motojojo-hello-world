@@ -144,9 +144,9 @@ const EventsSection = () => {
       <section className="py-16">
         <div className="container-padding">
           <FadeIn>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="section-title text-white">Upcoming Events</h2>
-              <div className="hidden md:flex space-x-2">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
+              <h2 className="section-title text-white text-center md:text-left mb-4 md:mb-0">Upcoming Events</h2>
+              <div className="flex space-x-2 justify-center">
                 <Button 
                   size="icon" 
                   variant="outline" 
