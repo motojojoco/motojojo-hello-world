@@ -310,8 +310,8 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
 
       {/* Bottom Navigation - Mobile Only */}
       <nav
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 ${location.pathname === '/local-gathering' ? '' : 'bg-background/95'} backdrop-blur-sm border-t border-border shadow-lg`}
-        style={location.pathname === '/local-gathering' ? { backgroundColor: '#0CA678' } : {}}
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 backdrop-blur-sm border-t border-border shadow-lg"
+        style={{ backgroundColor: '#F7E1B5' }}
       >
         <div className="flex items-center justify-around py-2">
           {/* Home */}
@@ -321,11 +321,11 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
               location.pathname === "/" 
                 ? "text-violet bg-yellow-300/30 shadow-md" 
-                : "text-muted-foreground"
+                : "text-black"
             }`}
             onClick={() => navigate("/")}
           >
-            <Home className="h-5 w-5" />
+            <Home className="h-5 w-5 text-black" />
             <span className="text-xs">Home</span>
           </Button>
 
@@ -336,11 +336,11 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
               location.pathname === "/events" 
                 ? "text-violet bg-yellow-300/30 shadow-md" 
-                : "text-muted-foreground"
+                : "text-black"
             }`}
             onClick={() => navigate("/events")}
           >
-            <Calendar className="h-5 w-5" />
+            <Calendar className="h-5 w-5 text-black" />
             <span className="text-xs">Events</span>
           </Button>
 
@@ -351,11 +351,11 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
               location.pathname === "/profile" && location.search.includes("tab=bookings")
                 ? "text-violet bg-yellow-300/30 shadow-md" 
-                : "text-muted-foreground"
+                : "text-black"
             }`}
             onClick={() => navigate("/profile?tab=bookings")}
           >
-            <Ticket className="h-5 w-5" />
+            <Ticket className="h-5 w-5 text-black" />
             <span className="text-xs">Bookings</span>
           </Button>
 
@@ -366,11 +366,11 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
               location.pathname === "/profile" && !location.search.includes("tab=bookings")
                 ? "text-violet bg-yellow-300/30 shadow-md" 
-                : "text-muted-foreground"
+                : "text-black"
             }`}
             onClick={() => navigate("/profile")}
           >
-            <User className="h-5 w-5" />
+            <User className="h-5 w-5 text-black" />
             <span className="text-xs">Profile</span>
           </Button>
 
@@ -381,11 +381,11 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
               location.pathname === "/membership"
                 ? "text-violet bg-yellow-300/30 shadow-md"
-                : "text-white"
+                : "text-black"
             }`}
             onClick={() => navigate("/membership")}
           >
-            <Heart className="h-5 w-5" />
+            <Heart className="h-5 w-5 text-black" />
             <span className="text-xs">Membership</span>
           </Button>
 
