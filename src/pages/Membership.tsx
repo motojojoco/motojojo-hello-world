@@ -16,7 +16,8 @@ import {
   Zap, 
   Shield,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  Sparkles
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -43,7 +44,6 @@ const MembershipPage = () => {
     {
       id: "member",
       name: "Motojojo Member",
-      icon: <Users className="h-8 w-8 text-violet" />,
       price: "₹299",
       period: "per month",
       description: "",
@@ -53,13 +53,11 @@ const MembershipPage = () => {
         "We curate experiences with the help of people who crave a safe, independent, supportive, and non-judgmental space to be themselves. A space created by them for people like them.",
         
       ],
-      badge: "Most Popular",
       color: "violet"
     },
     {
       id: "gang",
       name: "Motojojo Gang",
-      icon: <Crown className="h-8 w-8 text-sandstorm" />,
       price: "₹599",
       period: "per month",
       description: "",
@@ -69,7 +67,6 @@ const MembershipPage = () => {
         "Make the most of this community by connecting, collaborating and creating impactful experiences with fellow members of the community.",
         " Become an important part of shaping the gatherings in your neighborhood."
       ],
-      badge: "Premium",
       color: "yellow"
     }
   ];
@@ -142,17 +139,12 @@ const MembershipPage = () => {
                     }`}
                     onClick={() => setSelectedPlan(plan.id)}
                   >
-                    {plan.badge && (
-                      <Badge className={`absolute -top-3 left-1/2 transform -translate-x-1/2 ${plan.color === 'violet' ? 'bg-violet' : 'bg-sandstorm'} text-white font-bold px-4 py-1`}>
-                        {plan.badge}
-                      </Badge>
-                    )}
                     
                     <CardHeader className="text-center pb-4">
-                      <div className="flex justify-center mb-4">
-                        {plan.icon}
-                      </div>
-                      <CardTitle className="text-3xl font-bold text-violet mb-2">
+                      
+                      <CardTitle className="text-3xl font-bold text-violet mb-2 flex items-center justify-center gap-2">
+                        {plan.id === 'member' && <Users className="h-7 w-7 text-violet" />}
+                        {plan.id === 'gang' && <Sparkles className="h-7 w-7 text-sandstorm" />}
                         {plan.name}
                       </CardTitle>
                       <div className="flex items-baseline justify-center gap-1">
