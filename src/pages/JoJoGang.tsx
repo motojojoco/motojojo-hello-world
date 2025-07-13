@@ -228,7 +228,7 @@ const JoJoGang = () => {
 
         {/* Form */}
         <FadeIn delay={400}>
-          <Card className="bg-white/10 text-white">
+          <Card className="bg-sandstorm/80 text-violet rounded-2xl shadow-soft">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-violet text-center">
                 Join the JoJo Gang
@@ -239,198 +239,191 @@ const JoJoGang = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Name */}
-                <div>
-                  <Label htmlFor="name" className="text-violet font-semibold">
-                    Name *
-                  </Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder="First and last name"
-                    className="mt-2"
-                    required
-                  />
+                {/* Each section gets a yellow background for contrast */}
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
+                  {/* Name, Email, Phone, etc. */}
+                  <div>
+                    <Label htmlFor="name" className="text-violet font-semibold">
+                      Name *
+                    </Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      placeholder="First and last name"
+                      className="mt-2 bg-yellow/20 text-violet"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email" className="text-violet font-semibold">
+                      Email *
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      placeholder="Enter your email address"
+                      className="mt-2 bg-yellow/20 text-violet"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phoneNumber" className="text-violet font-semibold">
+                      Phone number *
+                    </Label>
+                    <Input
+                      id="phoneNumber"
+                      type="tel"
+                      value={formData.phoneNumber}
+                      onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                      placeholder="Enter your phone number"
+                      className="mt-2 bg-yellow/20 text-violet"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="age" className="text-violet font-semibold">
+                      Age *
+                    </Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      min="16"
+                      max="100"
+                      value={formData.age}
+                      onChange={(e) => handleInputChange('age', e.target.value)}
+                      placeholder="Enter your age"
+                      className="mt-2 bg-yellow/20 text-violet"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="city" className="text-violet font-semibold">
+                      City (where you will be available for the gatherings) *
+                    </Label>
+                    <p className="text-sm text-gray-600 mt-1 mb-2">
+                      Mention your area too!
+                    </p>
+                    <Input
+                      id="city"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      placeholder="Enter your city and area"
+                      className="mt-2 bg-yellow/20 text-violet"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="areaPincode" className="text-violet font-semibold">
+                      Area Pin code *
+                    </Label>
+                    <p className="text-sm text-gray-600 mt-1 mb-2">
+                      We are going hyperlocal soon!
+                    </p>
+                    <Input
+                      id="areaPincode"
+                      value={formData.areaPincode}
+                      onChange={(e) => handleInputChange('areaPincode', e.target.value)}
+                      placeholder="Enter your area pincode"
+                      className="mt-2 bg-yellow/20 text-violet"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="instagramLink" className="text-violet font-semibold">
+                      Instagram Link *
+                    </Label>
+                    <Input
+                      id="instagramLink"
+                      type="url"
+                      value={formData.instagramLink}
+                      onChange={(e) => handleInputChange('instagramLink', e.target.value)}
+                      placeholder="https://www.instagram.com/yourusername"
+                      className="mt-2 bg-yellow/20 text-violet"
+                      required
+                    />
+                  </div>
                 </div>
-
-                {/* Email */}
-                <div>
-                  <Label htmlFor="email" className="text-violet font-semibold">
-                    Email *
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    placeholder="Enter your email address"
-                    className="mt-2"
-                    required
-                  />
-                </div>
-
-                {/* Phone Number */}
-                <div>
-                  <Label htmlFor="phoneNumber" className="text-violet font-semibold">
-                    Phone number *
-                  </Label>
-                  <Input
-                    id="phoneNumber"
-                    type="tel"
-                    value={formData.phoneNumber}
-                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                    placeholder="Enter your phone number"
-                    className="mt-2"
-                    required
-                  />
-                </div>
-
-                {/* Age */}
-                <div>
-                  <Label htmlFor="age" className="text-violet font-semibold">
-                    Age *
-                  </Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    min="16"
-                    max="100"
-                    value={formData.age}
-                    onChange={(e) => handleInputChange('age', e.target.value)}
-                    placeholder="Enter your age"
-                    className="mt-2"
-                    required
-                  />
-                </div>
-
-                {/* City */}
-                <div>
-                  <Label htmlFor="city" className="text-violet font-semibold">
-                    City (where you will be available for the gatherings) *
-                  </Label>
-                  <p className="text-sm text-gray-600 mt-1 mb-2">
-                    Mention your area too!
-                  </p>
-                  <Input
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
-                    placeholder="Enter your city and area"
-                    className="mt-2"
-                    required
-                  />
-                </div>
-
-                {/* Area Pincode */}
-                <div>
-                  <Label htmlFor="areaPincode" className="text-violet font-semibold">
-                    Area Pin code *
-                  </Label>
-                  <p className="text-sm text-gray-600 mt-1 mb-2">
-                    We are going hyperlocal soon!
-                  </p>
-                  <Input
-                    id="areaPincode"
-                    value={formData.areaPincode}
-                    onChange={(e) => handleInputChange('areaPincode', e.target.value)}
-                    placeholder="Enter your area pincode"
-                    className="mt-2"
-                    required
-                  />
-                </div>
-
-                {/* Instagram Link */}
-                <div>
-                  <Label htmlFor="instagramLink" className="text-violet font-semibold">
-                    Instagram Link *
-                  </Label>
-                  <Input
-                    id="instagramLink"
-                    type="url"
-                    value={formData.instagramLink}
-                    onChange={(e) => handleInputChange('instagramLink', e.target.value)}
-                    placeholder="https://www.instagram.com/yourusername"
-                    className="mt-2"
-                    required
-                  />
-                </div>
-
-                {/* Attended Gathering */}
-                <div>
-                  <Label className="text-violet font-semibold">
-                    Have you attended a Motojojo Gathering? *
-                  </Label>
-                  <RadioGroup 
-                    value={formData.attendedGathering} 
-                    onValueChange={(value) => handleInputChange('attendedGathering', value)}
-                    className="mt-2"
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="yes-gathering" />
-                        <Label htmlFor="yes-gathering">Yes</Label>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
+                  {/* Attended Gathering */}
+                  <div>
+                    <Label className="text-violet font-semibold">
+                      Have you attended a Motojojo Gathering? *
+                    </Label>
+                    <RadioGroup 
+                      value={formData.attendedGathering} 
+                      onValueChange={(value) => handleInputChange('attendedGathering', value)}
+                      className="mt-2"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="yes-gathering" className="bg-yellow/20 text-violet" />
+                          <Label htmlFor="yes-gathering">Yes</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="no" id="no-gathering" className="bg-yellow/20 text-violet" />
+                          <Label htmlFor="no-gathering">No</Label>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="no-gathering" />
-                        <Label htmlFor="no-gathering">No</Label>
-                      </div>
-                    </div>
-                  </RadioGroup>
+                    </RadioGroup>
+                  </div>
                 </div>
-
-                {/* Position */}
-                <div>
-                  <Label className="text-violet font-semibold">
-                    Which position will you be interested in? *
-                  </Label>
-                  <RadioGroup 
-                    value={formData.position} 
-                    onValueChange={(value) => handleInputChange('position', value)}
-                    className="mt-2"
-                  >
-                    <div className="space-y-3">
-                      {positionOptions.map((option) => {
-                        const isSelected = formData.position === option.value;
-                        return (
-                          <div
-                            key={option.value}
-                            className={`flex items-start space-x-3 p-3 border border-gray-200 rounded-lg transition-colors ${isSelected ? 'bg-violet/30' : 'bg-transparent'} hover:bg-violet/20`}
-                          >
-                            <RadioGroupItem value={option.value} id={option.value} className="mt-1" />
-                            <div className="flex items-center space-x-2">
-                              <span className="text-raspberry">{option.icon}</span>
-                              <Label htmlFor={option.value} className="text-sm cursor-pointer">
-                                {option.label}
-                              </Label>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
+                  {/* Position */}
+                  <div>
+                    <Label className="text-violet font-semibold">
+                      Which position will you be interested in? *
+                    </Label>
+                    <RadioGroup 
+                      value={formData.position} 
+                      onValueChange={(value) => handleInputChange('position', value)}
+                      className="mt-2"
+                    >
+                      <div className="space-y-3">
+                        {positionOptions.map((option) => {
+                          const isSelected = formData.position === option.value;
+                          return (
+                            <div
+                              key={option.value}
+                              className={`flex items-start space-x-3 p-3 border border-gray-200 rounded-lg transition-colors ${isSelected ? 'bg-violet/30' : 'bg-transparent'} hover:bg-violet/20`}
+                            >
+                              <RadioGroupItem value={option.value} id={option.value} className="mt-1 bg-yellow/20 text-violet" />
+                              <div className="flex items-center space-x-2">
+                                <span className="text-raspberry">{option.icon}</span>
+                                <Label htmlFor={option.value} className="text-sm cursor-pointer">
+                                  {option.label}
+                                </Label>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </RadioGroup>
+                          );
+                        })}
+                      </div>
+                    </RadioGroup>
+                  </div>
                 </div>
-
-                {/* Additional Info */}
-                <div>
-                  <Label htmlFor="additionalInfo" className="text-violet font-semibold">
-                    Tell us more about yourself and your interests
-                  </Label>
-                  <Textarea
-                    id="additionalInfo"
-                    value={formData.additionalInfo}
-                    onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
-                    placeholder="Share your background, experience, and what excites you about joining the JoJo Gang..."
-                    className="mt-2"
-                    rows={4}
-                  />
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
+                  {/* Additional Info */}
+                  <div>
+                    <Label htmlFor="additionalInfo" className="text-violet font-semibold">
+                      Tell us more about yourself and your interests
+                    </Label>
+                    <Textarea
+                      id="additionalInfo"
+                      value={formData.additionalInfo}
+                      onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
+                      placeholder="Share your background, experience, and what excites you about joining the JoJo Gang..."
+                      className="mt-2 bg-yellow/20 text-violet"
+                      rows={4}
+                    />
+                  </div>
                 </div>
-
                 {/* Submit Button */}
                 <div className="pt-6">
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-violet to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white font-bold text-lg py-3"
+                    className="w-full bg-violet text-white font-bold py-3 rounded-xl shadow transition-colors duration-150 text-base md:text-lg"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

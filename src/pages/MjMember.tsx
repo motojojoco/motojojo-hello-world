@@ -194,7 +194,7 @@ const MjMember = () => {
 
         {/* Form */}
         <FadeIn delay={400}>
-          <Card className="bg-white/10 text-white">
+          <Card className="bg-sandstorm/80 text-violet rounded-2xl shadow-soft">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-violet text-center">
                 Join the Motojojo Community
@@ -203,7 +203,7 @@ const MjMember = () => {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label htmlFor="name" className="text-violet font-semibold">
                     What should we call you? (Your name please) *
                   </Label>
@@ -212,13 +212,13 @@ const MjMember = () => {
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     placeholder="Enter your full name"
-                    className="mt-2"
+                    className="mt-2 bg-yellow/10 text-violet"
                     required
                   />
                 </div>
 
                 {/* Identify As */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label className="text-violet font-semibold">You identify as? (optional)</Label>
                   <RadioGroup 
                     value={formData.identifyAs} 
@@ -251,13 +251,13 @@ const MjMember = () => {
                       value={formData.identifyAsOther}
                       onChange={(e) => handleInputChange('identifyAsOther', e.target.value)}
                       placeholder="Please specify"
-                      className="mt-2"
+                      className="mt-2 bg-yellow/10 text-violet"
                     />
                   )}
                 </div>
 
                 {/* Phone Number */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label htmlFor="phoneNumber" className="text-violet font-semibold">
                     Phone number *
                   </Label>
@@ -267,13 +267,13 @@ const MjMember = () => {
                     value={formData.phoneNumber}
                     onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                     placeholder="Enter your phone number"
-                    className="mt-2"
+                    className="mt-2 bg-yellow/10 text-violet"
                     required
                   />
                 </div>
 
                 {/* Birthday */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label htmlFor="birthday" className="text-violet font-semibold">
                     Birthday (MM/DD) *
                   </Label>
@@ -282,13 +282,13 @@ const MjMember = () => {
                     type="date"
                     value={formData.birthday}
                     onChange={(e) => handleInputChange('birthday', e.target.value)}
-                    className="mt-2"
+                    className="mt-2 bg-yellow/10 text-violet"
                     required
                   />
                 </div>
 
                 {/* City */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label htmlFor="city" className="text-violet font-semibold">
                     City you live in (so we know which gatherings are closer to you!) *
                   </Label>
@@ -297,13 +297,13 @@ const MjMember = () => {
                     value={formData.city}
                     onChange={(e) => handleInputChange('city', e.target.value)}
                     placeholder="Enter your city"
-                    className="mt-2"
+                    className="mt-2 bg-yellow/10 text-violet"
                     required
                   />
                 </div>
 
                 {/* Area and Pincode */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label htmlFor="areaAndPincode" className="text-violet font-semibold">
                     Add your area and pin code too! *
                   </Label>
@@ -312,13 +312,13 @@ const MjMember = () => {
                     value={formData.areaAndPincode}
                     onChange={(e) => handleInputChange('areaAndPincode', e.target.value)}
                     placeholder="Area and pincode"
-                    className="mt-2"
+                    className="mt-2 bg-yellow/10 text-violet"
                     required
                   />
                 </div>
 
                 {/* Social Handles */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label htmlFor="socialHandles" className="text-violet font-semibold">
                     Social Handles? (We'd love to check your vibe!) *
                   </Label>
@@ -327,13 +327,13 @@ const MjMember = () => {
                     value={formData.socialHandles}
                     onChange={(e) => handleInputChange('socialHandles', e.target.value)}
                     placeholder="Instagram, Twitter, etc."
-                    className="mt-2"
+                    className="mt-2 bg-yellow/10 text-violet"
                     required
                   />
                 </div>
 
                 {/* Mood */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label className="text-violet font-semibold">
                     If you were a mood, what mood would you be right now? *
                   </Label>
@@ -381,13 +381,13 @@ const MjMember = () => {
                       value={formData.moodOther}
                       onChange={(e) => handleInputChange('moodOther', e.target.value)}
                       placeholder="Describe your mood"
-                      className="mt-2"
+                      className="mt-2 bg-yellow/10 text-violet"
                     />
                   )}
                 </div>
 
                 {/* Group Role */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label className="text-violet font-semibold">
                     What role do you often find yourself playing in a group? *
                   </Label>
@@ -432,13 +432,13 @@ const MjMember = () => {
                       value={formData.groupRoleOther}
                       onChange={(e) => handleInputChange('groupRoleOther', e.target.value)}
                       placeholder="Describe your role"
-                      className="mt-2"
+                      className="mt-2 bg-yellow/10 text-violet"
                     />
                   )}
                 </div>
 
                 {/* Interests */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label htmlFor="interests" className="text-violet font-semibold">
                     What do you do when you are not working? *
                   </Label>
@@ -450,14 +450,14 @@ const MjMember = () => {
                     value={formData.interests}
                     onChange={(e) => handleInputChange('interests', e.target.value)}
                     placeholder="Share your interests, hobbies, and passions..."
-                    className="mt-2"
+                    className="mt-2 bg-yellow/10 text-violet"
                     rows={4}
                     required
                   />
                 </div>
 
                 {/* Art Inspiration */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label htmlFor="artInspiration" className="text-violet font-semibold">
                     Share a piece of art, music, or a quote that deeply moved you. (It tells us a lot about what kind of art inspires you)
                   </Label>
@@ -466,13 +466,13 @@ const MjMember = () => {
                     value={formData.artInspiration}
                     onChange={(e) => handleInputChange('artInspiration', e.target.value)}
                     placeholder="Share what inspires you..."
-                    className="mt-2"
+                    className="mt-2 bg-yellow/10 text-violet"
                     rows={3}
                   />
                 </div>
 
                 {/* Been to Gathering */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label className="text-violet font-semibold">
                     Have you ever been to a Motojojo gathering before? *
                   </Label>
@@ -499,7 +499,7 @@ const MjMember = () => {
                 </div>
 
                 {/* How Found Us */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label className="text-violet font-semibold">
                     How did you find us? *
                   </Label>
@@ -536,13 +536,13 @@ const MjMember = () => {
                       value={formData.howFoundUsOther}
                       onChange={(e) => handleInputChange('howFoundUsOther', e.target.value)}
                       placeholder="How did you find us?"
-                      className="mt-2"
+                      className="mt-2 bg-yellow/10 text-violet"
                     />
                   )}
                 </div>
 
                 {/* Why Join Community */}
-                <div>
+                <div className="bg-sandstorm/80 rounded-2xl p-4 mb-4 shadow-soft">
                   <Label htmlFor="whyJoinCommunity" className="text-violet font-semibold">
                     Why do you want to be a part of the Motojojo community? *
                   </Label>
@@ -554,7 +554,7 @@ const MjMember = () => {
                     value={formData.whyJoinCommunity}
                     onChange={(e) => handleInputChange('whyJoinCommunity', e.target.value)}
                     placeholder="Share your intentions and what you're seeking..."
-                    className="mt-2"
+                    className="mt-2 bg-yellow/10 text-violet"
                     rows={4}
                     required
                   />
@@ -564,7 +564,7 @@ const MjMember = () => {
                 <div className="pt-6">
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-violet to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white font-bold text-lg py-3"
+                    className="w-full bg-violet text-white font-bold py-3 rounded-xl shadow transition-colors duration-150 text-base md:text-lg"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
