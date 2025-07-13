@@ -139,7 +139,7 @@ const ArtistsSection = () => {
           </div>
         </FadeIn>
         {/* Artists Carousel with yellow padding */}
-        <div className="bg-sandstorm rounded-3xl px-8 py-8">
+        <div className="bg-violet rounded-3xl px-8 py-8">
           <div 
             ref={scrollContainerRef}
             className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
@@ -153,7 +153,7 @@ const ArtistsSection = () => {
                       alt={artist.name}
                       className="w-32 h-32 rounded-full object-cover mb-4 border-4 border-violet"
                     />
-                    <h3 className="text-xl font-bold mb-2 text-center">{artist.name}</h3>
+                    <h3 className="text-xl font-sans font-light tracking-wide mb-2 text-center text-white">{artist.name}</h3>
                     <p className="text-sm text-center mb-2">{artist.bio}</p>
                     <div className="flex flex-col items-center gap-1">
                       {artist.tags && artist.tags.map((tag, i) => (
