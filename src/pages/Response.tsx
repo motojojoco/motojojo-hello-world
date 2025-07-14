@@ -99,15 +99,15 @@ const Response = () => {
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 text-xl">{error}</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-raspberry via-violet to-raspberry p-8">
+    <div className="min-h-screen bg-raspberry p-8"> {/* Changed to solid red background */}
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold text-sandstorm mb-8 text-center">All Community Responses</h1>
+        <h1 className="text-4xl font-bold text-yellow mb-8 text-center">All Community Responses</h1> {/* Yellow heading */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl text-violet flex items-center justify-between">
+              <CardTitle className="text-xl text-yellow flex items-center justify-between"> {/* Yellow title */}
                 Motojojo Member Names
-                <Button size="sm" className="bg-violet text-white ml-4" onClick={() => handleDownload('member')}>Download CSV</Button>
+                <Button size="sm" className="bg-yellow text-black ml-4" onClick={() => handleDownload('member')}>Download CSV</Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -117,7 +117,7 @@ const Response = () => {
                 <ul className="space-y-2">
                   {memberResponses.map((r: any, i: number) => (
                     <li key={r.id || i}>
-                      <button className="text-left text-violet font-semibold hover:underline" onClick={() => { setSelected(r); setDialogType('member'); }}>{r.name}</button>
+                      <button className="text-left text-yellow font-semibold hover:underline" onClick={() => { setSelected(r); setDialogType('member'); }}>{r.name}</button>
                     </li>
                   ))}
                 </ul>
@@ -126,7 +126,7 @@ const Response = () => {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl text-yellow flex items-center justify-between">
+              <CardTitle className="text-xl text-yellow flex items-center justify-between"> {/* Yellow title */}
                 JoJo Gang Names
                 <Button size="sm" className="bg-yellow text-black ml-4" onClick={() => handleDownload('gang')}>Download CSV</Button>
               </CardTitle>
@@ -152,8 +152,8 @@ const Response = () => {
             {selected && dialogType === 'member' && (
               <>
                 <DialogHeader>
-                  <DialogTitle className="text-violet">{selected.name}</DialogTitle>
-                  <DialogDescription>Motojojo Member Details</DialogDescription>
+                  <DialogTitle className="text-yellow">{selected.name}</DialogTitle>
+                  <DialogDescription className="text-yellow">Motojojo Member Details</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-1 mt-2">
                   <div><b>Phone:</b> {selected.phone_number}</div>
@@ -177,7 +177,7 @@ const Response = () => {
               <>
                 <DialogHeader>
                   <DialogTitle className="text-yellow">{selected.name}</DialogTitle>
-                  <DialogDescription>JoJo Gang Details</DialogDescription>
+                  <DialogDescription className="text-yellow">JoJo Gang Details</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-1 mt-2">
                   <div><b>Email:</b> {selected.email}</div>

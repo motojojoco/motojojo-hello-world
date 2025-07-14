@@ -1061,6 +1061,11 @@ const AdminDashboard = () => {
               <LogOut className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Logout</span>
             </Button>
+            <Link to="/response">
+              <Button className="bg-yellow text-black font-bold px-6 py-2 rounded-lg shadow-md hover:bg-yellow-400 transition-colors">
+                Responses
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -2252,13 +2257,6 @@ const AdminDashboard = () => {
           )}
         </DialogContent>
       </Dialog>
-      <div className="mt-8 flex flex-col items-center">
-        <Link to="/response">
-          <Button className="bg-violet text-black font-bold px-6 py-3 rounded-lg shadow-md hover:bg-violet-700 transition-colors">
-            Responses
-          </Button>
-        </Link>
-      </div>
       {/* Invite Admin Dialog */}
       <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
         <DialogContent>
