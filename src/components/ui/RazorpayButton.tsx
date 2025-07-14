@@ -192,7 +192,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       const totalAmount = amount * formData.tickets;
 
       const options = {
-        key: "rzp_test_AIaN0EfXmfZgMk", // Live key
+        key: "rzp_live_yAyC4YmewB4VQG", // Updated to live key
         amount: totalAmount * 100,
         currency: "INR",
         name: "Motojojo",
