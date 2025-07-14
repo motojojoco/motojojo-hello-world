@@ -71,43 +71,43 @@ export const banners = [
 ];
 
 // Artists
-export const artists = [
-  {
-    id: 1,
-    name: "Arijit Singh",
-    genre: "Music",
-    image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2940&auto=format&fit=crop",
-    bio: "Arijit Singh is an Indian singer and music composer. He sings predominantly in Hindi and Bengali, but has also performed in various other Indian languages."
-  },
-  {
-    id: 2,
-    name: "Zakir Hussain",
-    genre: "Classical",
-    image: "https://images.unsplash.com/photo-1566753323558-f4e0952af115?q=80&w=2721&auto=format&fit=crop",
-    bio: "Zakir Hussain is an Indian tabla virtuoso, composer, percussionist, music producer and film actor. He is considered one of the greatest tabla players of all time."
-  },
-  {
-    id: 3,
-    name: "Vir Das",
-    genre: "Comedy",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2940&auto=format&fit=crop",
-    bio: "Vir Das is an Indian comedian, actor and musician known for his stand-up comedy specials and roles in Bollywood films."
-  },
-  {
-    id: 4,
-    name: "Shubha Mudgal",
-    genre: "Classical",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2888&auto=format&fit=crop",
-    bio: "Shubha Mudgal is an Indian singer who performs in the classical genre of Hindustani classical music as well as in Indian pop and fusion styles."
-  },
-  {
-    id: 5,
-    name: "Divine",
-    genre: "Hip Hop",
-    image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=2662&auto=format&fit=crop",
-    bio: "Divine is an Indian rapper from Mumbai who is known for his explicit socio-political lyrics in Hindi and English."
-  }
-];
+// export const artists = [
+//   {
+//     id: 1,
+//     name: "Arijit Singh",
+//     genre: "Music",
+//     image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2940&auto=format&fit=crop",
+//     bio: "Arijit Singh is an Indian singer and music composer. He sings predominantly in Hindi and Bengali, but has also performed in various other Indian languages."
+//   },
+//   {
+//     id: 2,
+//     name: "Zakir Hussain",
+//     genre: "Classical",
+//     image: "https://images.unsplash.com/photo-1566753323558-f4e0952af115?q=80&w=2721&auto=format&fit=crop",
+//     bio: "Zakir Hussain is an Indian tabla virtuoso, composer, percussionist, music producer and film actor. He is considered one of the greatest tabla players of all time."
+//   },
+//   {
+//     id: 3,
+//     name: "Vir Das",
+//     genre: "Comedy",
+//     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2940&auto=format&fit=crop",
+//     bio: "Vir Das is an Indian comedian, actor and musician known for his stand-up comedy specials and roles in Bollywood films."
+//   },
+//   {
+//     id: 4,
+//     name: "Shubha Mudgal",
+//     genre: "Classical",
+//     image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2888&auto=format&fit=crop",
+//     bio: "Shubha Mudgal is an Indian singer who performs in the classical genre of Hindustani classical music as well as in Indian pop and fusion styles."
+//   },
+//   {
+//     id: 5,
+//     name: "Divine",
+//     genre: "Hip Hop",
+//     image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=2662&auto=format&fit=crop",
+//     bio: "Divine is an Indian rapper from Mumbai who is known for his explicit socio-political lyrics in Hindi and English."
+//   }
+// ];
 
 // Events
 export const events = [

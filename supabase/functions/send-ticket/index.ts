@@ -148,6 +148,33 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
+    // Send PDF ticket via Node.js microservice
+    try {
+      await fetch("http://localhost:3001/send-ticket", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: email,
+          subject: `Your tickets for ${eventTitle}`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset=\"utf-8\">
+              <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+              <title>Your Tickets - ${eventTitle}</title>
+            </head>
+            <body style=\"margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;\">
+              <!-- ... existing HTML ... -->
+            </body>
+            </html>
+          `
+        })
+      });
+    } catch (err) {
+      console.error("Failed to send PDF ticket via microservice", err);
+    }
+
     console.log("Ticket email sent successfully:", emailResponse);
 
     return new Response(JSON.stringify(emailResponse), {

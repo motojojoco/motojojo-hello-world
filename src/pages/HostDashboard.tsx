@@ -315,33 +315,33 @@ const HostDashboard = () => {
         <FadeIn>
           {/* Overview Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
+            <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Events</CardTitle>
+                <CardTitle className="text-sm font-medium text-violet">Total Events</CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-violet">
                   {dashboardLoading ? <Skeleton className="h-8 w-16" /> : dashboardData?.total_events || 0}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
+                <CardTitle className="text-sm font-medium text-violet">Total Tickets</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-violet">
                   {dashboardLoading ? <Skeleton className="h-8 w-16" /> : dashboardData?.total_tickets || 0}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Present</CardTitle>
+                <CardTitle className="text-sm font-medium text-violet">Present</CardTitle>
                 <CheckCircle className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
@@ -351,9 +351,9 @@ const HostDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Absent</CardTitle>
+                <CardTitle className="text-sm font-medium text-violet">Absent</CardTitle>
                 <XCircle className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
@@ -375,7 +375,7 @@ const HostDashboard = () => {
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
-              <Card>
+              <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
                 <CardHeader>
                   <CardTitle>Recent Attendance Summary</CardTitle>
                   <CardDescription>
@@ -392,7 +392,7 @@ const HostDashboard = () => {
                   ) : (
                     <div className="space-y-4">
                       {attendanceSummary.slice(0, 5).map((event) => (
-                        <div key={event.event_id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div key={event.event_id} className="flex items-center justify-between p-4 border rounded-lg bg-white/80 text-violet">
                           <div>
                             <h3 className="font-semibold">{event.event_title}</h3>
                             <p className="text-sm text-gray-600">
@@ -425,7 +425,7 @@ const HostDashboard = () => {
 
             {/* Mark Attendance Tab */}
             <TabsContent value="attendance" className="space-y-6">
-              <Card>
+              <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
                 <CardHeader>
                   <CardTitle>Mark Attendance</CardTitle>
                   <CardDescription>
@@ -472,6 +472,7 @@ const HostDashboard = () => {
                             placeholder="Enter ticket number"
                             value={ticketNumber}
                             onChange={(e) => setTicketNumber(e.target.value)}
+                            className="bg-yellow/10 text-violet"
                           />
                         </div>
                         <div className="space-y-2">
@@ -492,6 +493,7 @@ const HostDashboard = () => {
                             placeholder="Add any notes..."
                             value={attendanceNotes}
                             onChange={(e) => setAttendanceNotes(e.target.value)}
+                            className="bg-yellow/10 text-violet"
                           />
                         </div>
                         <Button onClick={handleMarkAttendance} disabled={loading} className="w-full">
@@ -505,13 +507,13 @@ const HostDashboard = () => {
                   {selectedEvent && (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">Tickets for {selectedEvent.title}</h3>
+                        <h3 className="text-lg font-semibold text-violet">Tickets for {selectedEvent.title}</h3>
                         <div className="flex items-center space-x-2">
                           <Input
                             placeholder="Search tickets..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-64"
+                            className="w-64 bg-yellow/10 text-violet"
                           />
                           <Search className="h-4 w-4 text-gray-400" />
                         </div>
@@ -524,7 +526,7 @@ const HostDashboard = () => {
                           ))}
                         </div>
                       ) : (
-                        <Table>
+                        <Table className="bg-white/80 text-violet">
                           <TableHeader>
                             <TableRow>
                               <TableHead>Ticket #</TableHead>
@@ -618,7 +620,7 @@ const HostDashboard = () => {
 
             {/* Events Tab */}
             <TabsContent value="events" className="space-y-6">
-              <Card>
+              <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle>My Events</CardTitle>
@@ -641,7 +643,7 @@ const HostDashboard = () => {
                   ) : (
                     <div className="space-y-4">
                       {hostEvents.map((event) => (
-                        <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg bg-white/80 text-violet">
                           <div className="flex items-center space-x-4">
                             <div>
                               <h3 className="font-semibold">{event.title}</h3>
@@ -687,7 +689,7 @@ const HostDashboard = () => {
 
             {/* Reports Tab */}
             <TabsContent value="reports" className="space-y-6">
-              <Card>
+              <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
                 <CardHeader>
                   <CardTitle>Attendance Reports</CardTitle>
                   <CardDescription>
@@ -697,7 +699,7 @@ const HostDashboard = () => {
                 <CardContent>
                   <div className="space-y-6">
                     {attendanceSummary.map((event) => (
-                      <div key={event.event_id} className="border rounded-lg p-6">
+                      <div key={event.event_id} className="border rounded-lg p-6 bg-white/80 text-violet">
                         <div className="flex items-center justify-between mb-4">
                           <div>
                             <h3 className="text-lg font-semibold">{event.event_title}</h3>

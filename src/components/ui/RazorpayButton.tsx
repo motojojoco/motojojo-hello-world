@@ -479,7 +479,9 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               <Check className="h-8 w-8 text-green-500" />
             </div>
             <p className="text-lg mb-2">Your tickets are booked!</p>
-            <p className="text-muted-foreground mb-4">Check your email for your tickets and QR codes.</p>
+          
+            <p className="text-muted-foreground mb-4">You will receive an email with a link to join our WhatsApp channel for event updates and venue details.</p>
+            <p className="text-muted-foreground mb-4">(You will receive an email 12 hours prior before the experience.)</p>
             <p className="text-sm text-muted-foreground">Can't wait to see you there!</p>
           </div>
           

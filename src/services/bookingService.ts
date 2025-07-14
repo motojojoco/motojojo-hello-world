@@ -15,6 +15,7 @@ export interface Booking {
   booking_date: string;
   event?: any;
   ticket_items?: Ticket[]; // Renamed from tickets to ticket_items to avoid conflict
+  ticket_names?: string[]; // Add this line to fix linter error
 }
 
 export interface Ticket {

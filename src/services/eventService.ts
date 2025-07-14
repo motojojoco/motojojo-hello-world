@@ -145,46 +145,46 @@ export const getEventsByType = async (eventType: string): Promise<Event[]> => {
   return getEvents({ eventType });
 };
 
-export const getFeaturedEvents = async (): Promise<Event[]> => {
-  // Since 'featured' field might not exist in the table, we'll fetch all events
-  // and return the first few as featured (mock implementation)
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .order('date', { ascending: true })
-    .limit(3); // Limiting to 3 events as featured
+// export const getFeaturedEvents = async (): Promise<Event[]> => {
+//   // Since 'featured' field might not exist in the table, we'll fetch all events
+//   // and return the first few as featured (mock implementation)
+//   const { data, error } = await supabase
+//     .from('events')
+//     .select('*')
+//     .order('date', { ascending: true })
+//     .limit(3); // Limiting to 3 events as featured
     
-  if (error) console.error("Error fetching featured events:", error);
+//   if (error) console.error("Error fetching featured events:", error);
   
-  const events = data || [];
-  return events.map(event => ({
-    id: event.id,
-    title: event.title,
-    subtitle: event.subtitle || undefined,
-    description: event.description,
-    date: event.date,
-    time: event.time,
-    category: event.category,
-    venue: event.venue,
-    city: event.city,
-    address: '', // Default value
-    price: event.price,
-    image: event.image,
-    gallery: [], // Default value
-    featured: true, // Set as featured
-    created_by: '', // Default value
-    is_published: true, // Default value
-    created_at: event.created_at,
-    event_type: event.event_type,
-    host: event.host || undefined,
-    duration: event.duration || undefined,
-    long_description: event.long_description || null,
-    updated_at: event.updated_at,
-    has_discount: event.has_discount ?? false,
-    real_price: event.real_price ?? null,
-    discounted_price: event.discounted_price ?? null,
-  }));
-};
+//   const events = data || [];
+//   return events.map(event => ({
+//     id: event.id,
+//     title: event.title,
+//     subtitle: event.subtitle || undefined,
+//     description: event.description,
+//     date: event.date,
+//     time: event.time,
+//     category: event.category,
+//     venue: event.venue,
+//     city: event.city,
+//     address: '', // Default value
+//     price: event.price,
+//     image: event.image,
+//     gallery: [], // Default value
+//     featured: true, // Set as featured
+//     created_by: '', // Default value
+//     is_published: true, // Default value
+//     created_at: event.created_at,
+//     event_type: event.event_type,
+//     host: event.host || undefined,
+//     duration: event.duration || undefined,
+//     long_description: event.long_description || null,
+//     updated_at: event.updated_at,
+//     has_discount: event.has_discount ?? false,
+//     real_price: event.real_price ?? null,
+//     discounted_price: event.discounted_price ?? null,
+//   }));
+// };
 
 export const getEventsByCategory = async (categoryId: string): Promise<Event[]> => {
   const { data, error } = await supabase

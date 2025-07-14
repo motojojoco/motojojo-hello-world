@@ -350,12 +350,12 @@ const Profile = () => {
   }
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#E91E63' }}>
       <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
       <MovingPartyBackground />
       
       <main className="flex-grow pt-24 pb-20 md:pb-16">
-        <div className="container-padding">
+        <div className="container-padding" style={{ background: 'rgba(60,60,60,0.12)', borderRadius: '24px', padding: '2rem' }}>
           <FadeIn>
             <h1 className="text-3xl md:text-4xl font-bold mb-8">My Profile</h1>
           </FadeIn>

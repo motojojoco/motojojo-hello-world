@@ -4,7 +4,7 @@ import Footer from "@/components/shared/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import CityStrip from "@/components/home/CityStrip";
 import EventsSection from "@/components/home/EventsSection";
-import ArtistsSection from "@/components/home/ArtistsSection";
+// import ArtistsSection from "@/components/home/ArtistsSection";
 import CategoriesSection from "@/components/home/CategoriesSection";
 import PremiumPopup from "@/components/shared/PremiumPopup";
 import EventTypesSection from "@/components/home/EventTypesSection";
@@ -61,7 +61,7 @@ const Index = () => {
         <EventTypesSection />
         <CityExperiencesSection selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
         <EventsSection />
-        <ArtistsSection />
+        {/* <ArtistsSection /> */}
         <TestimonialsSection />
         <FaqSection />
       </main>

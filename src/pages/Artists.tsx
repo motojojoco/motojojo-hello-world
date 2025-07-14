@@ -1,3 +1,4 @@
+// /*
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import ArtistsSection from "@/components/home/ArtistsSection";
@@ -15,4 +16,5 @@ export default function Artists() {
       <Footer />
     </div>
   );
-} 
+}
+// */ 

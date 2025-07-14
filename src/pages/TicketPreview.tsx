@@ -290,7 +290,8 @@ export default function TicketPreview() {
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-white mb-2">Your Ticket</h1>
             <p className="text-white/80">Show this ticket at the event entry</p>
-            <div className="mt-2 text-sm text-white/60">(No ticket record found, showing booking info)</div>
+            <p className="text-muted-foreground mb-4">You will receive an email with a link to join our WhatsApp channel for event updates and venue details.</p>
+            <p className="text-muted-foreground mb-4">If you didn’t receive it, please contact us via WhatsApp.</p>
           </div>
           <div className="relative ticket-container">
             <EventTicket
@@ -341,6 +342,8 @@ export default function TicketPreview() {
             <h1 className="text-2xl font-bold text-white mb-2">Your Ticket</h1>
             <p className="text-white/80">Show this ticket at the event entry</p>
             <div className="mt-2 text-sm text-white/60">Ticket {currentTicketIndex + 1} of {tickets.length}</div>
+            <p className="text-muted-foreground mb-4">You will receive an email with a link to join our WhatsApp channel for event updates and venue details.</p>
+            <p className="text-muted-foreground mb-4">If you didn’t receive it, please contact us via WhatsApp.</p>
           </div>
           <div className="relative ticket-container">
             <EventTicket
