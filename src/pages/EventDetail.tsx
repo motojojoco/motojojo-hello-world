@@ -356,7 +356,7 @@ const EventDetail = () => {
                           <RazorpayButton 
                             eventId={event.id} 
                             eventName={event.title}
-                            amount={event.has_discount && event.discounted_price ? event.discounted_price : event.price}
+                            amount={event.subtotal ?? (event.has_discount && event.discounted_price ? event.discounted_price : event.price)}
                             onSuccess={handleBookingSuccess}
                             className={isLocalGathering ? 'bg-[#0CA678] hover:bg-[#0a8a6a]' : ''}
                           />

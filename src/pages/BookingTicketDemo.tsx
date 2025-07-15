@@ -33,7 +33,13 @@ export default function BookingTicketDemo() {
     price: 1500
   };
 
-  const totalAmount = eventData.price * formData.tickets;
+  // Calculate price breakdown
+  const basePrice = eventData.price * formData.tickets;
+  const gst = Math.round(basePrice * 0.18);
+  const convenienceFee = 30 * formData.tickets;
+  const subtotal = basePrice + gst + convenienceFee;
+
+  const totalAmount = subtotal;
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
@@ -177,7 +183,7 @@ export default function BookingTicketDemo() {
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between font-bold">
                         <span>Total:</span>
-                        <span>₹{totalAmount.toLocaleString()}</span>
+                        <span>₹{subtotal.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
@@ -204,7 +210,7 @@ export default function BookingTicketDemo() {
                 bookerEmail={formData.email}
                 bookerPhone={formData.phone}
                 numberOfTickets={formData.tickets}
-                totalAmount={totalAmount}
+                totalAmount={subtotal}
                 onBookNow={handleBookNow}
                 isBooking={isBooking}
               />
