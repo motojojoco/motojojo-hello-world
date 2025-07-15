@@ -26,8 +26,8 @@
     --input: 340 63% 51%;
     --ring: 340 63% 51%;
     --radius: 0.75rem;
-    --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-sans: Arial;
+    font-family: Arial;
   }
 }
 
@@ -38,7 +38,7 @@
   body {
     @apply bg-raspberry text-white antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: Arial;
   }
 }
 
@@ -116,6 +116,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: Arial;
   }
 }
