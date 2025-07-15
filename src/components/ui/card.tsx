@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      // "ticket-card", // Remove ticket-card class if it adds raspberry background
+      "rounded-2xl p-4", // Match CardYellowContainer
       className
     )}
     {...props}
