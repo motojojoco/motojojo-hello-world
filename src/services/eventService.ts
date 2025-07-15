@@ -26,6 +26,11 @@ export interface Event {
   has_discount?: boolean;
   real_price?: number | null;
   discounted_price?: number | null;
+  base_price?: number;
+  gst?: number;
+  convenience_fee?: number;
+  subtotal?: number;
+  ticket_price?: number;
 }
 
 export const getAllEvents = async (): Promise<Event[]> => {
@@ -63,6 +68,11 @@ export const getAllEvents = async (): Promise<Event[]> => {
     has_discount: event.has_discount ?? false,
     real_price: event.real_price ?? null,
     discounted_price: event.discounted_price ?? null,
+    base_price: event.base_price ?? 0,
+    gst: event.gst ?? 0,
+    convenience_fee: event.convenience_fee ?? 0,
+    subtotal: event.subtotal ?? 0,
+    ticket_price: event.ticket_price ?? 0,
   }));
 };
 
@@ -115,6 +125,11 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
     has_discount: event.has_discount ?? false,
     real_price: event.real_price ?? null,
     discounted_price: event.discounted_price ?? null,
+    base_price: event.base_price ?? 0,
+    gst: event.gst ?? 0,
+    convenience_fee: event.convenience_fee ?? 0,
+    subtotal: event.subtotal ?? 0,
+    ticket_price: event.ticket_price ?? 0,
   }));
 };
 
@@ -222,6 +237,11 @@ export const getEventsByCategory = async (categoryId: string): Promise<Event[]> 
     has_discount: event.has_discount ?? false,
     real_price: event.real_price ?? null,
     discounted_price: event.discounted_price ?? null,
+    base_price: event.base_price ?? 0,
+    gst: event.gst ?? 0,
+    convenience_fee: event.convenience_fee ?? 0,
+    subtotal: event.subtotal ?? 0,
+    ticket_price: event.ticket_price ?? 0,
   }));
 };
 
@@ -265,6 +285,11 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     has_discount: data.has_discount ?? false,
     real_price: data.real_price ?? null,
     discounted_price: data.discounted_price ?? null,
+    base_price: data.base_price ?? 0,
+    gst: data.gst ?? 0,
+    convenience_fee: data.convenience_fee ?? 0,
+    subtotal: data.subtotal ?? 0,
+    ticket_price: data.ticket_price ?? 0,
   };
 };
 

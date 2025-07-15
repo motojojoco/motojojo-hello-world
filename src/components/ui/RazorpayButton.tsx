@@ -19,6 +19,8 @@ import { useNavigate } from "react-router-dom";
 import { ScrollableNumberInput } from "@/components/ui/scrollable-number-input";
 import BookingTicket from "@/components/tickets/BookingTicket";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { getEvent } from "@/services/eventService";
 
 interface RazorpayButtonProps {
   eventId: string; // Changed to string only since we're using UUIDs
@@ -56,6 +58,12 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
   const { toast } = useToast();
   const { user, isSignedIn } = useAuth();
   const navigate = useNavigate();
+
+  const { data: event } = useQuery({
+    queryKey: ["event", eventId],
+    queryFn: () => getEvent(eventId),
+    enabled: !!eventId
+  });
 
   // Subscribe to real-time booking updates
   useEffect(() => {
@@ -366,9 +374,19 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               Please provide your details to book tickets for {eventName}.
             </DialogDescription>
           </DialogHeader>
-          
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
+              {/* Price Breakdown Section */}
+              {event && (
+                <div className="mb-2">
+                  <div className="text-xl font-bold mb-1">Price Breakdown</div>
+                  <div className="text-base">Base Price: <span className="font-semibold">₹{event.base_price?.toLocaleString() ?? 0}</span></div>
+                  <div className="text-base">GST: <span className="font-semibold">₹{event.gst?.toLocaleString() ?? 0}</span></div>
+                  <div className="text-base">Convenience Fee: <span className="font-semibold">₹{event.convenience_fee?.toLocaleString() ?? 0}</span></div>
+                  <div className="text-base">Subtotal: <span className="font-semibold">₹{event.subtotal?.toLocaleString() ?? 0}</span></div>
+                  <div className="text-lg font-bold mt-2">Ticket Price: <span className="text-raspberry">₹{event.ticket_price?.toLocaleString() ?? 0}</span></div>
+                </div>
+              )}
               <div className="grid gap-2">
                 <Label htmlFor="name">Full Name</Label>
                 <Input
@@ -378,6 +396,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   onChange={handleChange}
                   placeholder="Enter your full name"
                   required
+                  className="bg-yellow-100 text-black"
                 />
               </div>
               
@@ -391,6 +410,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   onChange={handleChange}
                   placeholder="Enter your email address"
                   required
+                  className="bg-yellow-100 text-black"
                 />
               </div>
               
@@ -404,6 +424,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   onChange={handleChange}
                   placeholder="Enter your WhatsApp number"
                   required
+                  className="bg-yellow-100 text-black"
                 />
               </div>
               
@@ -436,6 +457,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                         onChange={(e) => handleTicketNameChange(index, e.target.value)}
                         placeholder={`Enter name for ticket ${index + 1}`}
                         required
+                        className="bg-yellow-100 text-black"
                       />
                     </div>
                   ))}

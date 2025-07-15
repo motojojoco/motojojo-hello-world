@@ -46,6 +46,11 @@ const formSchema = z.object({
   has_discount: z.boolean().default(false),
   real_price: z.number().nullable().optional(),
   discounted_price: z.number().nullable().optional(),
+  base_price: z.number().min(0, "Base price must be non-negative"),
+  gst: z.number().min(0, "GST must be non-negative"),
+  convenience_fee: z.number().min(0, "Convenience fee must be non-negative"),
+  subtotal: z.number().min(0, "Subtotal must be non-negative"),
+  ticket_price: z.number().min(0, "Ticket price must be non-negative"),
 });
 
 type EventFormData = z.infer<typeof formSchema>;
@@ -87,6 +92,11 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
       has_discount: initialData?.has_discount ?? false,
       real_price: initialData?.real_price ?? null,
       discounted_price: initialData?.discounted_price ?? null,
+      base_price: initialData?.base_price || 0,
+      gst: initialData?.gst || 0,
+      convenience_fee: initialData?.convenience_fee || 0,
+      subtotal: initialData?.subtotal || 0,
+      ticket_price: initialData?.ticket_price || 0,
     },
   });
 
@@ -416,6 +426,71 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                   />
                 </>
               )}
+              <FormField
+                control={form.control}
+                name="base_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Base Price</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="gst"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>GST</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="convenience_fee"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Convenience Fee</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="subtotal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subtotal</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="ticket_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ticket Price</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <Button type="submit" disabled={isSubmitting}>
