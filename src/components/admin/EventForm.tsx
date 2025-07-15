@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardYellowContainer } from "@/components/ui/card";
 import { 
   Select,
   SelectContent,
@@ -124,381 +124,383 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
   };
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <CardYellowContainer>
+      <Card>
+        <CardContent className="p-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="subtitle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subtitle (Optional)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="subtitle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subtitle (Optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="long_description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Long Description (Optional)</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="long_description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Long Description (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Event Image</FormLabel>
-                    <FormControl>
-                      <>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            // Upload to Supabase Storage
-                            const fileExt = file.name.split('.').pop();
-                            const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-                            const { data, error } = await supabase.storage
-                              .from('event-images')
-                              .upload(fileName, file, {
-                                cacheControl: '3600',
-                                upsert: false
-                              });
-                            if (error) {
-                              toast({
-                                title: 'Image Upload Failed',
-                                description: error.message,
-                                variant: 'destructive',
-                              });
-                              return;
-                            }
-                            // Get public URL
-                            const { data: publicUrlData } = supabase.storage
-                              .from('event-images')
-                              .getPublicUrl(data.path);
-                            if (publicUrlData?.publicUrl) {
-                              field.onChange(publicUrlData.publicUrl);
-                              toast({
-                                title: 'Image Uploaded',
-                                description: 'Image uploaded successfully!',
-                              });
-                            }
-                          }}
+                <FormField
+                  control={form.control}
+                  name="image"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Event Image</FormLabel>
+                      <FormControl>
+                        <>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              // Upload to Supabase Storage
+                              const fileExt = file.name.split('.').pop();
+                              const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+                              const { data, error } = await supabase.storage
+                                .from('event-images')
+                                .upload(fileName, file, {
+                                  cacheControl: '3600',
+                                  upsert: false
+                                });
+                              if (error) {
+                                toast({
+                                  title: 'Image Upload Failed',
+                                  description: error.message,
+                                  variant: 'destructive',
+                                });
+                                return;
+                              }
+                              // Get public URL
+                              const { data: publicUrlData } = supabase.storage
+                                .from('event-images')
+                                .getPublicUrl(data.path);
+                              if (publicUrlData?.publicUrl) {
+                                field.onChange(publicUrlData.publicUrl);
+                                toast({
+                                  title: 'Image Uploaded',
+                                  description: 'Image uploaded successfully!',
+                                });
+                              }
+                            }}
+                          />
+                          {field.value && (
+                            <img src={field.value} alt="Event" className="mt-2 max-h-32 rounded" />
+                          )}
+                        </>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="venue"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Venue</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Time</FormLabel>
+                      <FormControl>
+                        <Input type="time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Duration (Optional)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="host"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Host</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="event_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Event Type</FormLabel>
+                      <FormControl>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an event type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {eventTypes.map((type) => (
+                              <SelectItem key={type.id} value={type.id}>
+                                {type.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          {...field} 
+                          onChange={(e) => field.onChange(Number(e.target.value))}
                         />
-                        {field.value && (
-                          <img src={field.value} alt="Event" className="mt-2 max-h-32 rounded" />
-                        )}
-                      </>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                <FormField
+                  control={form.control}
+                  name="has_discount"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Event has discount?</FormLabel>
+                      <FormControl>
+                        <input type="checkbox" checked={field.value} onChange={e => field.onChange(e.target.checked)} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {form.watch("has_discount") && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="real_price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Real Price</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="discounted_price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Discounted Price</FormLabel>
+                          <FormControl>
+                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
                 )}
-              />
+                <FormField
+                  control={form.control}
+                  name="base_price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Base Price</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="gst"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>GST</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="convenience_fee"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Convenience Fee</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="subtotal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subtotal</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="ticket_price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ticket Price</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name="venue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Venue</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Time</FormLabel>
-                    <FormControl>
-                      <Input type="time" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Duration (Optional)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="host"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Host</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="event_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Event Type</FormLabel>
-                    <FormControl>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an event type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {eventTypes.map((type) => (
-                            <SelectItem key={type.id} value={type.id}>
-                              {type.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="has_discount"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Event has discount?</FormLabel>
-                    <FormControl>
-                      <input type="checkbox" checked={field.value} onChange={e => field.onChange(e.target.checked)} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {form.watch("has_discount") && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="real_price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Real Price</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="discounted_price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Discounted Price</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
-              <FormField
-                control={form.control}
-                name="base_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Base Price</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="gst"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>GST</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="convenience_fee"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Convenience Fee</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="subtotal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subtotal</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="ticket_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ticket Price</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : isEditing ? "Update Event" : "Create Event"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : isEditing ? "Update Event" : "Create Event"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </CardYellowContainer>
   );
 }

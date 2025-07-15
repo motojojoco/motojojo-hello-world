@@ -7,6 +7,7 @@
 // import { ChevronLeft, ChevronRight, Music } from "lucide-react";
 // import { supabase } from "@/integrations/supabase/client";
 // import { useToast } from "@/hooks/use-toast";
+import { CardYellowContainer } from "@/components/ui/card";
 
 interface Artist {
   id: string;
@@ -139,7 +140,7 @@ const ArtistsSection = () => {
           </div>
         {/* </FadeIn> */}
         {/* Artists Carousel with yellow padding */}
-        <div className="bg-violet rounded-3xl px-8 py-8">
+        <CardYellowContainer className="rounded-3xl px-8 py-8">
           <div 
             // ref={scrollContainerRef}
             className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
@@ -165,7 +166,7 @@ const ArtistsSection = () => {
               </FadeIn>
             ))} */}
           </div>
-        </div>
+        </CardYellowContainer>
       </div>
     </section>
   );

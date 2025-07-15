@@ -78,4 +78,22 @@ const CardFooter = React.forwardRef<
 ))
 CardFooter.displayName = "CardFooter"
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+// Yellow container for filling blocks
+const CardYellowContainer = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, children, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "bg-yellow-400 rounded-2xl p-4", // Tailwind yellow, rounded, padding
+      className
+    )}
+    {...props}
+  >
+    {children}
+  </div>
+))
+CardYellowContainer.displayName = "CardYellowContainer"
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CardYellowContainer }
