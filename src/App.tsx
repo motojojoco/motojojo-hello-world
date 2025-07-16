@@ -34,6 +34,7 @@ import KitchenGathering from "./pages/KitchenGathering";
 import PardahGathering from "./pages/PardahGathering";
 import GhumakariKalakar from "./pages/GhumakariKalakar";
 import WhatsAppButton from "./components/shared/WhatsAppButton";
+import AdminUsers from "./pages/AdminUsers";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
           } />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/host/login" element={<HostLogin />} />
           <Route path="/host/dashboard" element={<HostDashboard />} />
           <Route path="/host/invitation" element={<HostInvitation />} />

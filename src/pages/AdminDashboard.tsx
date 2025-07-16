@@ -1066,6 +1066,14 @@ const AdminDashboard = () => {
                 Responses
               </Button>
             </Link>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate("/admin/users")}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              View Users
+            </Button>
           </div>
         </div>
       </header>

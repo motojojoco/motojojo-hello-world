@@ -1,3 +1,7 @@
+html, body {
+  font-family: Arial, sans-serif !important;
+}
+
 /* ENFORCE ARIAL EVERYWHERE: Remove all custom font imports and references from the project. Only Arial will be used, including for all Tailwind font utilities. */
 * {
   font-family: Arial, sans-serif !important;
