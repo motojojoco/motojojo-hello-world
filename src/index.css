@@ -1,4 +1,4 @@
-/* Force Arial font everywhere */
+/* ENFORCE ARIAL EVERYWHERE: Remove all custom font imports and references from the project. Only Arial will be used, including for all Tailwind font utilities. */
 * {
   font-family: Arial, sans-serif !important;
 }
@@ -30,7 +30,7 @@
     --ring: 340 63% 51%;
     --radius: 0.75rem;
     --font-sans: Arial;
-    font-family: Arial;
+    font-family: Arial, sans-serif !important;
   }
 }
 
@@ -41,7 +41,7 @@
   body {
     @apply bg-raspberry text-white antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-    font-family: Arial;
+    font-family: Arial, sans-serif !important;
   }
 }
 
@@ -117,6 +117,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
-    font-family: Arial;
+    font-family: Arial, sans-serif !important;
   }
 }
