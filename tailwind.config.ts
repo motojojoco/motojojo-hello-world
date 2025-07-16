@@ -94,7 +94,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Arial', 'sans-serif'],
       },
       borderRadius: {
         lg: 'var(--radius)',
