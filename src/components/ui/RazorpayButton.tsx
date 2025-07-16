@@ -337,6 +337,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
         }
       };
 
+      setIsFormOpen(false); // Close the dialog before opening Razorpay
       const razorpay = new (window as any).Razorpay(options);
       razorpay.open();
     });
