@@ -397,7 +397,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   onChange={handleChange}
                   placeholder="Enter your full name"
                   required
-                  className="bg-yellow-100 text-black"
+                  className="bg-gray-100/60 text-black placeholder:text-gray-500 focus:bg-gray-200/80"
                 />
               </div>
               
@@ -411,7 +411,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   onChange={handleChange}
                   placeholder="Enter your email address"
                   required
-                  className="bg-yellow-100 text-black"
+                  className="bg-gray-100/60 text-black placeholder:text-gray-500 focus:bg-gray-200/80"
                 />
               </div>
               
@@ -425,7 +425,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   onChange={handleChange}
                   placeholder="Enter your WhatsApp number"
                   required
-                  className="bg-yellow-100 text-black"
+                  className="bg-gray-100/60 text-black placeholder:text-gray-500 focus:bg-gray-200/80"
                 />
               </div>
               
@@ -458,7 +458,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                         onChange={(e) => handleTicketNameChange(index, e.target.value)}
                         placeholder={`Enter name for ticket ${index + 1}`}
                         required
-                        className="bg-yellow-100 text-black"
+                        className="bg-gray-100/60 text-black placeholder:text-gray-500 focus:bg-gray-200/80"
                       />
                     </div>
                   ))}
