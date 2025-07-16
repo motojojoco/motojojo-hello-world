@@ -551,11 +551,11 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
           <div className="py-4">
             <BookingTicket
               eventName={eventName}
-              eventDescription="Event description will be loaded from the event details"
-              eventDate="2024-06-15"
-              eventTime="7:00 PM"
-              eventVenue="Event Venue"
-              eventCity="Event City"
+              eventDescription={event?.subtitle || event?.description || "Event description will be loaded from the event details"}
+              eventDate={event?.date || ""}
+              eventTime={event?.time || ""}
+              eventVenue={event?.venue || "Event Venue"}
+              eventCity={event?.city || "Event City"}
               eventPrice={amount}
               bookerName={formData.name}
               bookerEmail={formData.email}
