@@ -385,7 +385,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   <div className="text-base">GST: <span className="font-semibold">₹{event.gst?.toLocaleString() ?? 0}</span></div>
                   <div className="text-base">Convenience Fee: <span className="font-semibold">₹{event.convenience_fee?.toLocaleString() ?? 0}</span></div>
                   <div className="text-base">Subtotal: <span className="font-semibold">₹{event.subtotal?.toLocaleString() ?? 0}</span></div>
-                  <div className="text-lg font-bold mt-2">Ticket Price: <span className="text-raspberry">₹{event.ticket_price?.toLocaleString() ?? 0}</span></div>
+                  <div className="text-lg font-bold mt-2">Ticket Price: <span className="text-yellow">₹{event.ticket_price?.toLocaleString() ?? 0}</span></div>
                 </div>
               )}
               <div className="grid gap-2">
@@ -484,7 +484,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                 <Eye className="h-4 w-4" />
                 Preview Ticket
               </Button>
-              <Button type="submit">Proceed to Payment</Button>
+              <Button type="submit" className="bg-sandstorm text-black">Proceed to Payment</Button>
             </DialogFooter>
           </form>
         </DialogContent>
