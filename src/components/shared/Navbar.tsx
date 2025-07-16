@@ -116,24 +116,6 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Cart Button */}
-            {isSignedIn && (
-              <Button 
-                className="relative min-w-0" 
-                style={{ backgroundColor: '#F7E1B5', color: 'black' }}
-                onClick={() => navigate("/cart")}
-              >
-                <ShoppingCart className="h-4 w-4 text-black" />
-                {totalItems > 0 && (
-                  <Badge 
-                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0"
-                  >
-                    {totalItems}
-                  </Badge>
-                )}
-              </Button>
-            )}
-
             {/* Premium Button */}
             <Button className="min-w-0 truncate text-mapcream bg-transparent hover:bg-transparent" onClick={() => navigate("/membership")}>Membership</Button>
 
@@ -243,26 +225,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Cart Button (Mobile) */}
-              {isSignedIn && (
-                <Button 
-                  variant="outline" 
-                  className="w-full flex items-center justify-between"
-                  onClick={() => navigate("/cart")}
-                  style={{ backgroundColor: '#F7E1B5', color: 'black' }}
-                >
-                  <div className="flex items-center gap-2">
-                    <ShoppingCart className="h-4 w-4 text-black" />
-                    Cart
-                  </div>
-                  {totalItems > 0 && (
-                    <Badge>
-                      {totalItems}
-                    </Badge>
-                  )}
-                </Button>
-              )}
-              
+              {/* Premium Button (Mobile) */}
               <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity w-full" onClick={() => navigate("/membership")}>
                 Membership
               </Button>

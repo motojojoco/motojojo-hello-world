@@ -435,15 +435,6 @@ const Events = () => {
                                 <div className="text-lg font-bold">₹{event.price}</div>
                               )}
                               <div className="flex gap-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => handleAddToCart(event)}
-                                  className="flex items-center gap-1 bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
-                                >
-                                  <ShoppingCart className="h-4 w-4" />
-                                  Add to Cart
-                                </Button>
                                 <Button asChild size="sm">
                                   <Link to={`/event/${event.id}`}>Book Now</Link>
                                 </Button>

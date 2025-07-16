@@ -113,27 +113,7 @@ const EventDetail = () => {
     console.log("Booking successful for event:", id);
   };
 
-  const handleAddToCart = () => {
-    if (!event) return;
-    
-    const cartItem = {
-      id: `cart-${event.id}-${Date.now()}`,
-      eventId: event.id,
-      eventTitle: event.title,
-      eventImage: event.image,
-      quantity: 1,
-      price: event.has_discount && event.discounted_price ? event.discounted_price : event.price,
-      date: event.date,
-      venue: event.venue,
-      city: event.city,
-    };
-    
-    addItem(cartItem);
-    toast({
-      title: "Added to Cart",
-      description: `${event.title} has been added to your cart.`,
-    });
-  };
+  // Remove the Add to Cart button and its handler from the event detail page.
 
   if (eventLoading) {
     return (
@@ -345,14 +325,6 @@ const EventDetail = () => {
                         </div>
                       ) : (
                         <div className="w-full space-y-3">
-                          <Button 
-                            variant="outline" 
-                            className={`w-full flex items-center gap-2 ${isLocalGathering ? 'bg-[#F7E1B5] text-[#0CA678] border-[#0CA678] hover:bg-[#e6d7a8]' : ''}`}
-                            onClick={handleAddToCart}
-                          >
-                            <ShoppingCart className="h-4 w-4" />
-                            Add to Cart
-                          </Button>
                           <RazorpayButton 
                             eventId={event.id} 
                             eventName={event.title}

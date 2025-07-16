@@ -210,15 +210,6 @@ const EventsSection = () => {
                     <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-violet">
                       <div className="text-lg font-bold">₹{event.price}</div>
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="icon"
-                          onClick={() => handleAddToCart(event)}
-                          className="bg-[#2d014d] text-white border-none hover:bg-[#3a0166]"
-                          aria-label="Add to Cart"
-                        >
-                          <ShoppingCart className="h-4 w-4" />
-                        </Button>
                         <Button asChild size="sm">
                           <Link to={`/event/${event.id}`}>Book Now</Link>
                         </Button>

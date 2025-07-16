@@ -146,26 +146,7 @@ const PreviousEvents = () => {
     setSelectedEventType("");
   };
 
-  // Add to cart function
-  const handleAddToCart = (event: Event) => {
-    const cartItem = {
-      id: `cart-${event.id}-${Date.now()}`,
-      eventId: event.id,
-      eventTitle: event.title,
-      eventImage: event.image,
-      quantity: 1,
-      price: event.has_discount && event.discounted_price ? event.discounted_price : event.price,
-      date: event.date,
-      venue: event.venue,
-      city: event.city,
-    };
-    
-    addItem(cartItem);
-    toast({
-      title: "Added to Cart",
-      description: `${event.title} has been added to your cart.`,
-    });
-  };
+  // Remove the Add to Cart button and its handler from the previous events page.
 
   const groupedEvents = groupEventsByDate(filteredEvents);
 
