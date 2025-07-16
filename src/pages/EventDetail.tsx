@@ -377,32 +377,6 @@ const EventDetail = () => {
                         <Button 
                           variant="outline"
                           size="sm"
-                          onClick={() => {
-                            const cartItem = {
-                              id: `cart-${event.id}-${Date.now()}`,
-                              eventId: event.id,
-                              eventTitle: event.title,
-                              eventImage: event.image,
-                              quantity: 1,
-                              price: event.has_discount && event.discounted_price ? event.discounted_price : event.price,
-                              date: event.date,
-                              venue: event.venue,
-                              city: event.city,
-                            };
-                            addItem(cartItem);
-                            toast({
-                              title: "Added to Cart",
-                              description: `${event.title} has been added to your cart.`,
-                            });
-                          }}
-                          className={`flex items-center gap-1 ${isLocalGathering ? 'bg-[#F7E1B5] text-[#0CA678] border-[#0CA678] hover:bg-[#e6d7a8]' : 'bg-[#2d014d] text-white border-none hover:bg-[#3a0166]'}`}
-                        >
-                          <ShoppingCart className="h-4 w-4" />
-                          Add to Cart
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          size="sm"
                           onClick={() => navigate(`/event/${event.id}`)}
                           className={isLocalGathering ? 'bg-[#F7E1B5] text-[#0CA678] border-[#0CA678] hover:bg-[#e6d7a8]' : ''}
                         >
