@@ -14,6 +14,11 @@ interface ScrollableNumberInputProps {
   disabled?: boolean;
   showArrows?: boolean;
   showScrollHint?: boolean;
+  /**
+   * If true, disables direct typing and only allows changing value via arrows/scroll/keys.
+   * Default: false (typing is allowed)
+   */
+  disableTyping?: boolean;
 }
 
 export const ScrollableNumberInput: React.FC<ScrollableNumberInputProps> = ({
@@ -26,14 +31,27 @@ export const ScrollableNumberInput: React.FC<ScrollableNumberInputProps> = ({
   disabled = false,
   showArrows = true,
   showScrollHint = true,
+  disableTyping = false,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const [internalValue, setInternalValue] = useState<string>(value.toString());
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    // Sync internal value if parent value changes (except while focused)
+    if (!isFocused) {
+      setInternalValue(value.toString());
+    }
+  }, [value, isFocused]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseInt(e.target.value) || min;
-    const clampedValue = Math.max(min, Math.min(max, newValue));
-    onChange(clampedValue);
+    const val = e.target.value;
+    setInternalValue(val);
+    if (val === "") return; // Allow empty while typing
+    const num = parseInt(val, 10);
+    if (!isNaN(num)) {
+      onChange(Math.max(min, Math.min(max, num)));
+    }
   };
 
   const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
@@ -53,6 +71,14 @@ export const ScrollableNumberInput: React.FC<ScrollableNumberInputProps> = ({
       const newValue = Math.max(min, Math.min(max, value - 1));
       onChange(newValue);
     }
+  };
+
+  const handleBlur = () => {
+    let num = parseInt(internalValue, 10);
+    if (isNaN(num) || internalValue === "") num = min;
+    setInternalValue(num.toString());
+    onChange(Math.max(min, Math.min(max, num)));
+    setIsFocused(false);
   };
 
   const increment = () => {
@@ -76,13 +102,14 @@ export const ScrollableNumberInput: React.FC<ScrollableNumberInputProps> = ({
           type="number"
           min={min}
           max={max}
-          value={value}
-          onChange={handleChange}
+          value={internalValue}
+          onChange={disableTyping ? undefined : handleChange}
           onWheel={handleWheel}
           onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onBlur={handleBlur}
           disabled={disabled}
+          readOnly={disableTyping}
           className={`${showArrows ? 'pr-12' : ''} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
             isFocused ? 'ring-2 ring-violet ring-offset-2' : ''
           }`}
