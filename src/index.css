@@ -1,3 +1,8 @@
+/* Force Arial font everywhere */
+* {
+  font-family: Arial, sans-serif !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
