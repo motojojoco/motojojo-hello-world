@@ -134,7 +134,7 @@ const TestimonialsSection = () => {
         >
           {testimonials.map((testimonial, index) => (
             <FadeIn key={testimonial.id} delay={100 * index}>
-              <Card className="w-[300px] md:w-[400px] hover-scale overflow-hidden border-none shadow-soft">
+              <Card className="w-[300px] md:w-[400px] hover-scale overflow-hidden border-none shadow-soft bg-white/10 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <Avatar>
@@ -149,10 +149,10 @@ const TestimonialsSection = () => {
                   
                   <div className="flex mb-4">
                     {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow text-yellow" />
+                      <Star key={i} className="h-4 w-4 text-sandstorm fill-sandstorm" />
                     ))}
                     {Array.from({ length: 5 - testimonial.rating }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 text-muted" />
+                      <Star key={i} className="h-4 w-4 text-sandstorm" />
                     ))}
                   </div>
                   
