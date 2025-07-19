@@ -875,24 +875,1447 @@ const AdminDashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top bar and navigation remain unchanged */}
-      <div className="pt-8"> {/* Add top padding to prevent overlap */}
-        <Tabs value={currentTab} onValueChange={setCurrentTab} className="max-w-7xl mx-auto px-4">
-          <TabsList className="w-full mb-6 shadow-md bg-pink-500 rounded-lg flex flex-wrap justify-center gap-2 p-2 sticky top-0 z-20">
-            <TabsTrigger value="events">Manage Events</TabsTrigger>
-            <TabsTrigger value="event-types">Event Types</TabsTrigger>
-            <TabsTrigger value="categories">Manage Categories</TabsTrigger>
-            <TabsTrigger value="experiences">Manage Experiences</TabsTrigger>
-            <TabsTrigger value="banners">Manage Banners</TabsTrigger>
-            <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
-            <TabsTrigger value="bookings">View Bookings</TabsTrigger>
-            <TabsTrigger value="hosts">Host Management</TabsTrigger>
-            <TabsTrigger value="host-activity">Host Activity</TabsTrigger>
-          </TabsList>
-          {/* ... rest of the content ... */}
-        </Tabs>
-      </div>
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Admin Header */}
+      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm shadow-sm py-4">
+        <div className="container-padding flex justify-between items-center">
+          <div className="flex items-center">
+            <h1 className="text-2xl font-bold text-gradient">Motojojo Admin</h1>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            {/* Overview Stats */}
+            <div className="hidden lg:flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-blue-500" />
+                <span className="font-medium">{events?.length || 0} Events</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Users className="h-4 w-4 text-green-500" />
+                <span className="font-medium">{bookings.length} Bookings</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <DollarSign className="h-4 w-4 text-yellow-500" />
+                <span className="font-medium">₹{bookings.reduce((sum, booking) => sum + booking.amount, 0).toLocaleString()}</span>
+              </div>
+            </div>
+            
+            {/* Mobile Stats */}
+            <TooltipProvider>
+              <div className="lg:hidden flex items-center gap-3 text-sm">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-help">
+                      <Calendar className="h-4 w-4 text-blue-500" />
+                      <span className="font-medium">{events?.length || 0}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Total Events</p>
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-help">
+                      <Users className="h-4 w-4 text-green-500" />
+                      <span className="font-medium">{bookings.length}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Total Bookings</p>
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 cursor-help">
+                      <DollarSign className="h-4 w-4 text-yellow-500" />
+                      <span className="font-medium">₹{(bookings.reduce((sum, booking) => sum + booking.amount, 0) / 1000).toFixed(0)}K</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Total Revenue: ₹{bookings.reduce((sum, booking) => sum + booking.amount, 0).toLocaleString()}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+            
+            {/* Quick Actions */}
+            <div className="hidden md:flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSelectedEvent(null)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Event
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setCurrentTab('bookings')}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                View Bookings
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleProcessCompletedEvents}
+                disabled={isProcessingEvents}
+              >
+                {isProcessingEvents ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="h-4 w-4" />
+                )}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleDownloadSystemReport}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+              <Button 
+                variant="default"
+                size="sm"
+                onClick={() => setIsInviteDialogOpen(true)}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Invite Admin
+              </Button>
+            </div>
+            
+            {/* Mobile Quick Actions */}
+            <div className="md:hidden flex items-center gap-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem onClick={() => setSelectedEvent(null)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add New Event
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem onClick={() => setCurrentTab('bookings')}>
+                    <Users className="h-4 w-4 mr-2" />
+                    View All Bookings
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem onClick={() => setCurrentTab('overview')}>
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Dashboard Overview
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Reports & Analytics</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem onClick={handleGenerateSystemReport}>
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    Generate Report
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem onClick={handleDownloadSystemReport}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download CSV Report
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Event Management</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem onClick={handleProcessCompletedEvents} disabled={isProcessingEvents}>
+                    {isProcessingEvents ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                    )}
+                    {isProcessingEvents ? 'Processing Events...' : 'Process Completed Events'}
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem onClick={handleTestCompletedEvents}>
+                    <Clock className="h-4 w-4 mr-2" />
+                    Test Event Status
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </Button>
+            <Link to="/response">
+              <Button className="bg-yellow text-black font-bold px-6 py-2 rounded-lg shadow-md hover:bg-yellow-400 transition-colors">
+                Responses
+              </Button>
+            </Link>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate("/admin/users")}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              View Users
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-grow py-8 pb-20 md:pb-8">
+        <div className="container-padding">
+          <FadeIn>
+            <h2 className="text-3xl font-bold mb-8">Admin Dashboard</h2>
+          </FadeIn>
+
+          <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+            <TabsList className="grid grid-cols-9 mb-8">
+              <TabsTrigger value="events">Manage Events</TabsTrigger>
+              <TabsTrigger value="event-types">Event Types</TabsTrigger>
+              <TabsTrigger value="categories">Manage Categories</TabsTrigger>
+              <TabsTrigger value="experiences">Manage Experiences</TabsTrigger>
+              <TabsTrigger value="banners">Manage Banners</TabsTrigger>
+              <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
+              <TabsTrigger value="bookings">View Bookings</TabsTrigger>
+              <TabsTrigger value="hosts">Host Management</TabsTrigger>
+              <TabsTrigger value="host-activity">Host Activity</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="events">
+              <div className="grid grid-cols-1 gap-8">
+                <FadeIn delay={100}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex justify-between items-center">
+                        <span>All Events</span>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add New Event
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Create New Event</DialogTitle>
+                            </DialogHeader>
+                            <EventForm onSubmit={handleCreateEvent} />
+                          </DialogContent>
+                        </Dialog>
+                      </CardTitle>
+                      <CardDescription className="text-black">
+                        Manage your events and their details
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-black">
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Name</TableHead>
+                              <TableHead className="text-black">Category</TableHead>
+                              <TableHead className="text-black">Date</TableHead>
+                              <TableHead className="text-black">Price</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody className="text-black">
+                            {getCurrentItems(events).map((event) => (
+                              <TableRow key={event.id} className="text-black">
+                                <TableCell className="font-medium text-black">{event.title}</TableCell>
+                                <TableCell className="text-black">{event.category}</TableCell>
+                                <TableCell className="text-black">{formatDate(event.date)}</TableCell>
+                                <TableCell className="text-black">₹{event.price}</TableCell>
+                                <TableCell className="text-black text-right">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedEvent(event);
+                                      setIsEditDialogOpen(true);
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+
+                        {/* Pagination Controls */}
+                        <div className="flex justify-end items-center space-x-2 p-4">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <span className="text-sm text-black">
+                            Page {currentPage} of {Math.ceil(events.length / itemsPerPage)}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setCurrentPage(prev => 
+                              Math.min(prev + 1, Math.ceil(events.length / itemsPerPage))
+                            )}
+                            disabled={currentPage === Math.ceil(events.length / itemsPerPage)}
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </FadeIn>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="event-types">
+              <div className="grid grid-cols-1 gap-8">
+                <FadeIn delay={100}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex justify-between items-center">
+                        <span>All Event Types</span>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add New Event Type
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Create New Event Type</DialogTitle>
+                            </DialogHeader>
+                            <EventTypeForm onSubmit={handleCreateEventType} />
+                          </DialogContent>
+                        </Dialog>
+                      </CardTitle>
+                      <CardDescription className="text-black">
+                        Manage your event types and their images
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-black">
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Name</TableHead>
+                              <TableHead className="text-black">Icon</TableHead>
+                              <TableHead className="text-black">Image</TableHead>
+                              <TableHead className="text-black">Sort Order</TableHead>
+                              <TableHead className="text-black">Status</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody className="text-black">
+                            {eventTypes.map((eventType) => (
+                              <TableRow key={eventType.id} className="text-black">
+                                <TableCell className="font-medium text-black">{eventType.name}</TableCell>
+                                <TableCell className="text-2xl text-black">{eventType.icon || "🎭"}</TableCell>
+                                <TableCell>
+                                  {eventType.image_url ? (
+                                    <img
+                                      src={eventType.image_url}
+                                      alt={eventType.name}
+                                      className="w-8 h-8 rounded object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                      }}
+                                    />
+                                  ) : (
+                                    <span className="text-black text-sm">No image</span>
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-black">{eventType.sort_order}</TableCell>
+                                <TableCell>
+                                  <span className={`px-2 py-1 rounded-full text-xs text-black ${eventType.is_active ? 'bg-green-100' : 'bg-red-100'}`}>
+                                    {eventType.is_active ? 'Active' : 'Inactive'}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-black text-right space-x-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedEventType(eventType);
+                                      setIsEventTypeEditDialogOpen(true);
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  {eventType.deletable && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleDeleteEventType(eventType.id)}
+                                      className="text-red-600 hover:text-red-700"
+                                    >
+                                      Delete
+                                    </Button>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </FadeIn>
+              </div>
+
+              {/* Edit Event Type Dialog */}
+              <Dialog open={isEventTypeEditDialogOpen} onOpenChange={setIsEventTypeEditDialogOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Edit Event Type</DialogTitle>
+                  </DialogHeader>
+                  {selectedEventType && (
+                    <EventTypeForm 
+                      initialData={selectedEventType} 
+                      onSubmit={handleUpdateEventType} 
+                      isEditing={true} 
+                    />
+                  )}
+                </DialogContent>
+              </Dialog>
+            </TabsContent>
+
+            <TabsContent value="categories">
+              <FadeIn delay={100}>
+                <CategoryForm />
+              </FadeIn>
+            </TabsContent>
+
+            <TabsContent value="experiences">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="md:col-span-2">
+                  <FadeIn delay={100}>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex justify-between items-center">
+                          <span>All Experiences</span>
+                          <Button size="sm">
+                            <Plus className="mr-1 h-4 w-4" />
+                            Add New
+                          </Button>
+                        </CardTitle>
+                        <CardDescription>
+                          Manage your curated experiences
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="rounded-md border text-black">
+                          <Table className="text-black">
+                            <TableHeader className="text-black">
+                              <TableRow className="text-black">
+                                <TableHead className="text-black">Name</TableHead>
+                                <TableHead className="text-black">Description</TableHead>
+                                <TableHead className="text-black text-right">Actions</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody className="text-black">
+                              {experiences.map((experience) => (
+                                <TableRow key={experience.id} className="text-black">
+                                  <TableCell className="font-medium text-black">{experience.name}</TableCell>
+                                  <TableCell className="text-black">{experience.description}</TableCell>
+                                  <TableCell className="text-black text-right space-x-2">
+                                    <Button size="icon" variant="ghost">
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button size="icon" variant="ghost">
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </FadeIn>
+                </div>
+                
+                <div>
+                  <FadeIn delay={200}>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Add New Experience</CardTitle>
+                        <CardDescription>
+                          Create a new curated experience
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <form onSubmit={handleAddExperience} className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="exp-name">Experience Name</Label>
+                            <Input id="exp-name" placeholder="Enter experience name" />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="exp-description">Description</Label>
+                            <Textarea id="exp-description" placeholder="Enter description" />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="exp-image">Experience Image</Label>
+                            <Input id="exp-image" type="file" />
+                          </div>
+                          
+                          <Button type="submit" className="w-full">
+                            Create Experience
+                          </Button>
+                        </form>
+                      </CardContent>
+                    </Card>
+                  </FadeIn>
+                </div>
+              </div>
+              {/* Featured Artists Upload Section */}
+              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <FadeIn delay={250}>
+                    <ArtistForm />
+                  </FadeIn>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="banners">
+              <div className="grid grid-cols-1 gap-8">
+                <FadeIn delay={100}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex justify-between items-center">
+                        <span>All Banners</span>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add New Banner
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Create New Banner</DialogTitle>
+                            </DialogHeader>
+                            <BannerForm onSubmit={handleCreateBanner} />
+                          </DialogContent>
+                        </Dialog>
+                      </CardTitle>
+                      <CardDescription>
+                        Manage your homepage banner sliders
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-black">
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Title</TableHead>
+                              <TableHead className="text-black">Subtitle</TableHead>
+                              <TableHead className="text-black">Image</TableHead>
+                              <TableHead className="text-black">Link</TableHead>
+                              <TableHead className="text-black">Sort Order</TableHead>
+                              <TableHead className="text-black">Status</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody className="text-black">
+                            {banners.map((banner) => (
+                              <TableRow key={banner.id} className="text-black">
+                                <TableCell className="font-medium text-black">{banner.title}</TableCell>
+                                <TableCell className="max-w-[200px] truncate text-black">
+                                  {banner.subtitle || "No subtitle"}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="w-16 h-10 rounded overflow-hidden">
+                                    <img 
+                                      src={banner.image_url} 
+                                      alt={banner.title} 
+                                      className="w-full h-full object-cover" 
+                                    />
+                                  </div>
+                                </TableCell>
+                                <TableCell className="max-w-[150px] truncate text-black">
+                                  {banner.link_url || "No link"}
+                                </TableCell>
+                                <TableCell className="text-black">{banner.sort_order}</TableCell>
+                                <TableCell>
+                                  <span className={`px-2 py-1 rounded-full text-xs text-black ${
+                                    banner.is_active 
+                                      ? 'bg-green-100' 
+                                      : 'bg-red-100'
+                                  }`}>
+                                    {banner.is_active ? 'Active' : 'Inactive'}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-black text-right space-x-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedBanner(banner);
+                                      setIsBannerEditDialogOpen(true);
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDeleteBanner(banner.id)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    Delete
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </FadeIn>
+              </div>
+
+              {/* Edit Banner Dialog */}
+              <Dialog open={isBannerEditDialogOpen} onOpenChange={setIsBannerEditDialogOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Edit Banner</DialogTitle>
+                  </DialogHeader>
+                  {selectedBanner && (
+                    <BannerForm 
+                      initialData={selectedBanner} 
+                      onSubmit={handleUpdateBanner} 
+                      isEditing={true} 
+                    />
+                  )}
+                </DialogContent>
+              </Dialog>
+            </TabsContent>
+
+            <TabsContent value="testimonials">
+              <div className="grid grid-cols-1 gap-8">
+                {/* Pending Testimonials Section - always on top */}
+                <FadeIn delay={50}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Pending Testimonials</CardTitle>
+                      <CardDescription>
+                        Review and approve or reject new testimonials submitted by users.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Name</TableHead>
+                              <TableHead className="text-black">Role</TableHead>
+                              <TableHead className="text-black">Rating</TableHead>
+                              <TableHead className="text-black">Content</TableHead>
+                              <TableHead className="text-black">Status</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody className="text-black">
+                            {pendingTestimonials.length === 0 ? (
+                              <TableRow>
+                                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                                  No pending testimonials.
+                                </TableCell>
+                              </TableRow>
+                            ) : pendingTestimonials.map((testimonial) => (
+                              <TableRow key={testimonial.id} className="text-black">
+                                <TableCell className="font-medium text-black">{testimonial.name}</TableCell>
+                                <TableCell className="capitalize text-black">{testimonial.role}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-1">
+                                    {Array.from({ length: testimonial.rating }).map((_, i) => (
+                                      <Star key={i} className="h-3 w-3 fill-yellow text-yellow" />
+                                    ))}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="max-w-md truncate text-black">{testimonial.content}</TableCell>
+                                <TableCell>
+                                  <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">Pending</span>
+                                </TableCell>
+                                <TableCell className="text-black text-right space-x-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleApproveTestimonial(testimonial.id)}
+                                    className="text-green-600 hover:text-green-700"
+                                  >
+                                    <Check className="h-4 w-4 mr-1" /> Approve
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleRejectTestimonial(testimonial.id)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <X className="h-4 w-4 mr-1" /> Reject
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </FadeIn>
+
+                {/* Approved/All Testimonials Section */}
+                <FadeIn delay={100}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex justify-between items-center">
+                        <span>All Testimonials</span>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add New Testimonial
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Create New Testimonial</DialogTitle>
+                            </DialogHeader>
+                            <div className="p-4">
+                              <p className="text-muted-foreground">Use the feedback form on the main site to create testimonials.</p>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </CardTitle>
+                      <CardDescription>
+                        Manage your testimonials
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="rounded-md border text-black">
+                        <Table className="text-black">
+                          <TableHeader className="text-black">
+                            <TableRow className="text-black">
+                              <TableHead className="text-black">Name</TableHead>
+                              <TableHead className="text-black">Testimonial</TableHead>
+                              <TableHead className="text-black">Status</TableHead>
+                              <TableHead className="text-black text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody className="text-black">
+                            {testimonials.map((testimonial) => (
+                              <TableRow key={testimonial.id} className="text-black">
+                                <TableCell className="font-medium text-black">{testimonial.name}</TableCell>
+                                <TableCell className="max-w-md truncate text-black">{testimonial.content}</TableCell>
+                                <TableCell>
+                                  <span className={`px-2 py-1 rounded-full text-xs text-black ${
+                                    testimonial.is_approved 
+                                      ? 'bg-green-100' 
+                                      : 'bg-red-100'
+                                  }`}>
+                                    {testimonial.is_approved ? 'Approved' : 'Pending'}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-black text-right space-x-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedTestimonial(testimonial);
+                                      setIsTestimonialEditDialogOpen(true);
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDeleteTestimonial(testimonial.id)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    Delete
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </FadeIn>
+              </div>
+
+              {/* Edit Testimonial Dialog */}
+              <Dialog open={isTestimonialEditDialogOpen} onOpenChange={setIsTestimonialEditDialogOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Edit Testimonial</DialogTitle>
+                  </DialogHeader>
+                  {selectedTestimonial && (
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="name">Name</Label>
+                        <Input
+                          id="name"
+                          defaultValue={selectedTestimonial.name}
+                          onChange={(e) => setSelectedTestimonial({
+                            ...selectedTestimonial,
+                            name: e.target.value
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="role">Role</Label>
+                        <Select
+                          value={selectedTestimonial.role}
+                          onValueChange={(value) => setSelectedTestimonial({
+                            ...selectedTestimonial,
+                            role: value as 'audience' | 'artist' | 'organizer'
+                          })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="audience">Event Attendee</SelectItem>
+                            <SelectItem value="artist">Artist/Performer</SelectItem>
+                            <SelectItem value="organizer">Event Organizer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="rating">Rating</Label>
+                        <Select
+                          value={selectedTestimonial.rating.toString()}
+                          onValueChange={(value) => setSelectedTestimonial({
+                            ...selectedTestimonial,
+                            rating: parseInt(value)
+                          })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[1, 2, 3, 4, 5].map((rating) => (
+                              <SelectItem key={rating} value={rating.toString()}>
+                                {rating} Star{rating > 1 ? 's' : ''}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="content">Content</Label>
+                        <Textarea
+                          id="content"
+                          defaultValue={selectedTestimonial.content}
+                          onChange={(e) => setSelectedTestimonial({
+                            ...selectedTestimonial,
+                            content: e.target.value
+                          })}
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="is_approved"
+                          checked={selectedTestimonial.is_approved}
+                          onChange={(e) => setSelectedTestimonial({
+                            ...selectedTestimonial,
+                            is_approved: e.target.checked
+                          })}
+                        />
+                        <Label htmlFor="is_approved">Approved</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="is_featured"
+                          checked={selectedTestimonial.is_featured}
+                          onChange={(e) => setSelectedTestimonial({
+                            ...selectedTestimonial,
+                            is_featured: e.target.checked
+                          })}
+                        />
+                        <Label htmlFor="is_featured">Featured</Label>
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsTestimonialEditDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => handleUpdateTestimonial({
+                            name: selectedTestimonial.name,
+                            role: selectedTestimonial.role,
+                            content: selectedTestimonial.content,
+                            rating: selectedTestimonial.rating,
+                            is_approved: selectedTestimonial.is_approved,
+                            is_featured: selectedTestimonial.is_featured
+                          })}
+                        >
+                          Update Testimonial
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
+            </TabsContent>
+
+            <TabsContent value="bookings">
+              <FadeIn delay={100}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>User Bookings</CardTitle>
+                    <CardDescription>
+                      View and manage all user bookings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {bookingsLoading ? (
+                      <div className="space-y-4">
+                        {[...Array(5)].map((_, i) => (
+                          <div key={i} className="flex items-center space-x-4">
+                            <Skeleton className="h-12 w-12 rounded-full" />
+                            <div className="space-y-2">
+                              <Skeleton className="h-4 w-[250px]" />
+                              <Skeleton className="h-4 w-[200px]" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : bookings.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">No Bookings Found</h3>
+                        <p className="text-muted-foreground">
+                          There are no bookings in the system yet.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Search and Filter Controls */}
+                        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                          <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                            <Input
+                              placeholder="Search by name, email, or event..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                          <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                              <SelectValue placeholder="Filter by status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">All Status</SelectItem>
+                              <SelectItem value="confirmed">Confirmed</SelectItem>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Results count */}
+                        <div className="mb-4">
+                          <p className="text-sm text-muted-foreground">
+                            Showing {filteredBookings.length} of {bookings.length} bookings
+                          </p>
+                        </div>
+
+                        <div className="rounded-md border text-black">
+                          <Table className="text-black">
+                            <TableHeader className="text-black">
+                              <TableRow className="text-black">
+                                <TableHead className="text-black">Event</TableHead>
+                                <TableHead className="text-black">User</TableHead>
+                                <TableHead className="text-black">Email</TableHead>
+                                <TableHead className="text-black">Phone</TableHead>
+                                <TableHead className="text-black">Tickets</TableHead>
+                                <TableHead className="text-black">Amount</TableHead>
+                                <TableHead className="text-black">Status</TableHead>
+                                <TableHead className="text-black">Booking Date</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody className="text-black">
+                              {getCurrentItems(filteredBookings).map((booking) => (
+                                <TableRow key={booking.id} className="text-black">
+                                  <TableCell className="font-medium text-black">
+                                    {booking.event?.title || 'Event not found'}
+                                  </TableCell>
+                                  <TableCell className="text-black">{booking.name}</TableCell>
+                                  <TableCell className="text-black">{booking.email}</TableCell>
+                                  <TableCell className="text-black">{booking.phone}</TableCell>
+                                  <TableCell className="text-black">{booking.tickets}</TableCell>
+                                  <TableCell className="text-black">₹{booking.amount.toLocaleString()}</TableCell>
+                                  <TableCell>
+                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-black ${
+                                      booking.status === 'confirmed' 
+                                        ? 'bg-green-100 text-green-800' 
+                                        : 'bg-yellow-100 text-yellow-800'
+                                    }`}>
+                                      {booking.status}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="text-black">{formatDate(booking.booking_date)}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                        
+                        {/* Pagination Controls */}
+                        {totalPages(filteredBookings) > 1 && (
+                          <div className="flex justify-end items-center space-x-2 mt-4">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                              disabled={currentPage === 1}
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <span className="text-sm text-muted-foreground">
+                              Page {currentPage} of {totalPages(filteredBookings)}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages(filteredBookings)))}
+                              disabled={currentPage === totalPages(filteredBookings)}
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </FadeIn>
+            </TabsContent>
+
+            <TabsContent value="hosts">
+              <FadeIn delay={100}>
+                <div className="grid grid-cols-1 gap-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex justify-between items-center">
+                        <span>Host Management</span>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Invite Host
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Invite New Host</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <Label htmlFor="invite-host-email">Host Email</Label>
+                              <Input
+                                id="invite-host-email"
+                                type="email"
+                                placeholder="Enter host email"
+                                value={hostInviteEmail}
+                                onChange={(e) => setHostInviteEmail(e.target.value)}
+                              />
+                              <Button 
+                                onClick={handleInviteHost} 
+                                disabled={hostInviteLoading}
+                                className="w-full"
+                              >
+                                {hostInviteLoading ? "Sending..." : "Send Invitation"}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </CardTitle>
+                      <CardDescription>
+                        Manage host invitations and assignments
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {hostInvitationsLoading ? (
+                        <div className="space-y-4">
+                          {[1, 2, 3].map((i) => (
+                            <Skeleton key={i} className="h-16 w-full" />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {hostInvitations.length === 0 ? (
+                            <div className="text-center py-8">
+                              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                              <h3 className="text-lg font-medium text-gray-900 mb-2">No Host Invitations</h3>
+                              <p className="text-gray-500 mb-4">
+                                Start by inviting hosts to manage your events.
+                              </p>
+                              <Button onClick={() => setIsHostInviteDialogOpen(true)}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Invite First Host
+                              </Button>
+                            </div>
+                          ) : (
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Email</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Invited By</TableHead>
+                                  <TableHead>Created</TableHead>
+                                  <TableHead>Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {hostInvitations.map((invitation) => (
+                                  <TableRow key={invitation.id}>
+                                    <TableCell>{invitation.email}</TableCell>
+                                    <TableCell>
+                                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                        invitation.status === 'pending' 
+                                          ? 'bg-yellow-100 text-yellow-800'
+                                          : invitation.status === 'accepted'
+                                          ? 'bg-green-100 text-green-800'
+                                          : 'bg-red-100 text-red-800'
+                                      }`}>
+                                        {invitation.status}
+                                      </span>
+                                    </TableCell>
+                                    <TableCell>{invitation.invited_by}</TableCell>
+                                    <TableCell>{formatDate(invitation.created_at)}</TableCell>
+                                    <TableCell>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleDeleteHostInvitation(invitation.id)}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </FadeIn>
+            </TabsContent>
+
+            <TabsContent value="host-activity">
+              <FadeIn delay={100}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Host Activity</CardTitle>
+                    <CardDescription>See which host is managing which event, tickets sold, attendees, and revenue.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="rounded-md border text-black overflow-x-auto">
+                      <Table className="text-black">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Host</TableHead>
+                            <TableHead>Event</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Tickets Sold</TableHead>
+                            <TableHead>Attendees</TableHead>
+                            <TableHead>Revenue</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {hostActivity.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={6} className="text-center">No host activity found.</TableCell>
+                            </TableRow>
+                          ) : (
+                            hostActivity.map((row, idx) => (
+                              <TableRow key={idx}>
+                                <TableCell>{row.hostName}</TableCell>
+                                <TableCell>{row.eventTitle}</TableCell>
+                                <TableCell>{row.eventDate}</TableCell>
+                                <TableCell>{row.ticketsSold}</TableCell>
+                                <TableCell>{row.attendees}</TableCell>
+                                <TableCell>₹{row.revenue.toLocaleString()}</TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </FadeIn>
+            </TabsContent>
+
+            <TabsContent value="overview">
+              <FadeIn delay={100}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Total Events</p>
+                          <p className="text-2xl font-bold text-black">{events?.length || 0}</p>
+                        </div>
+                        <Calendar className="h-8 w-8 text-blue-500" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Total Bookings</p>
+                          <p className="text-2xl font-bold text-black">{bookings.length}</p>
+                        </div>
+                        <Users className="h-8 w-8 text-green-500" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Revenue</p>
+                          <p className="text-2xl font-bold text-black">₹{bookings.reduce((sum, booking) => sum + booking.amount, 0).toLocaleString()}</p>
+                        </div>
+                        <DollarSign className="h-8 w-8 text-yellow-500" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Completed Events</p>
+                          <p className="text-2xl font-bold text-black">
+                            {events?.filter(event => {
+                              const eventDate = new Date(event.date);
+                              const now = new Date();
+                              return eventDate < now;
+                            }).length || 0}
+                          </p>
+                        </div>
+                        <CheckCircle className="h-8 w-8 text-purple-500" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Clock className="h-5 w-5" />
+                        Event Management
+                      </CardTitle>
+                      <CardDescription>
+                        Manage completed events and attendance tracking
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div>
+                            <h4 className="font-medium">Process Completed Events</h4>
+                            <p className="text-sm text-muted-foreground">
+                              Automatically mark tickets as attended for events that have ended
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline"
+                              size="sm"
+                              onClick={handleTestCompletedEvents}
+                            >
+                              Test
+                            </Button>
+                            <Button 
+                              onClick={handleProcessCompletedEvents}
+                              disabled={isProcessingEvents}
+                            >
+                              {isProcessingEvents ? (
+                                <>
+                                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Process Events
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5" />
+                        Quick Actions
+                      </CardTitle>
+                      <CardDescription>
+                        Common administrative tasks
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <Button 
+                          className="w-full justify-start" 
+                          onClick={() => setSelectedEvent(null)}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add New Event
+                        </Button>
+                        <Button 
+                          className="w-full justify-start" 
+                          variant="outline"
+                          onClick={() => setCurrentTab('bookings')}
+                        >
+                          <Users className="h-4 w-4 mr-2" />
+                          View All Bookings
+                        </Button>
+                        <Button 
+                          className="w-full justify-start" 
+                          variant="outline"
+                          onClick={handleGenerateSystemReport}
+                        >
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          System Reports
+                        </Button>
+                        <Button 
+                          className="w-full justify-start" 
+                          variant="outline"
+                          onClick={handleDownloadSystemReport}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download Report
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </FadeIn>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+
+      {/* Edit Event Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Event</DialogTitle>
+          </DialogHeader>
+          {selectedEvent && (
+            <EventForm
+              initialData={selectedEvent}
+              onSubmit={handleUpdateEvent}
+              isEditing
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+      {/* Invite Admin Dialog */}
+      <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite New Admin</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Label htmlFor="invite-admin-email">Admin Email</Label>
+            <Input
+              id="invite-admin-email"
+              type="email"
+              placeholder="Enter admin email"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+            />
+            <Button 
+              onClick={handleInviteAdmin} 
+              disabled={inviteLoading}
+              className="w-full"
+            >
+              {inviteLoading ? "Sending..." : "Send Invitation"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invite Host Dialog */}
+      <Dialog open={isHostInviteDialogOpen} onOpenChange={setIsHostInviteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite New Host</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Label htmlFor="invite-host-email">Host Email</Label>
+            <Input
+              id="invite-host-email"
+              type="email"
+              placeholder="Enter host email"
+              value={hostInviteEmail}
+              onChange={e => setHostInviteEmail(e.target.value)}
+            />
+            <Button
+              onClick={handleInviteHost}
+              disabled={hostInviteLoading}
+              className="w-full"
+            >
+              {hostInviteLoading ? "Sending..." : "Send Invitation"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
