@@ -53,6 +53,15 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
     }
   };
 
+  // Handle navigation with authentication check
+  const handleAuthenticatedNavigation = (path: string) => {
+    if (!isSignedIn) {
+      navigate("/auth");
+    } else {
+      navigate(path);
+    }
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const keyword = searchValue.trim().toLowerCase();
@@ -144,7 +153,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               <>
                 <Button 
                   variant="ghost" 
-                  onClick={() => navigate("/profile")}
+                  onClick={() => handleAuthenticatedNavigation("/profile")}
                   className="flex items-center gap-2 min-w-0 truncate text-mapcream"
                 >
                   <User className="h-4 w-4 text-mapcream" />
@@ -152,7 +161,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                 </Button>
                 <Button 
                   variant="ghost" 
-                  onClick={() => navigate("/profile?tab=bookings")}
+                  onClick={() => handleAuthenticatedNavigation("/profile?tab=bookings")}
                   className="flex items-center gap-2 min-w-0 truncate text-mapcream"
                 >
                   <Ticket className="h-4 w-4 text-mapcream" />
@@ -251,11 +260,11 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" className="w-full justify-start" onClick={() => navigate("/profile")}>
+                  <Button variant="ghost" className="w-full justify-start" onClick={() => handleAuthenticatedNavigation("/profile")}>
                     <User className="h-4 w-4 mr-2" />
                     Profile
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start" onClick={() => navigate("/profile?tab=bookings")}>
+                  <Button variant="ghost" className="w-full justify-start" onClick={() => handleAuthenticatedNavigation("/profile?tab=bookings")}>
                     <Ticket className="h-4 w-4 mr-2" />
                     My Bookings
                   </Button>
@@ -316,7 +325,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                 ? "text-violet bg-yellow-300/30 shadow-md" 
                 : "text-black"
             }`}
-            onClick={() => navigate("/profile?tab=bookings")}
+            onClick={() => handleAuthenticatedNavigation("/profile?tab=bookings")}
           >
             <Ticket className="h-5 w-5 text-black" />
             <span className="text-xs">Bookings</span>
@@ -331,7 +340,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                 ? "text-violet bg-yellow-300/30 shadow-md" 
                 : "text-black"
             }`}
-            onClick={() => navigate("/profile")}
+            onClick={() => handleAuthenticatedNavigation("/profile")}
           >
             <User className="h-5 w-5 text-black" />
             <span className="text-xs">Profile</span>

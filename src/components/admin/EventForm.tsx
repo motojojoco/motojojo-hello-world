@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { getEventTypes, EventType } from "@/services/eventTypeService";
 import { useQuery } from "@tanstack/react-query";
+import { getAllHosts, Host } from "@/services/hostService";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -68,6 +69,12 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
   const { data: eventTypes = [] } = useQuery({
     queryKey: ['eventTypes'],
     queryFn: getEventTypes
+  });
+
+  // Fetch all hosts for admin dropdown
+  const { data: hosts = [] } = useQuery({
+    queryKey: ['all-hosts'],
+    queryFn: getAllHosts
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -130,6 +137,32 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Host Dropdown for Admins */}
+                <FormField
+                  control={form.control}
+                  name="host"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Host</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a host" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {hosts.map((host: Host) => (
+                            <SelectItem key={host.id} value={host.id}>
+                              {host.host_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="title"
@@ -302,20 +335,6 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Duration (Optional)</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="host"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Host</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>

@@ -520,4 +520,17 @@ export const getHostPermissions = async (eventId: string): Promise<any> => {
     .single();
 
   return data?.permissions || null;
+};
+
+// Fetch all hosts (for admin use)
+export const getAllHosts = async (): Promise<Host[]> => {
+  const { data, error } = await supabase
+    .from('hosts')
+    .select('*')
+    .order('host_name', { ascending: true });
+  if (error) {
+    console.error('Error fetching all hosts:', error);
+    return [];
+  }
+  return data || [];
 }; 

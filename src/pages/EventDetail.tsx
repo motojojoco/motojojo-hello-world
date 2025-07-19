@@ -186,7 +186,8 @@ const EventDetail = () => {
                   {isCompleted && (
                     <Badge variant="outline" className="text-gray-600 border-gray-300">
                       <AlertCircle className="h-3 w-3 mr-1" />
-                      Booking Closed
+                      Booki
+                      ng Closed
                     </Badge>
                   )}
                 </div>

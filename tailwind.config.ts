@@ -94,7 +94,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Arial', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif'],
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -148,6 +148,22 @@ export default {
         'slide-down': 'slide-down 0.3s ease-out',
         'scale': 'scale 0.3s ease-out',
         'pulse-gentle': 'pulse-gentle 2s infinite',
+      },
+      // Anti-aliasing utilities
+      fontSmoothing: {
+        'antialiased': {
+          '-webkit-font-smoothing': 'antialiased',
+          '-moz-osx-font-smoothing': 'grayscale',
+        },
+        'subpixel': {
+          '-webkit-font-smoothing': 'auto',
+          '-moz-osx-font-smoothing': 'auto',
+        },
+      },
+      textRendering: {
+        'optimize-legibility': 'optimizeLegibility',
+        'optimize-speed': 'optimizeSpeed',
+        'geometric-precision': 'geometricPrecision',
       },
     },
   },
