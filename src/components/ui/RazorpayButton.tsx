@@ -90,6 +90,58 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
     };
   }, [eventId, onSuccess]);
 
+  // Check for pending booking after sign-in
+  useEffect(() => {
+    if (isSignedIn) {
+      const pendingBooking = localStorage.getItem('pendingBooking');
+      if (pendingBooking) {
+        try {
+          const booking = JSON.parse(pendingBooking);
+          // Check if this is the same event and booking is recent (within 1 hour)
+          const isRecent = Date.now() - booking.timestamp < 60 * 60 * 1000; // 1 hour
+          const isSameEvent = booking.eventId === eventId;
+          
+          if (isRecent && isSameEvent) {
+            // Clear the pending booking
+            localStorage.removeItem('pendingBooking');
+            
+            // Show a toast and open the booking form
+            toast({
+              title: "Welcome back!",
+              description: "Let's continue with your booking.",
+            });
+            
+            // Small delay to ensure the toast is visible
+            setTimeout(() => {
+              setIsFormOpen(true);
+            }, 1000);
+          } else if (isRecent && !isSameEvent) {
+            // User is on a different event page, redirect them to the correct event
+            toast({
+              title: "Redirecting to your event",
+              description: "Taking you back to continue your booking.",
+            });
+            
+            setTimeout(() => {
+              navigate(`/event/${booking.eventId}`);
+            }, 1500);
+          } else if (!isRecent) {
+            // Clear old pending booking
+            localStorage.removeItem('pendingBooking');
+            toast({
+              title: "Booking expired",
+              description: "Your pending booking has expired. Please try again.",
+              variant: "destructive"
+            });
+          }
+        } catch (error) {
+          console.error('Error parsing pending booking:', error);
+          localStorage.removeItem('pendingBooking');
+        }
+      }
+    }
+  }, [isSignedIn, eventId, toast, navigate]);
+
   // Update ticket names when ticket count changes
   useEffect(() => {
     if (formData.tickets > ticketNames.length) {
@@ -200,13 +252,15 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
       const totalAmount = amount * formData.tickets;
 
       const options = {
-        key: "rzp_live_yAyC4YmewB4VQG", // Updated to live key
+        // key: "rzp_test_AIaN0EfXmfZgMk", // Demo/Test key for testing
+        key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
         amount: totalAmount * 100,
         currency: "INR",
         name: "Motojojo",
         description: `${formData.tickets} Ticket(s) for ${eventName}`,
         image: "/motojojo-logo.png", // Updated to use new logo
         handler: async function(response: any) {
+          console.log('Razorpay payment successful:', response);
           try {
             // Save booking to Supabase
             const { data: booking, error: bookingError } = await supabase
@@ -237,6 +291,8 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               });
               return;
             }
+            
+            console.log('Booking saved successfully:', booking);
 
             // Store the booking ID for the success dialog
             setLastBookingId(booking.id);
@@ -252,6 +308,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
               // Use individual name if multiple tickets, otherwise use main name
               const ticketHolderName = formData.tickets > 1 ? ticketNames[i] : formData.name;
               
+              console.log('Creating ticket with booking_id:', booking.id);
               const { data: ticketData, error: ticketError } = await supabase
                 .from('tickets')
                 .insert({
@@ -259,19 +316,23 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                   ticket_number: ticketNumber,
                   qr_code: qrCode,
                   username: ticketHolderName,
-                })
-                .select()
-                .single();
+                  attended: false,
+                });
 
               if (ticketError) {
                 console.error("Error creating ticket:", ticketError);
+                console.error("Ticket data that failed:", {
+                  booking_id: booking.id,
+                  ticket_number: ticketNumber,
+                  qr_code: qrCode,
+                  username: ticketHolderName,
+                });
                 continue;
               }
 
-              if (ticketData) {
-                ticketNumbers.push(ticketData.ticket_number);
-                qrCodes.push(ticketData.qr_code || '');
-              }
+              // If no error, assume ticket was created successfully
+              ticketNumbers.push(ticketNumber);
+              qrCodes.push(qrCode);
             }
 
             // After creating tickets, send email and WhatsApp message
@@ -283,19 +344,54 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
 
             if (eventData) {
               // Send email with tickets
-              await supabase.functions.invoke('send-ticket', {
-                body: {
-                  email: formData.email,
-                  name: formData.name,
-                  eventTitle: eventData.title,
-                  eventDate: eventData.date,
-                  eventTime: eventData.time,
-                  eventVenue: `${eventData.venue}, ${eventData.city}`,
-                  ticketNumbers,
-                  qrCodes,
-                  ticketHolderNames: formData.tickets > 1 ? ticketNames : undefined
+              console.log('Attempting to send email to:', formData.email);
+              try {
+                const emailResponse = await supabase.functions.invoke('send-ticket', {
+                  body: {
+                    email: formData.email,
+                    name: formData.name,
+                    eventTitle: eventData.title,
+                    eventDate: eventData.date,
+                    eventTime: eventData.time,
+                    eventVenue: `${eventData.venue}, ${eventData.city}`,
+                    ticketNumbers,
+                    qrCodes,
+                    ticketHolderNames: formData.tickets > 1 ? ticketNames : undefined
+                  }
+                });
+                console.log('Email function response:', emailResponse);
+              } catch (emailError) {
+                console.error('Error sending email via Supabase function:', emailError);
+                
+                // Fallback: Try sending email via local email service
+                try {
+                  console.log('Attempting fallback email via local service...');
+                  const fallbackResponse = await fetch('http://localhost:3001/send-ticket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      email: formData.email,
+                      name: formData.name,
+                      eventTitle: eventData.title,
+                      eventDate: eventData.date,
+                      eventTime: eventData.time,
+                      eventVenue: `${eventData.venue}, ${eventData.city}`,
+                      ticketNumbers,
+                      qrCodes,
+                      ticketHolderNames: formData.tickets > 1 ? ticketNames : undefined
+                    })
+                  });
+                  
+                  if (fallbackResponse.ok) {
+                    const fallbackResult = await fallbackResponse.json();
+                    console.log('Fallback email sent successfully:', fallbackResult);
+                  } else {
+                    console.error('Fallback email failed:', await fallbackResponse.text());
+                  }
+                } catch (fallbackError) {
+                  console.error('Fallback email service also failed:', fallbackError);
                 }
-              });
+              }
 
               // Send WhatsApp message with ticket details
               try {
@@ -345,10 +441,17 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
 
   const handleButtonClick = () => {
     if (!isSignedIn) {
-      toast({
-        title: "Please sign in",
-        description: "You need to be signed in to book tickets.",
-      });
+      // Store booking details in localStorage for after sign-in
+      const bookingDetails = {
+        eventId,
+        eventName,
+        amount,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('pendingBooking', JSON.stringify(bookingDetails));
+      
+      // Redirect directly to sign-in page without showing toast
+      navigate('/auth');
       return;
     }
     setIsFormOpen(true);

@@ -41,7 +41,7 @@ const handler = async (req: Request): Promise<Response> => {
       ticketHolderNames 
     }: TicketEmailData = await req.json();
 
-    // Always use the correct sender domain
+    // Send HTML email via Resend (fallback)
     const emailResponse = await resend.emails.send({
       from: "Motojojo Events <info@motojojo.co>",
       to: [email],
@@ -148,36 +148,45 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    // Send PDF ticket via Node.js microservice
+    // Send PDF ticket via Node.js microservice (AWS SES)
     try {
-      await fetch("http://localhost:3001/send-ticket", {
+      const emailServiceUrl = Deno.env.get("EMAIL_SERVICE_URL") || "http://localhost:3001";
+      const pdfResponse = await fetch(`${emailServiceUrl}/send-ticket`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: email,
-          subject: `Your tickets for ${eventTitle}`,
-          html: `
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset=\"utf-8\">
-              <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-              <title>Your Tickets - ${eventTitle}</title>
-            </head>
-            <body style=\"margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;\">
-              <!-- ... existing HTML ... -->
-            </body>
-            </html>
-          `
+          email,
+          name,
+          eventTitle,
+          eventDate,
+          eventTime,
+          eventVenue,
+          ticketNumbers,
+          qrCodes,
+          ticketHolderNames
         })
       });
+
+      if (pdfResponse.ok) {
+        const pdfResult = await pdfResponse.json();
+        console.log("PDF ticket sent successfully via AWS SES:", pdfResult);
+      } else {
+        console.error("Failed to send PDF ticket via microservice:", await pdfResponse.text());
+      }
     } catch (err) {
-      console.error("Failed to send PDF ticket via microservice", err);
+      console.error("Error calling email service for PDF:", err);
+      // Don't fail the entire request if PDF service is down
     }
 
     console.log("Ticket email sent successfully:", emailResponse);
 
-    return new Response(JSON.stringify(emailResponse), {
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Ticket email sent successfully",
+      recipient: email,
+      event: eventTitle,
+      emailResponse
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -187,7 +196,10 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error) {
     console.error("Error sending ticket email:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        success: false,
+        error: error.message 
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
