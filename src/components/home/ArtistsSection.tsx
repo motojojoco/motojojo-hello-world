@@ -135,8 +135,8 @@ const ArtistsSection = () => {
                 onClick={() => scroll("right")}
               >
                 <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div> */}
+              </Button> */}
+            </div>
           </div>
         {/* </FadeIn> */}
         {/* Artists Carousel with yellow padding */}
