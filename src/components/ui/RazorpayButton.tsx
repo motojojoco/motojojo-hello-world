@@ -253,8 +253,7 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
 
       const options = {
         // key: "rzp_test_AIaN0EfXmfZgMk", // Demo/Test key for testing
-        key: "rzp_test_AIaN0EfXmfZgMk", // Test key for development
-        // key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
+        key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
         amount: totalAmount * 100,
         currency: "INR",
         name: "Motojojo",
