@@ -275,7 +275,8 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                 tickets: formData.tickets,
                 amount: totalAmount,
                 status: 'confirmed',
-                payment_id: response.razorpay_payment_id,
+                payment_id: response.razorpay_payment_id, // Use correct column
+                // razorpay_payment_id: response.razorpay_payment_id, // Old, does not exist
                 order_id: response.razorpay_order_id || null,
                 booking_date: new Date().toISOString(),
                 ticket_names: formData.tickets > 1 ? ticketNames : [formData.name],

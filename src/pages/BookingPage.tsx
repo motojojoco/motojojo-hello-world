@@ -118,7 +118,7 @@ const BookingPage = () => {
               status: 'confirmed',
               booking_date: new Date().toISOString(),
               ticket_names: formData.tickets > 1 ? ticketNames.slice(0, formData.tickets) : null,
-              razorpay_payment_id: response.razorpay_payment_id
+              payment_id: response.razorpay_payment_id
             })
             .select()
             .single();
