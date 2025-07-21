@@ -441,17 +441,8 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
 
   const handleButtonClick = () => {
     if (!isSignedIn) {
-      // Store booking details in localStorage for after sign-in
-      const bookingDetails = {
-        eventId,
-        eventName,
-        amount,
-        timestamp: Date.now()
-      };
-      localStorage.setItem('pendingBooking', JSON.stringify(bookingDetails));
-      
-      // Redirect directly to sign-in page without showing toast
-      navigate('/auth');
+      // Redirect to sign-in page with redirect param set to current page
+      navigate(`/auth?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     setIsFormOpen(true);

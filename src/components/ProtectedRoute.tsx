@@ -18,15 +18,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly, ho
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
+      const currentPath = window.location.pathname + window.location.search;
       toast({
         title: "Authentication Required",
         description: "Please sign in to access this page.",
         action: {
           label: "Sign In / Sign Up",
-          onClick: () => navigate("/auth")
+          onClick: () => navigate(`/auth?redirect=${encodeURIComponent(currentPath)}`)
         }
       });
-      navigate("/");
+      navigate(`/auth?redirect=${encodeURIComponent(currentPath)}`);
     } else if (isLoaded && adminOnly && !isAdmin) {
       toast({
         title: "Admin Access Required",

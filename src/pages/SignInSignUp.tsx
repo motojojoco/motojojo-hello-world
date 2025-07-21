@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
@@ -12,11 +12,16 @@ import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 const SignInSignUp = () => {
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>('signIn');
   const [form, setForm] = useState({ email: '', password: '', full_name: '' });
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  // Get redirect param from URL
+  const params = new URLSearchParams(location.search);
+  const redirect = params.get("redirect");
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +30,7 @@ const SignInSignUp = () => {
     if (authMode === 'signIn') {
       const { error } = await signIn(form.email, form.password);
       if (error) setFormError(error.message);
-      else navigate('/');
+      else navigate(redirect || '/');
     } else {
       if (!form.full_name.trim()) {
         setFormError('Full name is required');
@@ -34,7 +39,7 @@ const SignInSignUp = () => {
       }
       const { error } = await signUp(form.email, form.password, form.full_name);
       if (error) setFormError(error.message);
-      else navigate('/');
+      else navigate(redirect || '/');
     }
     setLoading(false);
   };
