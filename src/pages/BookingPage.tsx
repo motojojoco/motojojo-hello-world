@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,10 @@ const BookingPage = () => {
   const [ticketNames, setTicketNames] = useState<string[]>([""]);
   const [isBooking, setIsBooking] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [coupon, setCoupon] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [isCouponApplied, setIsCouponApplied] = useState(false);
+
   const { toast } = useToast();
   const { user, isSignedIn } = useAuth();
   const navigate = useNavigate();
@@ -34,8 +38,22 @@ const BookingPage = () => {
     enabled: !!eventId
   });
 
+  // Derived calculation for total amount
+  const originalTotal = useMemo(() => {
+    if (!event) return 0;
+    return event.ticket_price * formData.tickets;
+  }, [event, formData.tickets]);
+
+  const totalAmount = useMemo(() => {
+    return originalTotal - discount;
+  }, [originalTotal, discount]);
+
   useEffect(() => {
     setTicketNames(Array(formData.tickets).fill(""));
+    // Reset coupon if number of tickets changes
+    setDiscount(0);
+    setIsCouponApplied(false);
+    setCoupon("");
   }, [formData.tickets]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,6 +77,17 @@ const BookingPage = () => {
       newNames[index] = value;
       return newNames;
     });
+  };
+
+  const handleApplyCoupon = () => {
+    if (coupon.trim().toUpperCase() === "10%ARITSTI-M") {
+        const calculatedDiscount = originalTotal * 0.10;
+        setDiscount(calculatedDiscount);
+        setIsCouponApplied(true);
+        toast({ title: "Coupon Applied!", description: "You've received a 10% discount." });
+    } else {
+        toast({ title: "Invalid Coupon", description: "The coupon code is not valid.", variant: "destructive" });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,13 +122,13 @@ const BookingPage = () => {
     }
 
     // Calculate amount in paise
-    const amount = event.ticket_price * formData.tickets * 100;
+    const amountInPaise = totalAmount * 100;
 
     // Razorpay options
     const options = {
       key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
       // key: "rzp_test_AIaN0EfXmfZgMk", // Test key for development
-      amount: amount,
+      amount: amountInPaise,
       currency: "INR",
       name: event.title,
       description: "Event Ticket Booking",
@@ -115,11 +144,13 @@ const BookingPage = () => {
               email: formData.email,
               phone: formData.phone,
               tickets: formData.tickets,
-              amount: event.ticket_price * formData.tickets,
+              amount: totalAmount, // Save the final discounted amount
               status: 'confirmed',
               booking_date: new Date().toISOString(),
               ticket_names: formData.tickets > 1 ? ticketNames.slice(0, formData.tickets) : null,
-              payment_id: response.razorpay_payment_id
+              payment_id: response.razorpay_payment_id,
+              coupon_applied: isCouponApplied ? coupon.trim().toUpperCase() : null,
+              discount_amount: discount,
             })
             .select()
             .single();
@@ -195,9 +226,36 @@ const BookingPage = () => {
                 ))}
               </div>
             )}
+             {/* Coupon Code Section */}
+            <div>
+                <Label htmlFor="coupon" className="text-yellow-300">Coupon Code</Label>
+                <div className="flex gap-2">
+                    <Input
+                        id="coupon"
+                        name="coupon"
+                        value={coupon}
+                        onChange={(e) => setCoupon(e.target.value)}
+                        placeholder="Enter coupon code"
+                        disabled={isCouponApplied}
+                        className="bg-gray-100/60 text-black placeholder:text-gray-600 focus:bg-gray-200/80 disabled:opacity-50"
+                    />
+                    <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={isCouponApplied || !coupon.trim()}
+                        className="px-4 py-2 rounded-lg font-bold text-sm text-black bg-yellow-300 hover:bg-yellow-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Apply
+                    </button>
+                </div>
+            </div>
+
             <div className="mt-2 text-right font-semibold text-yellow-300">
-              <div>Price: <span className="text-black">₹{event.ticket_price?.toLocaleString()} x {formData.tickets}</span></div>
-              <div className="text-lg">Total: <span className="text-black">₹{(event.ticket_price * formData.tickets).toLocaleString()}</span></div>
+              <div>Price: <span className="text-black">₹{event.ticket_price?.toLocaleString()} x {formData.tickets} = ₹{originalTotal.toLocaleString()}</span></div>
+              {isCouponApplied && (
+                <div>Discount (10%): <span className="text-black">- ₹{discount.toLocaleString()}</span></div>
+              )}
+              <div className="text-lg">Total: <span className="text-black">₹{totalAmount.toLocaleString()}</span></div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 mt-4">
               <button
@@ -239,8 +297,9 @@ const BookingPage = () => {
                   bookerEmail={formData.email || 'your@email.com'}
                   bookerPhone={formData.phone || 'Your Phone'}
                   numberOfTickets={formData.tickets}
-                  totalAmount={event.ticket_price * formData.tickets}
+                  totalAmount={totalAmount} // Use the final discounted amount
                   ticketHolderNames={formData.tickets > 1 ? ticketNames.slice(0, formData.tickets) : undefined}
+                  discount={discount}
                 />
               </div>
             </div>
@@ -252,4 +311,4 @@ const BookingPage = () => {
   );
 };
 
-export default BookingPage; 
+export default BookingPage;
