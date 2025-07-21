@@ -97,7 +97,7 @@ const BookingPage = () => {
 
     // Razorpay options
     const options = {
-      key: "rzp_live_yAyC4YmewB4VQG", // Updated to live key
+      key: "rzp_test_AIaN0EfXmfZgMk", // Test key for development
       amount: amount,
       currency: "INR",
       name: event.title,
