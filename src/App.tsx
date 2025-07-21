@@ -36,6 +36,7 @@ import GhumakariKalakar from "./pages/GhumakariKalakar";
 import WhatsAppButton from "./components/shared/WhatsAppButton";
 import AdminUsers from "./pages/AdminUsers";
 import BookingPage from "./pages/BookingPage";
+import ThankYou from "./pages/ThankYou";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +92,7 @@ const App = () => (
           {/* AUTH ROUTE */}
           <Route path="/auth" element={<SignInSignUp />} />
           <Route path="/book/:eventId" element={<BookingPage />} />
+          <Route path="/thank-you" element={<ThankYou />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

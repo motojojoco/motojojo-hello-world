@@ -124,7 +124,7 @@ const BookingPage = () => {
             .single();
           if (error) throw error;
           toast({ title: "Booking Successful!", description: "Your tickets have been booked and sent to your email." });
-          navigate(`/ticket-preview/${booking.id}`);
+          navigate("/thank-you", { state: { bookingId: booking.id } });
         } catch (err: any) {
           toast({ title: "Booking Failed", description: err.message || "There was an error processing your booking.", variant: "destructive" });
         } finally {
