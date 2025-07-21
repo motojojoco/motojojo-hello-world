@@ -38,6 +38,7 @@ import { isEventOver, getEventStatus, formatEventStatus } from "@/lib/utils";
 import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 import { useCartStore } from "@/store/cart-store";
 import { getEventTypes } from "@/services/eventTypeService";
+import { useAuth } from "@/hooks/use-auth";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,6 +47,7 @@ const EventDetail = () => {
   const { addItem } = useCartStore();
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [isLocalGathering, setIsLocalGathering] = useState(false);
+  const { isSignedIn } = useAuth();
   
   // Fetch event details
   const { 
@@ -328,7 +330,13 @@ const EventDetail = () => {
                         <div className="w-full space-y-3">
                           <Button 
                             className={isLocalGathering ? 'bg-[#0CA678] hover:bg-[#0a8a6a] text-white' : ''}
-                            onClick={() => navigate(`/book/${event.id}`)}
+                            onClick={() => {
+                              if (isSignedIn) {
+                                navigate(`/book/${event.id}`);
+                              } else {
+                                navigate(`/auth?redirect=/book/${event.id}`);
+                              }
+                            }}
                             size="lg"
                           >
                             Book Now
