@@ -35,6 +35,7 @@ import PardahGathering from "./pages/PardahGathering";
 import GhumakariKalakar from "./pages/GhumakariKalakar";
 import WhatsAppButton from "./components/shared/WhatsAppButton";
 import AdminUsers from "./pages/AdminUsers";
+import BookingPage from "./pages/BookingPage";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ const App = () => (
           <Route path="/booking-ticket-demo" element={<BookingTicketDemo />} />
           {/* AUTH ROUTE */}
           <Route path="/auth" element={<SignInSignUp />} />
+          <Route path="/book/:eventId" element={<BookingPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

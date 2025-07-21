@@ -326,13 +326,13 @@ const EventDetail = () => {
                         </div>
                       ) : (
                         <div className="w-full space-y-3">
-                          <RazorpayButton 
-                            eventId={event.id} 
-                            eventName={event.title}
-                            amount={event.subtotal ?? (event.has_discount && event.discounted_price ? event.discounted_price : event.price)}
-                            onSuccess={handleBookingSuccess}
-                            className={isLocalGathering ? 'bg-[#0CA678] hover:bg-[#0a8a6a]' : ''}
-                          />
+                          <Button 
+                            className={isLocalGathering ? 'bg-[#0CA678] hover:bg-[#0a8a6a] text-white' : ''}
+                            onClick={() => navigate(`/book/${event.id}`)}
+                            size="lg"
+                          >
+                            Book Now
+                          </Button>
                         </div>
                       )}
                     </CardFooter>
