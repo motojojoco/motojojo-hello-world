@@ -98,7 +98,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             <form className="relative w-64 min-w-0" onSubmit={handleSearch}>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-mapcream h-4 w-4" />
               <Input
-                placeholder="Search events, artists, venues..."
+                placeholder="Search experiences, artists, venues..."
                 className="pl-10 bg-muted/30 border-none focus-visible:ring-violet hover:bg-muted/50 transition-colors min-w-0 truncate text-mapcream placeholder:text-mapcream"
                 value={searchValue}
                 onChange={e => setSearchValue(e.target.value)}
@@ -128,18 +128,18 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             {/* Premium Button */}
             <Button className="min-w-0 truncate text-mapcream bg-transparent hover:bg-transparent" onClick={() => navigate("/membership")}>Membership</Button>
 
-            {/* Events Navigation */}
+            {/* Experiences Navigation */}
             <Button variant="ghost" asChild className="min-w-0 truncate text-mapcream">
               <Link to="/events" className="flex items-center text-mapcream">
                 <Calendar className="h-4 w-4 mr-2 text-mapcream" />
-                <span className="truncate text-mapcream">Events</span>
+                <span className="truncate text-mapcream">Experiences</span>
               </Link>
             </Button>
 
             <Button variant="ghost" asChild className="min-w-0 truncate text-mapcream">
               <Link to="/previousevents" className="flex items-center text-mapcream">
                 <History className="h-4 w-4 mr-2 text-mapcream" />
-                <span className="truncate text-mapcream">Past Events</span>
+                <span className="truncate text-mapcream">Past Experiences</span>
               </Link>
             </Button>
 
@@ -206,7 +206,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               <form className="relative" onSubmit={handleSearch}>
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Search events, artists, venues..."
+                  placeholder="Search experiences, artists, venues..."
                   className="pl-10 bg-muted/30 border-none focus-visible:ring-violet hover:bg-muted/50 transition-colors"
                   value={searchValue}
                   onChange={e => setSearchValue(e.target.value)}
@@ -242,14 +242,14 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               <Button variant="ghost" className="w-full" asChild>
                 <Link to="/events">
                   <Calendar className="h-4 w-4 mr-2" />
-                  Events
+                  Experiences
                 </Link>
               </Button>
 
               <Button variant="ghost" className="w-full" asChild>
                 <Link to="/previousevents">
                   <History className="h-4 w-4 mr-2" />
-                  Past Events
+                  Past Experiences
                 </Link>
               </Button>
 
@@ -301,7 +301,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             <span className="text-xs">Home</span>
           </Button>
 
-          {/* Events */}
+          {/* Experiences */}
           <Button
             variant="ghost"
             size="sm"
@@ -313,7 +313,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             onClick={() => navigate("/events")}
           >
             <Calendar className="h-5 w-5 text-black" />
-            <span className="text-xs">Events</span>
+            <span className="text-xs">Experiences</span>
           </Button>
 
           {/* My Bookings */}

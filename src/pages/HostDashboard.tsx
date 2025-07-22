@@ -317,7 +317,7 @@ const HostDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-violet">Total Events</CardTitle>
+                <CardTitle className="text-sm font-medium text-violet">Total Experiences</CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -369,7 +369,7 @@ const HostDashboard = () => {
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="attendance">Mark Attendance</TabsTrigger>
-              <TabsTrigger value="events">My Events</TabsTrigger>
+              <TabsTrigger value="events">My Experiences</TabsTrigger>
               <TabsTrigger value="reports">Reports</TabsTrigger>
             </TabsList>
 
@@ -379,7 +379,7 @@ const HostDashboard = () => {
                 <CardHeader>
                   <CardTitle>Recent Attendance Summary</CardTitle>
                   <CardDescription>
-                    Overview of attendance for your recent events
+                    Overview of attendance for your recent experiences
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -429,19 +429,19 @@ const HostDashboard = () => {
                 <CardHeader>
                   <CardTitle>Mark Attendance</CardTitle>
                   <CardDescription>
-                    Mark attendees as present or absent for your events
+                    Mark attendees as present or absent for your experiences
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Event Selection */}
                   <div className="space-y-2">
-                    <Label>Select Event</Label>
+                    <Label>Select Experience</Label>
                     <Select onValueChange={(value) => {
                       const event = hostEvents.find(e => e.id === value);
                       setSelectedEvent(event || null);
                     }}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Choose an event" />
+                        <SelectValue placeholder="Choose an experience" />
                       </SelectTrigger>
                       <SelectContent>
                         {hostEvents.map((event) => (
@@ -623,14 +623,14 @@ const HostDashboard = () => {
               <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle>My Events</CardTitle>
+                    <CardTitle>My Experiences</CardTitle>
                     <CardDescription>
-                      Events you are hosting or managing
+                      Experiences you are hosting or managing
                     </CardDescription>
                   </div>
                   <Button onClick={() => setIsCreateEventOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Create Event
+                    Create Experience
                   </Button>
                 </CardHeader>
                 <CardContent>
@@ -673,7 +673,7 @@ const HostDashboard = () => {
               <Dialog open={isCreateEventOpen} onOpenChange={setIsCreateEventOpen}>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Create New Event</DialogTitle>
+                    <DialogTitle>Create New Experience</DialogTitle>
                   </DialogHeader>
                   <EventForm
                     onSubmit={async (data) => {

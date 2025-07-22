@@ -229,38 +229,38 @@ const Events = () => {
       <main className="flex-grow pt-16 pb-20 md:pb-0">
         <div className="container-padding py-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">Upcoming Events</h1>
+            <h1 className="text-4xl font-bold mb-4">Upcoming Experiences</h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Discover and book the best upcoming events happening in your city. 
-              All events are organized by date for easy browsing.
+              Discover and book the best upcoming experiences happening in your city. 
+              All experiences are organized by date for easy browsing.
             </p>
             <div className="mt-6">
               <Button variant="outline" asChild>
                 <Link to="/previousevents" className="flex items-center gap-2">
                   <History className="h-4 w-4" />
-                  View Past Events
+                  View Past Experiences
                 </Link>
               </Button>
               <Dialog open={showAllPreviousEvents} onOpenChange={setShowAllPreviousEvents}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="ml-4 flex items-center gap-2">
                     <Eye className="h-4 w-4" />
-                    View All Previous Events
+                    View All Previous Experiences
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                       <History className="h-5 w-5" />
-                      All Previous Events
+                      All Previous Experiences
                     </DialogTitle>
                   </DialogHeader>
                   <div className="py-4">
                     {allPreviousEvents.length === 0 ? (
                       <div className="text-center py-8">
-                        <h3 className="text-lg font-medium mb-2">No previous events found</h3>
+                        <h3 className="text-lg font-medium mb-2">No previous experiences found</h3>
                         <p className="text-muted-foreground">
-                          There are no completed events to display.
+                          There are no completed experiences to display.
                         </p>
                       </div>
                     ) : (
@@ -348,7 +348,7 @@ const Events = () => {
                 
                 <Select value={selectedEventType} onValueChange={setSelectedEventType}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Filter by event type" />
+                    <SelectValue placeholder="Filter by experience type" />
                   </SelectTrigger>
                   <SelectContent>
                     {eventTypes.map(type => (
@@ -364,7 +364,7 @@ const Events = () => {
             </div>
           </div>
           
-          {/* Events by Date */}
+          {/* Experiences by Date */}
           {eventsLoading ? (
             <div className="flex justify-center py-16">
               <div className="animate-pulse flex space-x-4">
@@ -377,7 +377,7 @@ const Events = () => {
             </div>
           ) : Object.entries(groupedEvents).length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">No events found for the selected filters.</p>
+              <p className="text-muted-foreground text-lg">No experiences found for the selected filters.</p>
             </div>
           ) : (
             <div className="space-y-12">

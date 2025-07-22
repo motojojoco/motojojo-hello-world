@@ -140,12 +140,12 @@ const EventsSection = () => {
 
   return (
     <>
-      {/* Upcoming Events Section */}
+      {/* Upcoming Experiences Section */}
       <section className="py-16">
         <div className="container-padding">
           <FadeIn>
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
-              <h2 className="section-title text-white text-center md:text-left mb-4 md:mb-0">Upcoming Events</h2>
+              <h2 className="section-title text-white text-center md:text-left mb-4 md:mb-0">Upcoming Experiences</h2>
               <div className="flex space-x-2 justify-center">
                 <Button 
                   size="icon" 
@@ -174,7 +174,7 @@ const EventsSection = () => {
             >
               {upcomingEvents.length === 0 ? (
                 <div className="text-muted-foreground flex items-center justify-center w-full py-12">
-                  No upcoming events. Please check back later.
+                  No upcoming experiences. Please check back later.
                 </div>
               ) : upcomingEvents.map((event, index) => (
                 <FadeIn key={event.id} delay={100 * index}>

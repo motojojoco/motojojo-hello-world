@@ -94,7 +94,7 @@ const LocalGathering = () => {
         </div>
         <div className="container-padding py-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4 text-mapcream">Local Gathering Events</h1>
+            <h1 className="text-4xl font-bold mb-4 text-mapcream">Local Gathering Experiences</h1>
             <p className="text-mapcream max-w-2xl mx-auto">
             The Local Gathering experience doesn't need you to be anyone, not a friend, not a date.. Just, yourself. Enjoy an evening of indie music, deep conversations, and no expectations.  <br />
              For us, you are just a JoJo like everyone else.

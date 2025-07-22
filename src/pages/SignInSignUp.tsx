@@ -47,7 +47,16 @@ const SignInSignUp = () => {
   const handleGoogleAuth = async () => {
     setGoogleLoading(true);
     setFormError(null);
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+    // Build the redirectTo URL for Supabase OAuth
+    let redirectTo = window.location.origin;
+    if (redirect) {
+      // Ensure redirect starts with a slash
+      redirectTo += redirect.startsWith('/') ? redirect : `/${redirect}`;
+    }
+    const { error } = await supabase.auth.signInWithOAuth({ 
+      provider: 'google',
+      options: { redirectTo }
+    });
     if (error) setFormError(error.message);
     setGoogleLoading(false);
   };
