@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,7 +10,11 @@ import { getTestimonials } from "@/services/testimonialService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 
-const TestimonialsSection = () => {
+interface TestimonialsSectionProps {
+  greenTheme?: boolean;
+}
+
+const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ greenTheme = false }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const { data: testimonials = [], isLoading } = useQuery({
@@ -63,11 +68,13 @@ const TestimonialsSection = () => {
         <div className="container-padding">
           <FadeIn>
             <div className="text-center">
-              <h2 className="section-title text-white">What Our Community Says</h2>
+              <h2 className="section-title text-white" style={greenTheme ? { color: '#0CA678', borderBottom: '3px solid #0CA678', display: 'inline-block', paddingBottom: 4 } : {}}>
+                What Our Community Says
+              </h2>
               <p className="text-muted-foreground mt-4 mb-6">
                 Be the first to share your experience with our platform!
               </p>
-              <Button asChild>
+              <Button asChild className={greenTheme ? 'bg-[#0CA678] text-white hover:bg-[#0a8a6a] border-none' : ''}>
                 <Link to="/feedback">
                   Share Your Feedback
                 </Link>
@@ -93,31 +100,42 @@ const TestimonialsSection = () => {
   };
 
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-16">
       <div className="container-padding">
         <FadeIn>
           <div className="flex justify-between items-center mb-8">
-            <h2 className="section-title text-white">What Our Community Says</h2>
+            <h2
+              className="section-title"
+              style={greenTheme
+                ? { color: '#F7E1B5', borderBottom: '3px solid #0CA678', display: 'inline-block', paddingBottom: 4 }
+                : { color: '#fff' }}
+            >
+              What Our Community Says
+            </h2>
             <div className="flex items-center gap-4">
-              <Button variant="outline" asChild>
+              <Button
+                variant={greenTheme ? 'default' : 'outline'}
+                asChild
+                className={greenTheme ? 'bg-[#0CA678] text-white hover:bg-[#0a8a6a] border-none' : ''}
+              >
                 <Link to="/feedback">
                   Share Your Feedback
                 </Link>
               </Button>
               {testimonials.length > 1 && (
                 <div className="hidden md:flex space-x-2">
-                  <Button 
-                    size="icon" 
-                    variant="outline" 
-                    className="rounded-full"
+                  <Button
+                    size="icon"
+                    variant={greenTheme ? 'default' : 'outline'}
+                    className={`rounded-full ${greenTheme ? 'bg-[#0CA678] text-white hover:bg-[#0a8a6a] border-none' : ''}`}
                     onClick={() => scroll("left")}
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    size="icon" 
-                    variant="outline" 
-                    className="rounded-full"
+                  <Button
+                    size="icon"
+                    variant={greenTheme ? 'default' : 'outline'}
+                    className={`rounded-full ${greenTheme ? 'bg-[#0CA678] text-white hover:bg-[#0a8a6a] border-none' : ''}`}
                     onClick={() => scroll("right")}
                   >
                     <ChevronRight className="h-4 w-4" />
@@ -127,14 +145,13 @@ const TestimonialsSection = () => {
             </div>
           </div>
         </FadeIn>
-        
-        <div 
+        <div
           ref={scrollContainerRef}
           className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
         >
           {testimonials.map((testimonial, index) => (
             <FadeIn key={testimonial.id} delay={100 * index}>
-              <Card className="w-[300px] md:w-[400px] hover-scale overflow-hidden border-none shadow-soft bg-white/10 backdrop-blur-sm">
+              <Card className={`w-[300px] md:w-[400px] hover-scale overflow-hidden border-none shadow-soft backdrop-blur-sm ${greenTheme ? '' : 'bg-white/10'}`} style={greenTheme ? { background: 'rgba(12,166,120,0.15)' } : {}}>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <Avatar>
@@ -146,7 +163,6 @@ const TestimonialsSection = () => {
                       <p className="text-sm text-muted-foreground">{getRoleDisplay(testimonial.role)}</p>
                     </div>
                   </div>
-                  
                   <div className="flex mb-4">
                     {Array.from({ length: testimonial.rating }).map((_, i) => (
                       <Star key={i} className="h-4 w-4 text-sandstorm fill-sandstorm" />
@@ -155,7 +171,6 @@ const TestimonialsSection = () => {
                       <Star key={i} className="h-4 w-4 text-sandstorm" />
                     ))}
                   </div>
-                  
                   <p className="text-muted-foreground">{testimonial.content}</p>
                 </CardContent>
               </Card>

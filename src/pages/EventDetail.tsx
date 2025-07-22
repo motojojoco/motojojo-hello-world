@@ -39,6 +39,7 @@ import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 import { useCartStore } from "@/store/cart-store";
 import { getEventTypes } from "@/services/eventTypeService";
 import { useAuth } from "@/hooks/use-auth";
+import TestimonialsSection from "@/components/home/TestimonialsSection";
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -349,6 +350,9 @@ const EventDetail = () => {
               </FadeIn>
             </div>
           </div>
+          
+          {/* Testimonials Section */}
+          <TestimonialsSection greenTheme />
           
           {/* Similar Events */}
           {!similarEventsLoading && similarEvents.length > 0 && (
