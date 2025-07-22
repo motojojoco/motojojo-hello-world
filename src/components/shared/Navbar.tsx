@@ -331,21 +331,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             <span className="text-xs">Bookings</span>
           </Button>
 
-          {/* Profile */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
-              location.pathname === "/profile" && !location.search.includes("tab=bookings")
-                ? "text-violet bg-yellow-300/30 shadow-md" 
-                : "text-black"
-            }`}
-            onClick={() => handleAuthenticatedNavigation("/profile")}
-          >
-            <User className="h-5 w-5 text-black" />
-            <span className="text-xs">Profile</span>
-          </Button>
-
+         
           {/* Membership (was Premium) */}
           <Button
             variant="ghost"
@@ -360,6 +346,22 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             <Heart className="h-5 w-5 text-black" />
             <span className="text-xs">Membership</span>
           </Button>
+
+           {/* Profile */}
+           <Button
+            variant="ghost"
+            size="sm"
+            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-full transition-all duration-200 relative ${
+              location.pathname === "/profile" && !location.search.includes("tab=bookings")
+                ? "text-violet bg-yellow-300/30 shadow-md" 
+                : "text-black"
+            }`}
+            onClick={() => handleAuthenticatedNavigation("/profile")}
+          >
+            <User className="h-5 w-5 text-black" />
+            <span className="text-xs">Profile</span>
+          </Button>
+
 
         </div>
       </nav>
