@@ -27,6 +27,7 @@ const BookingPage = () => {
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
   const [isCouponApplied, setIsCouponApplied] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("");
 
   const { toast } = useToast();
   const { user, isSignedIn } = useAuth();
@@ -126,8 +127,8 @@ const BookingPage = () => {
 
     // Razorpay options
     const options = {
-      key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
-      // key: "rzp_test_AIaN0EfXmfZgMk", // Test key for development
+      // key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
+      key: "rzp_test_AIaN0EfXmfZgMk", // Test key for development
       amount: amountInPaise,
       currency: "INR",
       name: event.title,
@@ -183,7 +184,7 @@ const BookingPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-raspberry">
-      <Navbar />
+      <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
       <main className="flex justify-center py-6 px-2 sm:px-0">
         <div className="w-full max-w-lg lg:max-w-xl rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 mx-auto flex flex-col justify-center mt-12" style={{ background: '#D32F55', minHeight: 'auto' }}>
           <h2 className="text-2xl font-bold mb-2 text-center text-yellow-300">Complete Your Booking</h2>
@@ -299,7 +300,6 @@ const BookingPage = () => {
                   numberOfTickets={formData.tickets}
                   totalAmount={totalAmount} // Use the final discounted amount
                   ticketHolderNames={formData.tickets > 1 ? ticketNames.slice(0, formData.tickets) : undefined}
-                  discount={discount}
                 />
               </div>
             </div>
