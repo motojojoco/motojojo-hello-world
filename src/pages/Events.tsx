@@ -451,8 +451,10 @@ const Events = () => {
           )}
         </div>
       </main>
-      
-      <Footer />
+      {/* Only show Footer on desktop */}
+      <div className="hidden md:block">
+        <Footer />
+      </div>
     </div>
   );
 };
