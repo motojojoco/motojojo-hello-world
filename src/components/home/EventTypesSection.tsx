@@ -82,6 +82,7 @@ const EventTypesSection = () => {
             const isLocalGathering = type.name?.toLowerCase() === 'local gathering';
             const isGhumakariKalaakar = type.name?.toLowerCase() === 'ghumakari kalaakar';
             const isAddebazi = type.name?.toLowerCase() === 'addebazi';
+            const isPardahGathering = type.name?.toLowerCase() === 'pardah gathering';
             return (
               <FadeIn key={type.id} delay={100 * index}>
                 {isLocalGathering ? (
@@ -152,6 +153,38 @@ const EventTypesSection = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/addebazi')}
+                    className="focus:outline-none"
+                  >
+                    <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
+                      <div className="relative h-80 overflow-hidden w-full bg-transparent">
+                        {type.image_url ? (
+                          <img
+                            src={type.image_url}
+                            alt={type.name}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div 
+                            className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
+                          >
+                            {type.icon || "🎭"}
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  </button>
+                ) : isPardahGathering ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate('/pardah-gathering')}
                     className="focus:outline-none"
                   >
                     <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">

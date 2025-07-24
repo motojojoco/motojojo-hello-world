@@ -79,47 +79,47 @@ const PardahGathering = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#9B59B6' }}>
-      {/* Purple Navbar with Pardah Gathering Logo */}
-      <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} bgColor="#9B59B6" logoSrc="/placeholder.svg" />
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#8236A0' }}>
+      {/* Themed Navbar with Pardah Gathering Logo */}
+      <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} bgColor="#8236A0" logoSrc="/gatherings/purddahgath.png" />
       <main className="flex-grow pt-24 pb-20 md:pb-0">
-        {/* Centered logo above content */}
+        {/* Centered ticket-style logo above content */}
         <div className="flex flex-col items-center justify-center z-10 mt-8 mb-8">
           <img
-            src="/placeholder.svg"
+            src="/gatherings/purddahgath.png"
             alt="Pardah Gathering Logo Center"
-            className="h-32 w-auto md:h-48 object-contain drop-shadow-xl"
-            style={{ maxWidth: '320px' }}
+            className="h-80 w-auto object-contain drop-shadow-xl border-4 border-white rounded-2xl"
+            style={{ maxWidth: '340px', background: '#8236A0' }}
           />
         </div>
         <div className="container-padding py-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4 text-white">Pardah Gathering Events</h1>
-            <p className="text-white max-w-2xl mx-auto">
+            <h1 className="text-4xl font-bold mb-4" style={{ color: '#F7D774' }}>Pardah Gathering Events</h1>
+            <p className="max-w-2xl mx-auto" style={{ color: '#F7D774' }}>
               Discover and book the best upcoming Pardah Gathering events happening in your city. All events are organized by date for easy browsing.
             </p>
           </div>
           {/* Event List */}
           {loadingTypes || loadingEvents || fetchingEvents ? (
             <div className="flex justify-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#F7D774' }}></div>
             </div>
           ) : Object.keys(groupedEvents).length === 0 ? (
-            <div className="text-center py-16 text-white text-xl font-semibold">No upcoming Pardah Gathering events yet. Check back soon!</div>
+            <div className="text-center py-16 text-xl font-semibold" style={{ color: '#F7D774' }}>No upcoming Pardah Gathering events yet. Check back soon!</div>
           ) : (
             <div className="space-y-12">
               {Object.entries(groupedEvents).map(([date, dateEvents]) => (
                 <div key={date}>
                   <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-white mb-2">
+                    <h2 className="text-2xl font-bold mb-2" style={{ color: '#F7D774' }}>
                       {formatDateHeader(date)}
                     </h2>
                   </div>
-                  {/* Event cards grid with light purple color padding */}
-                  <div className="bg-[#F3E5F5] rounded-3xl px-8 py-8">
+                  {/* Event cards grid with purple color padding */}
+                  <div className="rounded-3xl px-8 py-8" style={{ background: '#8236A0', border: '2px solid #fff' }}>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {dateEvents.map((event, index) => (
-                        <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden" style={{ backgroundColor: '#9B59B6' }}>
+                        <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden" style={{ backgroundColor: '#8236A0', border: '2px solid #fff' }}>
                           <div className="h-48 relative">
                             <img
                               src={event.image}
@@ -127,25 +127,25 @@ const PardahGathering = () => {
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          <CardContent className="p-5 text-white">
-                            <h3 className="text-lg font-bold mb-1 text-white">{event.title}</h3>
-                            <p className="text-sm mb-4 line-clamp-2 text-white">{event.subtitle}</p>
-                            <div className="flex items-center gap-2 text-sm mb-2 text-white">
-                              <MapPin className="h-4 w-4 text-white" />
-                              <span className="text-white">{event.city}, {event.venue}</span>
+                          <CardContent className="p-5" style={{ color: '#F7D774' }}>
+                            <h3 className="text-lg font-bold mb-1" style={{ color: '#F7D774' }}>{event.title}</h3>
+                            <p className="text-sm mb-4 line-clamp-2" style={{ color: '#F7D774' }}>{event.subtitle}</p>
+                            <div className="flex items-center gap-2 text-sm mb-2" style={{ color: '#F7D774' }}>
+                              <MapPin className="h-4 w-4" style={{ color: '#F7D774' }} />
+                              <span>{event.city}, {event.venue}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-white">
-                              <Calendar className="h-4 w-4 text-white" />
-                              <span className="text-white">{event.date}</span>
+                            <div className="flex items-center gap-2 text-sm" style={{ color: '#F7D774' }}>
+                              <Calendar className="h-4 w-4" style={{ color: '#F7D774' }} />
+                              <span>{event.date}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-white">
-                              <Clock className="h-4 w-4 text-white" />
-                              <span className="text-white">{event.time} {event.duration ? `• ${event.duration}` : ''}</span>
+                            <div className="flex items-center gap-2 text-sm" style={{ color: '#F7D774' }}>
+                              <Clock className="h-4 w-4" style={{ color: '#F7D774' }} />
+                              <span>{event.time} {event.duration ? `• ${event.duration}` : ''}</span>
                             </div>
                           </CardContent>
-                          <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-white">
-                            <div className="text-lg font-bold text-white">₹{event.price}</div>
-                            <Button size="sm" variant="outline" className="bg-[#F3E5F5] text-[#9B59B6] border-none hover:bg-[#e8d5f0] font-bold" onClick={() => navigate(`/event/${event.id}`)}>
+                          <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center" style={{ color: '#F7D774' }}>
+                            <div className="text-lg font-bold">₹{event.price}</div>
+                            <Button size="sm" variant="outline" className="font-bold" style={{ background: '#F7D774', color: '#8236A0', border: 'none' }} onClick={() => navigate(`/event/${event.id}`)}>
                               View Details
                             </Button>
                           </CardFooter>
@@ -159,8 +159,8 @@ const PardahGathering = () => {
           )}
         </div>
       </main>
-      {/* Purple Footer */}
-      <div style={{ backgroundColor: '#9B59B6' }}>
+      {/* Themed Footer */}
+      <div style={{ backgroundColor: '#8236A0' }}>
         <Footer />
       </div>
     </div>
