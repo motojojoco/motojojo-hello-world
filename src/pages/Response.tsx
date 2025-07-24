@@ -116,7 +116,9 @@ const Response = () => {
               ) : (
                 <ul className="space-y-2">
                   {memberResponses.map((r: any, i: number) => (
-                    <li key={r.id || i}>
+                    <li key={r.id || i} className="flex items-center gap-2">
+                      <span className="inline-block bg-yellow text-black font-bold rounded-full w-7 h-7 flex items-center justify-center mr-2">{i + 1}</span>
+                      <span className="text-xs bg-black text-yellow px-2 py-0.5 rounded mr-2">Member</span>
                       <button className="text-left text-yellow font-semibold hover:underline" onClick={() => { setSelected(r); setDialogType('member'); }}>{r.name}</button>
                     </li>
                   ))}
@@ -137,7 +139,9 @@ const Response = () => {
               ) : (
                 <ul className="space-y-2">
                   {gangResponses.map((r: any, i: number) => (
-                    <li key={r.id || i}>
+                    <li key={r.id || i} className="flex items-center gap-2">
+                      <span className="inline-block bg-yellow text-black font-bold rounded-full w-7 h-7 flex items-center justify-center mr-2">{i + 1}</span>
+                      <span className="text-xs bg-black text-yellow px-2 py-0.5 rounded mr-2">Gang</span>
                       <button className="text-left text-yellow font-semibold hover:underline" onClick={() => { setSelected(r); setDialogType('gang'); }}>{r.name}</button>
                     </li>
                   ))}

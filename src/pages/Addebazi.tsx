@@ -79,14 +79,14 @@ const Addebazi = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#8B4513' }}>
-      {/* Brown Navbar with Addebazi Logo */}
-      <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} bgColor="#8B4513" logoSrc="/placeholder.svg" />
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#2196F3' }}>
+      {/* Blue Navbar with Addebazi Logo */}
+      <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} bgColor="#2196F3" logoSrc="/gatherings/addebazilogo.png" />
       <main className="flex-grow pt-24 pb-20 md:pb-0">
-        {/* Centered logo above content */}
+        {/* Centered Addebazi Logo above content */}
         <div className="flex flex-col items-center justify-center z-10 mt-8 mb-8">
           <img
-            src="/placeholder.svg"
+            src="/gatherings/addebazilogo.png"
             alt="Addebazi Logo Center"
             className="h-32 w-auto md:h-48 object-contain drop-shadow-xl"
             style={{ maxWidth: '320px' }}
@@ -94,32 +94,32 @@ const Addebazi = () => {
         </div>
         <div className="container-padding py-8">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4 text-white">Addebazi Events</h1>
-            <p className="text-white max-w-2xl mx-auto">
+            <h1 className="text-4xl font-bold mb-4 text-[#FFD600]">Addebazi Events</h1>
+            <p className="text-[#FFD600] max-w-2xl mx-auto">
               Discover and book the best upcoming Addebazi events happening in your city. All events are organized by date for easy browsing.
             </p>
           </div>
           {/* Event List */}
           {loadingTypes || loadingEvents || fetchingEvents ? (
             <div className="flex justify-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FFD600]"></div>
             </div>
           ) : Object.keys(groupedEvents).length === 0 ? (
-            <div className="text-center py-16 text-white text-xl font-semibold">No upcoming Addebazi events yet. Check back soon!</div>
+            <div className="text-center py-16 text-[#FFD600] text-xl font-semibold">No upcoming Addebazi events yet. Check back soon!</div>
           ) : (
             <div className="space-y-12">
               {Object.entries(groupedEvents).map(([date, dateEvents]) => (
                 <div key={date}>
                   <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-white mb-2">
+                    <h2 className="text-2xl font-bold text-[#FFD600] mb-2">
                       {formatDateHeader(date)}
                     </h2>
                   </div>
-                  {/* Event cards grid with cream color padding */}
-                  <div className="bg-[#F5F5DC] rounded-3xl px-8 py-8">
+                  {/* Event cards grid with yellow color padding */}
+                  <div className="bg-[#FFD600] rounded-3xl px-8 py-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {dateEvents.map((event, index) => (
-                        <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden" style={{ backgroundColor: '#8B4513' }}>
+                        <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden" style={{ backgroundColor: '#2196F3' }}>
                           <div className="h-48 relative">
                             <img
                               src={event.image}
@@ -127,25 +127,25 @@ const Addebazi = () => {
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          <CardContent className="p-5 text-white">
-                            <h3 className="text-lg font-bold mb-1 text-white">{event.title}</h3>
-                            <p className="text-sm mb-4 line-clamp-2 text-white">{event.subtitle}</p>
-                            <div className="flex items-center gap-2 text-sm mb-2 text-white">
-                              <MapPin className="h-4 w-4 text-white" />
-                              <span className="text-white">{event.city}, {event.venue}</span>
+                          <CardContent className="p-5 text-[#FFD600]">
+                            <h3 className="text-lg font-bold mb-1 text-[#FFD600]">{event.title}</h3>
+                            <p className="text-sm mb-4 line-clamp-2 text-[#FFD600]">{event.subtitle}</p>
+                            <div className="flex items-center gap-2 text-sm mb-2 text-[#FFD600]">
+                              <MapPin className="h-4 w-4 text-[#FFD600]" />
+                              <span className="text-[#FFD600]">{event.city}, {event.venue}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-white">
-                              <Calendar className="h-4 w-4 text-white" />
-                              <span className="text-white">{event.date}</span>
+                            <div className="flex items-center gap-2 text-sm text-[#FFD600]">
+                              <Calendar className="h-4 w-4 text-[#FFD600]" />
+                              <span className="text-[#FFD600]">{event.date}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-white">
-                              <Clock className="h-4 w-4 text-white" />
-                              <span className="text-white">{event.time} {event.duration ? `• ${event.duration}` : ''}</span>
+                            <div className="flex items-center gap-2 text-sm text-[#FFD600]">
+                              <Clock className="h-4 w-4 text-[#FFD600]" />
+                              <span className="text-[#FFD600]">{event.time} {event.duration ? `• ${event.duration}` : ''}</span>
                             </div>
                           </CardContent>
-                          <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-white">
-                            <div className="text-lg font-bold text-white">₹{event.price}</div>
-                            <Button size="sm" variant="outline" className="bg-[#F5F5DC] text-[#8B4513] border-none hover:bg-[#e6e6d0] font-bold" onClick={() => navigate(`/event/${event.id}`)}>
+                          <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-[#FFD600]">
+                            <div className="text-lg font-bold text-[#FFD600]">₹{event.price}</div>
+                            <Button size="sm" variant="outline" className="bg-[#FFD600] text-[#2196F3] border-none hover:bg-[#ffe066] font-bold" onClick={() => navigate(`/event/${event.id}`)}>
                               View Details
                             </Button>
                           </CardFooter>
@@ -159,12 +159,12 @@ const Addebazi = () => {
           )}
         </div>
       </main>
-      {/* Brown Footer */}
-      <div style={{ backgroundColor: '#8B4513' }}>
+      {/* Blue Footer */}
+      <div style={{ backgroundColor: '#2196F3' }}>
         <Footer />
       </div>
     </div>
   );
 };
 
-export default Addebazi; 
+export default Addebazi;
