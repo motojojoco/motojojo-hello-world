@@ -34,6 +34,12 @@ import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 import { getEventTypes } from "@/services/eventTypeService";
 import { useAuth } from "@/hooks/use-auth";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
+// Swiper imports
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -154,11 +160,32 @@ const EventDetail = () => {
       <main className="flex-grow pt-16 pb-20 md:pb-0">
         {/* Event Banner */}
         <div className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden">
-          <img 
-            src={event.image} 
-            alt={event.title} 
-            className="w-full h-full object-cover object-center bg-black"
-          />
+          {event.images && event.images.length > 0 ? (
+            <Swiper
+              modules={[Navigation, Pagination]}
+              navigation
+              pagination={{ clickable: true }}
+              className="w-full h-full"
+              style={{ height: '100%' }}
+            >
+              {event.images.map((img, idx) => (
+                <SwiperSlide key={img}>
+                  <img
+                    src={img}
+                    alt={`${event.title} image ${idx + 1}`}
+                    className="w-full h-full object-cover object-center bg-black"
+                    style={{ height: '100%' }}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <img
+              src={event.image}
+              alt={event.title}
+              className="w-full h-full object-cover object-center bg-black"
+            />
+          )}
         </div>
         
         <div className="container-padding mt-8">

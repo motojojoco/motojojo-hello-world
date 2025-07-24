@@ -15,6 +15,7 @@ export interface CreateEventInput {
   address?: string;
   price: number;
   image: string;
+  images?: string[]; // <-- new field for multiple images
   category: string;
   event_type?: string;
   host?: string;
@@ -26,10 +27,16 @@ export interface CreateEventInput {
 
 export const createEvent = async (eventData: CreateEventInput) => {
   try {
-    // First create the event
+    // If images array is provided, set image to the first image and include images array
+    let dataToInsert: any = { ...eventData };
+    if (eventData.images && eventData.images.length > 0) {
+      dataToInsert.image = eventData.images[0];
+      dataToInsert.images = eventData.images;
+    }
+    // Insert event
     const { data, error } = await supabase
       .from('events')
-      .insert(eventData)
+      .insert(dataToInsert)
       .select('*')
       .single();
 
@@ -47,9 +54,15 @@ export const createEvent = async (eventData: CreateEventInput) => {
 
 export const updateEvent = async (id: string, eventData: Partial<CreateEventInput>) => {
   try {
+    // If images array is provided, set image to the first image and include images array
+    let dataToUpdate: any = { ...eventData };
+    if (eventData.images && eventData.images.length > 0) {
+      dataToUpdate.image = eventData.images[0];
+      dataToUpdate.images = eventData.images;
+    }
     const { data, error } = await supabase
       .from('events')
-      .update(eventData)
+      .update(dataToUpdate)
       .eq('id', id)
       .select('*')
       .single();

@@ -1800,12 +1800,52 @@ const AdminDashboard = () => {
               <FadeIn delay={100}>
                 <Card>
                   <CardHeader>
-                    <CardTitle>User Bookings</CardTitle>
-                    <CardDescription>
+                    <CardTitle className="text-black">User Bookings</CardTitle>
+                    <CardDescription className="text-black">
                       View and manage all user bookings
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
+                    {/* Event Booking Count Summary */}
+                    {bookings.length > 0 && (
+                      <div className="mb-8">
+                        <h3 className="text-lg font-semibold mb-2 text-black">Seats Booked Per Event</h3>
+                        <div className="overflow-x-auto">
+                          <Table className="text-black min-w-[400px]">
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="text-black">Event</TableHead>
+                                <TableHead className="text-black">Total Seats Booked</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {(() => {
+                                // Aggregate total tickets per event
+                                const eventTicketMap = new Map();
+                                bookings.forEach(booking => {
+                                  const eventId = booking.event_id;
+                                  const eventTitle = booking.event?.title || 'Event not found';
+                                  if (!eventTicketMap.has(eventId)) {
+                                    eventTicketMap.set(eventId, { title: eventTitle, count: 0 });
+                                  }
+                                  eventTicketMap.get(eventId).count += booking.tickets;
+                                });
+                                // Convert to array and sort by event title
+                                return Array.from(eventTicketMap.values())
+                                  .sort((a, b) => a.title.localeCompare(b.title))
+                                  .map(({ title, count }) => (
+                                    <TableRow key={title}>
+                                      <TableCell className="font-medium text-black">{title}</TableCell>
+                                      <TableCell className="text-black">{count}</TableCell>
+                                    </TableRow>
+                                  ));
+                              })()}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
+                    )}
+
                     {bookingsLoading ? (
                       <div className="space-y-4">
                         {[...Array(5)].map((_, i) => (

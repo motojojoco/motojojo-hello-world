@@ -15,6 +15,7 @@ export interface Event {
   address: string;
   price: number;
   image: string;
+  images?: string[]; // <-- add this for multi-image support
   gallery: string[];
   featured: boolean;
   created_by: string;
@@ -55,6 +56,7 @@ export const getAllEvents = async (): Promise<Event[]> => {
     address: '', // Default value
     price: event.price,
     image: event.image,
+    images: event.images || [], // <-- add this line
     gallery: [], // Default value
     featured: false, // Default value
     created_by: '', // Default value
@@ -112,6 +114,7 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
     address: '', // Default value for missing field
     price: event.price,
     image: event.image,
+    images: event.images || [], // <-- add this line
     gallery: [], // Default value for missing field
     featured: false, // Default value for missing field
     created_by: '', // Default value for missing field
@@ -148,6 +151,20 @@ export const getEventCities = async (): Promise<string[]> => {
   // Extract unique cities
   const cities = new Set(data.map(item => item.city));
   return Array.from(cities);
+};
+
+// Get unique event dates for filtering
+export const getEventDates = async (): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from('events')
+    .select('date');
+  if (error) {
+    console.error("Error fetching event dates:", error);
+    return [];
+  }
+  // Extract unique dates
+  const dates = new Set(data.map(item => item.date));
+  return Array.from(dates).sort();
 };
 
 // Get events by city
@@ -224,6 +241,7 @@ export const getEventsByCategory = async (categoryId: string): Promise<Event[]> 
     address: '', // Default value
     price: event.price,
     image: event.image,
+    images: event.images || [], // <-- add this line
     gallery: [], // Default value
     featured: false, // Default value
     created_by: '', // Default value
@@ -272,6 +290,7 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     address: '', // Default value
     price: data.price,
     image: data.image,
+    images: data.images || [], // <-- add this line
     gallery: [], // Default value
     featured: false, // Default value
     created_by: '', // Default value

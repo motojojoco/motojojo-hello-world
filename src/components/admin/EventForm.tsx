@@ -38,7 +38,7 @@ const formSchema = z.object({
   city: z.string().min(1, "City is required"),
   address: z.string().optional(),
   price: z.number().min(0, "Price must be non-negative"),
-  image: z.string().min(1, "Image URL is required"),
+  images: z.array(z.string()).min(1, "At least one image is required"),
   category: z.string().min(1, "Category is required"),
   event_type: z.string().optional(),
   host: z.string().optional(),
@@ -64,12 +64,14 @@ interface EventFormProps {
 export default function EventForm({ initialData, onSubmit, isEditing = false }: EventFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
 
   const { data: eventTypes = [] } = useQuery({
     queryKey: ['eventTypes'],
     queryFn: getEventTypes
   });
 
+  // 2. Update default values for images
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -84,7 +86,7 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
       city: initialData?.city || "",
       address: initialData?.address || "",
       price: initialData?.price || 0,
-      image: initialData?.image || "",
+      images: initialData?.images || [],
       category: initialData?.category || "",
       event_type: initialData?.event_type || "",
       host: initialData?.host || "",
@@ -188,51 +190,79 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
 
                 <FormField
                   control={form.control}
-                  name="image"
+                  name="images"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Event Image</FormLabel>
+                      <FormLabel>Event Images</FormLabel>
                       <FormControl>
                         <>
                           <Input
                             type="file"
                             accept="image/*"
+                            multiple
                             onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              // Upload to Supabase Storage
-                              const fileExt = file.name.split('.').pop();
-                              const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-                              const { data, error } = await supabase.storage
-                                .from('event-images')
-                                .upload(fileName, file, {
-                                  cacheControl: '3600',
-                                  upsert: false
-                                });
-                              if (error) {
-                                toast({
-                                  title: 'Image Upload Failed',
-                                  description: error.message,
-                                  variant: 'destructive',
-                                });
-                                return;
-                              }
-                              // Get public URL
-                              const { data: publicUrlData } = supabase.storage
-                                .from('event-images')
-                                .getPublicUrl(data.path);
-                              if (publicUrlData?.publicUrl) {
-                                field.onChange(publicUrlData.publicUrl);
-                                toast({
-                                  title: 'Image Uploaded',
-                                  description: 'Image uploaded successfully!',
-                                });
+                              const files = Array.from(e.target.files || []);
+                              if (!files.length) return;
+                              setUploading(true);
+                              try {
+                                const uploadedUrls: string[] = [];
+                                for (const file of files) {
+                                  const fileExt = file.name.split('.').pop();
+                                  const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+                                  const { data, error } = await supabase.storage
+                                    .from('event-images')
+                                    .upload(fileName, file, {
+                                      cacheControl: '3600',
+                                      upsert: false
+                                    });
+                                  if (error) {
+                                    toast({
+                                      title: 'Image Upload Failed',
+                                      description: error.message,
+                                      variant: 'destructive',
+                                    });
+                                    continue;
+                                  }
+                                  const { data: publicUrlData } = supabase.storage
+                                    .from('event-images')
+                                    .getPublicUrl(data.path);
+                                  if (publicUrlData?.publicUrl) {
+                                    uploadedUrls.push(publicUrlData.publicUrl);
+                                  }
+                                }
+                                // Merge with existing images
+                                field.onChange([...(field.value || []), ...uploadedUrls]);
+                                if (uploadedUrls.length) {
+                                  toast({
+                                    title: 'Images Uploaded',
+                                    description: `${uploadedUrls.length} image(s) uploaded successfully!`,
+                                  });
+                                }
+                              } finally {
+                                setUploading(false);
                               }
                             }}
                           />
-                          {field.value && (
-                            <img src={field.value} alt="Event" className="mt-2 max-h-32 rounded" />
-                          )}
+                          {/* Show previews and allow removal */}
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {(field.value || []).map((url: string, idx: number) => (
+                              <div key={url} className="relative group">
+                                <img src={url} alt={`Event ${idx + 1}`} className="max-h-24 rounded border" />
+                                <button
+                                  type="button"
+                                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs opacity-80 group-hover:opacity-100"
+                                  onClick={() => {
+                                    const newImages = field.value.filter((_: string, i: number) => i !== idx);
+                                    field.onChange(newImages);
+                                  }}
+                                  aria-label="Remove image"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          {uploading && <div className="text-xs text-blue-600 mt-1">Uploading...</div>}
                         </>
                       </FormControl>
                       <FormMessage />

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getEventTypes } from "@/services/eventTypeService";
-import { getEvents } from "@/services/eventService";
+import { getEvents, getEventCities, getEventDates } from "@/services/eventService";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 function isEventOver(date: string, time: string) {
   const eventDate = new Date(`${date}T${time}`);
@@ -18,6 +19,7 @@ const LocalGathering = () => {
   const navigate = useNavigate();
   const [eventTypeId, setEventTypeId] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   // Fetch event types to get the ID for 'Local Gathering'
   const { data: eventTypes = [], isLoading: loadingTypes } = useQuery({
@@ -34,14 +36,30 @@ const LocalGathering = () => {
     }
   }, [eventTypes]);
 
+  // Fetch city and date options
+  const { data: cities = [] } = useQuery({
+    queryKey: ["event-cities"],
+    queryFn: getEventCities,
+  });
+  const { data: dates = [] } = useQuery({
+    queryKey: ["event-dates"],
+    queryFn: getEventDates,
+  });
+
   // Fetch events for this event type
   const {
     data: events = [],
     isLoading: loadingEvents,
     isFetching: fetchingEvents,
   } = useQuery({
-    queryKey: ["local-gathering-events", eventTypeId],
-    queryFn: () => (eventTypeId ? getEvents({ eventType: eventTypeId, city: selectedCity }) : []),
+    queryKey: ["local-gathering-events", eventTypeId, selectedCity, selectedDate],
+    queryFn: () => {
+      if (!eventTypeId) return [];
+      const filters: any = { eventType: eventTypeId };
+      if (selectedCity) filters.city = selectedCity;
+      if (selectedDate) filters.date = selectedDate;
+      return getEvents(filters);
+    },
     enabled: !!eventTypeId,
   });
 
@@ -100,8 +118,36 @@ const LocalGathering = () => {
              For us, you are just a JoJo like everyone else.
             </p>
           </div>
-          {/* Filters Section (city selector) */}
-          {/* You can add more filters if needed */}
+          {/* Filters Section */}
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-8">
+            <div className="w-full md:w-64">
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger className="bg-[#F7E1B5] text-[#0CA678] rounded-2xl font-medium border-none focus:ring-2 focus:ring-[#0CA678]">
+                  <SelectValue placeholder="Filter by city" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#F7E1B5] text-[#0CA678]">
+                  {cities.map(city => (
+                    <SelectItem key={city} value={city} className="text-[#0CA678]">{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-full md:w-64">
+              <Select value={selectedDate} onValueChange={setSelectedDate}>
+                <SelectTrigger className="bg-[#F7E1B5] text-[#0CA678] rounded-2xl font-medium border-none focus:ring-2 focus:ring-[#0CA678]">
+                  <SelectValue placeholder="Filter by date" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#F7E1B5] text-[#0CA678]">
+                  {dates.map(date => (
+                    <SelectItem key={date} value={date} className="text-[#0CA678]">{date}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {(selectedCity || selectedDate) && (
+              <Button variant="ghost" onClick={() => { setSelectedCity(""); setSelectedDate(""); }}>Clear Filters</Button>
+            )}
+          </div>
           {/* Event List */}
           {loadingTypes || loadingEvents || fetchingEvents ? (
             <div className="flex justify-center py-16">
