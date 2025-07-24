@@ -16,6 +16,11 @@ const EventTypesSection = () => {
     queryFn: getEventTypes
   });
 
+  // Debug: log all event type names and IDs
+  if (eventTypes && eventTypes.length > 0) {
+    console.log('Event Types:', eventTypes.map(et => ({ id: et.id, name: et.name })));
+  }
+
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const { current } = scrollContainerRef;
@@ -79,10 +84,11 @@ const EventTypesSection = () => {
           className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth justify-start max-w-7xl mx-auto"
         >
           {eventTypes.map((type, index) => {
-            const isLocalGathering = type.name?.toLowerCase() === 'local gathering';
-            const isGhumakariKalaakar = type.name?.toLowerCase() === 'ghumakari kalaakar';
-            const isAddebazi = type.name?.toLowerCase() === 'addebazi';
-            const isPardahGathering = type.name?.toLowerCase() === 'pardah gathering';
+            const name = (type.name || '').trim().toLowerCase();
+            const isLocalGathering = name === 'local gathering';
+            const isGhumakariKalaakar = name === 'ghumakari kalakar';
+            const isAddebazi = name === 'addebazi';
+            const isPardahGathering = name === 'pardah gathering';
             return (
               <FadeIn key={type.id} delay={100 * index}>
                 {isLocalGathering ? (
