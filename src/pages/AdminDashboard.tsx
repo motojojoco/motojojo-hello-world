@@ -1153,6 +1153,14 @@ const AdminDashboard = () => {
                                   >
                                     Edit
                                   </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    className="ml-2"
+                                    onClick={() => handleDeleteEvent(event.id)}
+                                  >
+                                    Delete
+                                  </Button>
                                 </TableCell>
                               </TableRow>
                             ))}
