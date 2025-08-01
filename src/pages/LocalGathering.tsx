@@ -64,11 +64,6 @@ const LocalGathering = () => {
   });
 
   // Only show upcoming/ongoing events
-  const filteredEvents = events.filter(
-    (event) => !isEventOver(event.date, event.time)
-  );
-
-  // Group events by date (like Events page)
   const groupEventsByDate = (events: any[]) => {
     const grouped: { [key: string]: any[] } = {};
     events.forEach(event => {
@@ -81,7 +76,7 @@ const LocalGathering = () => {
       return acc;
     }, {} as { [key: string]: any[] });
   };
-  const groupedEvents = groupEventsByDate(filteredEvents);
+  const groupedEvents = groupEventsByDate(events);
 
   // Format date for display
   const formatDateHeader = (dateString: string) => {
