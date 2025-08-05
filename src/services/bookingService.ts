@@ -1,4 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
+import { SendEmailCommand, SESv2Client } from "@aws-sdk/client-sesv2";
+
+const sesClient = new SESv2Client({ 
+  region: "ap-south-1", 
+  // Use environment variables for credentials instead of hardcoding
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ""
+  } 
+});
 
 export interface Booking {
   id: string;
@@ -217,6 +227,58 @@ export const createBookingFromCart = async (
         // Don't throw error here as booking was successful
       }
     }
+
+    // send email using AWS SES directly
+    try {
+      const sesParams = {
+        FromEmailAddress: 'Mojo Event <info@motojojo.co>',
+        Destination: {
+          ToAddresses: [booking.email]
+        },
+        Content: {
+          Simple: {
+            Subject: {
+              Data: `Your Booking Confirmation for ${eventData?.title || 'Mojo Event'}`,
+              Charset: 'UTF-8'
+            },
+            Body: {
+              Html: {
+                Data: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2>Thank you for your booking!</h2>
+                  <p>Hello ${name},</p>
+                  <p>Your booking for <strong>${eventData?.title || 'Mojo Event'}</strong> has been confirmed.</p>
+                  <p><strong>Booking Details:</strong></p>
+                  <ul>
+                    <li>Event: ${eventData?.title || 'Mojo Event'}</li>
+                    <li>Date: ${eventData?.date || 'TBA'}</li>
+                    <li>Time: ${eventData?.time || 'TBA'}</li>
+                    <li>Venue: ${eventData?.venue || ''}, ${eventData?.city || ''}</li>
+                    <li>Number of Tickets: ${tickets}</li>
+                  </ul>
+                  <p>Your tickets have been generated and are attached to this email. You can also view them in your account.</p>
+                  <p>We look forward to seeing you at the event!</p>
+                  <p>Best regards,<br>The Mojo Event Team</p>
+                </div>
+                `,
+                Charset: 'UTF-8'
+              },
+              Text: {
+                Data: `Thank you for your booking!\n\nHello ${name},\n\nYour booking for ${eventData?.title || 'Mojo Event'} has been confirmed.\n\nBooking Details:\n- Event: ${eventData?.title || 'Mojo Event'}\n- Date: ${eventData?.date || 'TBA'}\n- Time: ${eventData?.time || 'TBA'}\n- Venue: ${eventData?.venue || ''}, ${eventData?.city || ''}\n- Number of Tickets: ${tickets}\n\nYour tickets have been generated and are attached to this email. You can also view them in your account.\n\nWe look forward to seeing you at the event!\n\nBest regards,\nThe Mojo Event Team`,
+                Charset: 'UTF-8'
+              }
+            }
+          }
+        }
+      };
+      
+      await sesClient.send(new SendEmailCommand(sesParams));
+      console.log('Email sent successfully for booking:', booking.id);
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+      // Don't throw error here as booking was successful
+    }
+
     
     return booking;
   } catch (err) {
@@ -373,13 +435,28 @@ export const getEventAttendanceStats = async (eventId: string): Promise<{
   attendanceRate: number;
 }> => {
   try {
-    // Get all tickets for this event
+    // First get all bookings for this event
+    const { data: bookings, error: bookingsError } = await supabase
+      .from('bookings')
+      .select('id')
+      .eq('event_id', eventId);
+      
+    if (bookingsError) {
+      console.error("Error fetching bookings for attendance stats:", bookingsError);
+      return { totalTickets: 0, attendedTickets: 0, attendanceRate: 0 };
+    }
+    
+    // Then get tickets for these bookings
+    const bookingIds = bookings?.map(booking => booking.id) || [];
+    
+    if (bookingIds.length === 0) {
+      return { totalTickets: 0, attendedTickets: 0, attendanceRate: 0 };
+    }
+    
     const { data: tickets, error } = await supabase
       .from('tickets')
       .select('attended')
-      .eq('booking_id', (qb) => 
-        qb.select('id').from('bookings').eq('event_id', eventId)
-      );
+      .in('booking_id', bookingIds);
     
     if (error) {
       console.error("Error fetching attendance stats:", error);
@@ -493,13 +570,29 @@ const processCompletedEventsDirect = async (): Promise<{
         const success = await markTicketsAsAttended(event.id);
         
         if (success) {
+          // First get all bookings for this event
+          const { data: bookings, error: bookingsError } = await supabase
+            .from('bookings')
+            .select('id')
+            .eq('event_id', event.id);
+            
+          if (bookingsError) {
+            console.error("Error fetching bookings for attendance update:", bookingsError);
+            continue;
+          }
+          
+          // Then get tickets for these bookings
+          const bookingIds = bookings?.map(booking => booking.id) || [];
+          
+          if (bookingIds.length === 0) {
+            continue;
+          }
+          
           // Get the count of tickets that were updated
           const { data: updatedTickets } = await supabase
             .from('tickets')
             .select('id')
-            .eq('booking_id', (qb) => 
-              qb.select('id').from('bookings').eq('event_id', event.id)
-            )
+            .in('booking_id', bookingIds)
             .eq('attended', true)
             .gte('attended_at', new Date(Date.now() - 60000).toISOString()); // Tickets marked in the last minute
           
