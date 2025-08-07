@@ -102,7 +102,7 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [isProcessingEvents, setIsProcessingEvents] = useState(false);
   const [currentTab, setCurrentTab] = useState('events');
-  const itemsPerPage = 5;
+  const itemsPerPage = 50;
   const { inviteUser } = useAuth();
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -1085,25 +1085,145 @@ const AdminDashboard = () => {
           </FadeIn>
 
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-            <TabsList className="grid grid-cols-9 mb-8">
+            <TabsList className="grid grid-cols-10 mb-8">
               <TabsTrigger value="events">Manage Events</TabsTrigger>
               <TabsTrigger value="event-types">Event Types</TabsTrigger>
-              <TabsTrigger value="categories">Manage Categories</TabsTrigger>
-              <TabsTrigger value="experiences">Manage Experiences</TabsTrigger>
+             
               <TabsTrigger value="banners">Manage Banners</TabsTrigger>
               <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
               <TabsTrigger value="bookings">View Bookings</TabsTrigger>
+              <TabsTrigger value="revenue">Revenue</TabsTrigger>
               <TabsTrigger value="hosts">Host Management</TabsTrigger>
               <TabsTrigger value="host-activity">Host Activity</TabsTrigger>
-            </TabsList>
+           </TabsList>
 
-            <TabsContent value="events">
+          <TabsContent value="revenue">
+            <FadeIn delay={100}>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-black">Revenue Breakdown</CardTitle>
+                  <CardDescription className="text-black">
+                    View revenue for current/ongoing events, previous/completed events, and overall totals
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {(() => {
+                    const now = new Date('2025-08-07T13:09:11+05:30');
+                    // Group bookings by event and sum revenue
+                    const groupByEventRevenue = (bookingsList) => {
+                      const eventRevenueMap = new Map();
+                      bookingsList.forEach(booking => {
+                        const eventId = booking.event_id;
+                        const eventTitle = booking.event?.title || 'Event not found';
+                        if (!eventRevenueMap.has(eventId)) {
+                          eventRevenueMap.set(eventId, { title: eventTitle, revenue: 0 });
+                        }
+                        eventRevenueMap.get(eventId).revenue += booking.amount;
+                      });
+                      return Array.from(eventRevenueMap.values())
+                        .sort((a, b) => a.title.localeCompare(b.title));
+                    };
+                    // Split bookings by event status
+                    const currentEventBookings = bookings.filter(
+                      b => b.event?.date && new Date(b.event.date) >= now
+                    );
+                    const previousEventBookings = bookings.filter(
+                      b => b.event?.date && new Date(b.event.date) < now
+                    );
+                    const groupedCurrent = groupByEventRevenue(currentEventBookings);
+                    const groupedPrevious = groupByEventRevenue(previousEventBookings);
+                    const totalCurrentRevenue = groupedCurrent.reduce((sum, e) => sum + e.revenue, 0);
+                    const totalPreviousRevenue = groupedPrevious.reduce((sum, e) => sum + e.revenue, 0);
+                    const totalRevenue = totalCurrentRevenue + totalPreviousRevenue;
+                    return (
+                      <div className="space-y-10">
+                        {/* Current/Ongoing Events Revenue */}
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2 text-black">Current/Ongoing Events Revenue</h3>
+                          <div className="overflow-x-auto">
+                            <Table className="text-black min-w-[320px]">
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="text-black">Event</TableHead>
+                                  <TableHead className="text-black">Revenue (₹)</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {groupedCurrent.length === 0 ? (
+                                  <TableRow>
+                                    <TableCell colSpan={2} className="text-center text-muted-foreground py-4">
+                                      No revenue for current/ongoing events.
+                                    </TableCell>
+                                  </TableRow>
+                                ) : groupedCurrent.map(({ title, revenue }) => (
+                                  <TableRow key={title}>
+                                    <TableCell className="font-medium text-black">{title}</TableCell>
+                                    <TableCell className="text-black">₹{revenue.toLocaleString()}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </div>
+                        {/* Previous/Completed Events Revenue */}
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2 text-black">Previous/Completed Events Revenue</h3>
+                          <div className="overflow-x-auto">
+                            <Table className="text-black min-w-[320px]">
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="text-black">Event</TableHead>
+                                  <TableHead className="text-black">Revenue (₹)</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {groupedPrevious.length === 0 ? (
+                                  <TableRow>
+                                    <TableCell colSpan={2} className="text-center text-muted-foreground py-4">
+                                      No revenue for previous/completed events.
+                                    </TableCell>
+                                  </TableRow>
+                                ) : groupedPrevious.map(({ title, revenue }) => (
+                                  <TableRow key={title}>
+                                    <TableCell className="font-medium text-black">{title}</TableCell>
+                                    <TableCell className="text-black">₹{revenue.toLocaleString()}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </div>
+                        {/* Overall Totals */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="rounded-lg bg-yellow-50 p-6 flex flex-col items-center">
+                            <span className="text-lg font-semibold text-black mb-1">Current Events Total Revenue</span>
+                            <span className="text-2xl font-bold text-yellow-700">₹{totalCurrentRevenue.toLocaleString()}</span>
+                          </div>
+                          <div className="rounded-lg bg-purple-50 p-6 flex flex-col items-center">
+                            <span className="text-lg font-semibold text-black mb-1">Previous Events Total Revenue</span>
+                            <span className="text-2xl font-bold text-purple-700">₹{totalPreviousRevenue.toLocaleString()}</span>
+                          </div>
+                          <div className="rounded-lg bg-green-50 p-6 flex flex-col items-center">
+                            <span className="text-lg font-semibold text-black mb-1">Overall Total Revenue</span>
+                            <span className="text-2xl font-bold text-green-700">₹{totalRevenue.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
+            </FadeIn>
+          </TabsContent>
+
+          <TabsContent value="events">
               <div className="grid grid-cols-1 gap-8">
                 <FadeIn delay={100}>
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
-                        <span>All Events</span>
+                        <span className="text-black">All Events</span>
+                        <span className="ml-4 text-sm text-black">Total: {events.length}</span>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button>
@@ -1124,7 +1244,7 @@ const AdminDashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="text-black">
-                      <div className="rounded-md border text-black">
+                      <div className="rounded-md border">
                         <Table className="text-black">
                           <TableHeader className="text-black">
                             <TableRow className="text-black">
@@ -1204,7 +1324,7 @@ const AdminDashboard = () => {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
-                        <span>All Event Types</span>
+                        <span className="text-black">All Event Types</span>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button>
@@ -1225,7 +1345,7 @@ const AdminDashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="text-black">
-                      <div className="rounded-md border text-black">
+                      <div className="rounded-md border">
                         <Table className="text-black">
                           <TableHeader className="text-black">
                             <TableRow className="text-black">
@@ -1325,7 +1445,7 @@ const AdminDashboard = () => {
                     <Card>
                       <CardHeader>
                         <CardTitle className="flex justify-between items-center">
-                          <span>All Experiences</span>
+                          <span className="text-black">All Experiences</span>
                           <Button size="sm">
                             <Plus className="mr-1 h-4 w-4" />
                             Add New
@@ -1336,7 +1456,7 @@ const AdminDashboard = () => {
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="rounded-md border text-black">
+                        <div className="rounded-md border">
                           <Table className="text-black">
                             <TableHeader className="text-black">
                               <TableRow className="text-black">
@@ -1419,7 +1539,7 @@ const AdminDashboard = () => {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
-                        <span>All Banners</span>
+                        <span className="text-black">All Banners</span>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button>
@@ -1440,7 +1560,7 @@ const AdminDashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="text-black">
-                      <div className="rounded-md border text-black">
+                      <div className="rounded-md border">
                         <Table className="text-black">
                           <TableHeader className="text-black">
                             <TableRow className="text-black">
@@ -1535,13 +1655,13 @@ const AdminDashboard = () => {
                 <FadeIn delay={50}>
                   <Card>
                     <CardHeader>
-                      <CardTitle>Pending Testimonials</CardTitle>
+                      <CardTitle className="text-black">Pending Testimonials</CardTitle>
                       <CardDescription>
                         Review and approve or reject new testimonials submitted by users.
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="rounded-md border text-black">
+                      <div className="rounded-md border">
                         <Table className="text-black">
                           <TableHeader className="text-black">
                             <TableRow className="text-black">
@@ -1607,7 +1727,7 @@ const AdminDashboard = () => {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
-                        <span>All Testimonials</span>
+                        <span className="text-black">All Testimonials</span>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button>
@@ -1630,7 +1750,7 @@ const AdminDashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="rounded-md border text-black">
+                      <div className="rounded-md border">
                         <Table className="text-black">
                           <TableHeader className="text-black">
                             <TableRow className="text-black">
@@ -1810,7 +1930,7 @@ const AdminDashboard = () => {
                   <CardHeader>
                     <CardTitle className="text-black">User Bookings</CardTitle>
                     <CardDescription className="text-black">
-                      View and manage all user bookings
+                      View and manage all user bookings, separated by event status
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -1818,39 +1938,90 @@ const AdminDashboard = () => {
                     {bookings.length > 0 && (
                       <div className="mb-8">
                         <h3 className="text-lg font-semibold mb-2 text-black">Seats Booked Per Event</h3>
-                        <div className="overflow-x-auto">
-                          <Table className="text-black min-w-[400px]">
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead className="text-black">Event</TableHead>
-                                <TableHead className="text-black">Total Seats Booked</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {(() => {
-                                // Aggregate total tickets per event
-                                const eventTicketMap = new Map();
-                                bookings.forEach(booking => {
-                                  const eventId = booking.event_id;
-                                  const eventTitle = booking.event?.title || 'Event not found';
-                                  if (!eventTicketMap.has(eventId)) {
-                                    eventTicketMap.set(eventId, { title: eventTitle, count: 0 });
-                                  }
-                                  eventTicketMap.get(eventId).count += booking.tickets;
-                                });
-                                // Convert to array and sort by event title
-                                return Array.from(eventTicketMap.values())
-                                  .sort((a, b) => a.title.localeCompare(b.title))
-                                  .map(({ title, count }) => (
-                                    <TableRow key={title}>
-                                      <TableCell className="font-medium text-black">{title}</TableCell>
-                                      <TableCell className="text-black">{count}</TableCell>
-                                    </TableRow>
-                                  ));
-                              })()}
-                            </TableBody>
-                          </Table>
-                        </div>
+                        {(() => {
+                          const now = new Date('2025-08-07T13:05:04+05:30');
+                          // Helper to group bookings by event and sum tickets
+                          const groupByEvent = (bookingsList) => {
+                            const eventTicketMap = new Map();
+                            bookingsList.forEach(booking => {
+                              const eventId = booking.event_id;
+                              const eventTitle = booking.event?.title || 'Event not found';
+                              if (!eventTicketMap.has(eventId)) {
+                                eventTicketMap.set(eventId, { title: eventTitle, count: 0 });
+                              }
+                              eventTicketMap.get(eventId).count += booking.tickets;
+                            });
+                            return Array.from(eventTicketMap.values())
+                              .sort((a, b) => a.title.localeCompare(b.title));
+                          };
+                          // Split bookings by event status
+                          const currentEventBookings = bookings.filter(
+                            b => b.event?.date && new Date(b.event.date) >= now
+                          );
+                          const previousEventBookings = bookings.filter(
+                            b => b.event?.date && new Date(b.event.date) < now
+                          );
+                          const groupedCurrent = groupByEvent(currentEventBookings);
+                          const groupedPrevious = groupByEvent(previousEventBookings);
+                          return (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                              <div>
+                                <h4 className="font-semibold mb-2 text-black">Current/Ongoing Events</h4>
+                                <div className="overflow-x-auto">
+                                  <Table className="text-black min-w-[320px]">
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead className="text-black">Event</TableHead>
+                                        <TableHead className="text-black">Total Seats Booked</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {groupedCurrent.length === 0 ? (
+                                        <TableRow>
+                                          <TableCell colSpan={2} className="text-center text-muted-foreground py-4">
+                                            No bookings for current/ongoing events.
+                                          </TableCell>
+                                        </TableRow>
+                                      ) : groupedCurrent.map(({ title, count }) => (
+                                        <TableRow key={title}>
+                                          <TableCell className="font-medium text-black">{title}</TableCell>
+                                          <TableCell className="text-black">{count}</TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold mb-2 text-black">Previous/Completed Events</h4>
+                                <div className="overflow-x-auto">
+                                  <Table className="text-black min-w-[320px]">
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead className="text-black">Event</TableHead>
+                                        <TableHead className="text-black">Total Seats Booked</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {groupedPrevious.length === 0 ? (
+                                        <TableRow>
+                                          <TableCell colSpan={2} className="text-center text-muted-foreground py-4">
+                                            No bookings for previous/completed events.
+                                          </TableCell>
+                                        </TableRow>
+                                      ) : groupedPrevious.map(({ title, count }) => (
+                                        <TableRow key={title}>
+                                          <TableCell className="font-medium text-black">{title}</TableCell>
+                                          <TableCell className="text-black">{count}</TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
 
@@ -1869,109 +2040,243 @@ const AdminDashboard = () => {
                     ) : bookings.length === 0 ? (
                       <div className="text-center py-8">
                         <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No Bookings Found</h3>
+                        <h3 className="text-lg font-semibold mb-2 text-black">No Bookings Found</h3>
                         <p className="text-muted-foreground">
                           There are no bookings in the system yet.
                         </p>
                       </div>
                     ) : (
                       <>
-                        {/* Search and Filter Controls */}
-                        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                          <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                            <Input
-                              placeholder="Search by name, email, or event..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              className="pl-10"
-                            />
-                          </div>
-                          <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                              <SelectValue placeholder="Filter by status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">All Status</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        {/* Split bookings by event status */}
+                        {(() => {
+                          const now = new Date('2025-08-07T13:01:50+05:30');
+                          const isCurrentEvent = (booking) => {
+                            if (!booking.event?.date) return false;
+                            return new Date(booking.event.date) >= now;
+                          };
+                          const isPastEvent = (booking) => {
+                            if (!booking.event?.date) return false;
+                            return new Date(booking.event.date) < now;
+                          };
+                          const currentBookings = bookings.filter(isCurrentEvent);
+                          const previousBookings = bookings.filter(isPastEvent);
 
-                        {/* Results count */}
-                        <div className="mb-4">
-                          <p className="text-sm text-muted-foreground">
-                            Showing {filteredBookings.length} of {bookings.length} bookings
-                          </p>
-                        </div>
+                          const filterBookings = (list) => list.filter((booking) => {
+                            const matchesSearch =
+                              booking.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              booking.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (booking.event?.title?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+                            const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
+                            return matchesSearch && matchesStatus;
+                          });
+                          const filteredCurrent = filterBookings(currentBookings);
+                          const filteredPrevious = filterBookings(previousBookings);
 
-                        <div className="rounded-md border text-black">
-                          <Table className="text-black">
-                            <TableHeader className="text-black">
-                              <TableRow className="text-black">
-                                <TableHead className="text-black">Event</TableHead>
-                                <TableHead className="text-black">User</TableHead>
-                                <TableHead className="text-black">Email</TableHead>
-                                <TableHead className="text-black">Phone</TableHead>
-                                <TableHead className="text-black">Tickets</TableHead>
-                                <TableHead className="text-black">Amount</TableHead>
-                                <TableHead className="text-black">Status</TableHead>
-                                <TableHead className="text-black">Booking Date</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody className="text-black">
-                              {getCurrentItems(filteredBookings).map((booking) => (
-                                <TableRow key={booking.id} className="text-black">
-                                  <TableCell className="font-medium text-black">
-                                    {booking.event?.title || 'Event not found'}
-                                  </TableCell>
-                                  <TableCell className="text-black">{booking.name}</TableCell>
-                                  <TableCell className="text-black">{booking.email}</TableCell>
-                                  <TableCell className="text-black">{booking.phone}</TableCell>
-                                  <TableCell className="text-black">{booking.tickets}</TableCell>
-                                  <TableCell className="text-black">₹{booking.amount.toLocaleString()}</TableCell>
-                                  <TableCell>
-                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-black ${
-                                      booking.status === 'confirmed' 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : 'bg-yellow-100 text-yellow-800'
-                                    }`}>
-                                      {booking.status}
+                          return (
+                            <div className="space-y-12">
+                              {/* Current Bookings */}
+                              <div>
+                                <h3 className="text-xl font-bold mb-2 text-black">Current Bookings (Ongoing/Upcoming Events)</h3>
+                                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                                  <div className="relative flex-1">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                                    <Input
+                                      placeholder="Search by name, email, or event..."
+                                      value={searchTerm}
+                                      onChange={(e) => setSearchTerm(e.target.value)}
+                                      className="pl-10"
+                                    />
+                                  </div>
+                                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                    <SelectTrigger className="w-full sm:w-[180px]">
+                                      <SelectValue placeholder="Filter by status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="all">All Status</SelectItem>
+                                      <SelectItem value="confirmed">Confirmed</SelectItem>
+                                      <SelectItem value="pending">Pending</SelectItem>
+                                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="mb-2">
+                                  <p className="text-sm text-muted-foreground">
+                                    Showing {filteredCurrent.length} of {currentBookings.length} current bookings
+                                  </p>
+                                </div>
+                                <div className="rounded-md border">
+                                  <Table className="text-black">
+                                    <TableHeader className="text-black">
+                                      <TableRow className="text-black">
+                                        <TableHead className="text-black">Event</TableHead>
+                                        <TableHead className="text-black">User</TableHead>
+                                        <TableHead className="text-black">Email</TableHead>
+                                        <TableHead className="text-black">Phone</TableHead>
+                                        <TableHead className="text-black">Tickets</TableHead>
+                                        <TableHead className="text-black">Amount</TableHead>
+                                        <TableHead className="text-black">Status</TableHead>
+                                        <TableHead className="text-black">Booking Date</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody className="text-black">
+                                      {filteredCurrent.length === 0 ? (
+                                        <TableRow>
+                                          <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                                            No current bookings found.
+                                          </TableCell>
+                                        </TableRow>
+                                      ) : getCurrentItems(filteredCurrent).map((booking) => (
+                                        <TableRow key={booking.id} className="text-black">
+                                          <TableCell className="font-medium text-black">
+                                            {booking.event?.title || 'Event not found'}
+                                          </TableCell>
+                                          <TableCell className="text-black">{booking.name}</TableCell>
+                                          <TableCell className="text-black">{booking.email}</TableCell>
+                                          <TableCell className="text-black">{booking.phone}</TableCell>
+                                          <TableCell className="text-black">{booking.tickets}</TableCell>
+                                          <TableCell className="text-black">₹{booking.amount.toLocaleString()}</TableCell>
+                                          <TableCell>
+                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-black ${
+                                              booking.status === 'confirmed'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                              {booking.status}
+                                            </span>
+                                          </TableCell>
+                                          <TableCell className="text-black">{formatDate(booking.booking_date)}</TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                                {totalPages(filteredCurrent) > 1 && (
+                                  <div className="flex justify-end items-center space-x-2 mt-4">
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                      disabled={currentPage === 1}
+                                    >
+                                      <ChevronLeft className="h-4 w-4" />
+                                    </Button>
+                                    <span className="text-sm text-muted-foreground">
+                                      Page {currentPage} of {totalPages(filteredCurrent)}
                                     </span>
-                                  </TableCell>
-                                  <TableCell className="text-black">{formatDate(booking.booking_date)}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </div>
-                        
-                        {/* Pagination Controls */}
-                        {totalPages(filteredBookings) > 1 && (
-                          <div className="flex justify-end items-center space-x-2 mt-4">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                              disabled={currentPage === 1}
-                            >
-                              <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <span className="text-sm text-muted-foreground">
-                              Page {currentPage} of {totalPages(filteredBookings)}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages(filteredBookings)))}
-                              disabled={currentPage === totalPages(filteredBookings)}
-                            >
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages(filteredCurrent)))}
+                                      disabled={currentPage === totalPages(filteredCurrent)}
+                                    >
+                                      <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                              {/* Previous Bookings */}
+                              <div>
+                                <h3 className="text-xl font-bold mb-2 text-black">Previous Bookings (Completed Events)</h3>
+                                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                                  <div className="relative flex-1">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                                    <Input
+                                      placeholder="Search by name, email, or event..."
+                                      value={searchTerm}
+                                      onChange={(e) => setSearchTerm(e.target.value)}
+                                      className="pl-10"
+                                    />
+                                  </div>
+                                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                    <SelectTrigger className="w-full sm:w-[180px]">
+                                      <SelectValue placeholder="Filter by status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="all">All Status</SelectItem>
+                                      <SelectItem value="confirmed">Confirmed</SelectItem>
+                                      <SelectItem value="pending">Pending</SelectItem>
+                                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="mb-2">
+                                  <p className="text-sm text-muted-foreground">
+                                    Showing {filteredPrevious.length} of {previousBookings.length} previous bookings
+                                  </p>
+                                </div>
+                                <div className="rounded-md border">
+                                  <Table className="text-black">
+                                    <TableHeader className="text-black">
+                                      <TableRow className="text-black">
+                                        <TableHead className="text-black">Event</TableHead>
+                                        <TableHead className="text-black">User</TableHead>
+                                        <TableHead className="text-black">Email</TableHead>
+                                        <TableHead className="text-black">Phone</TableHead>
+                                        <TableHead className="text-black">Tickets</TableHead>
+                                        <TableHead className="text-black">Amount</TableHead>
+                                        <TableHead className="text-black">Status</TableHead>
+                                        <TableHead className="text-black">Booking Date</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody className="text-black">
+                                      {filteredPrevious.length === 0 ? (
+                                        <TableRow>
+                                          <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                                            No previous bookings found.
+                                          </TableCell>
+                                        </TableRow>
+                                      ) : getCurrentItems(filteredPrevious).map((booking) => (
+                                        <TableRow key={booking.id} className="text-black">
+                                          <TableCell className="font-medium text-black">
+                                            {booking.event?.title || 'Event not found'}
+                                          </TableCell>
+                                          <TableCell className="text-black">{booking.name}</TableCell>
+                                          <TableCell className="text-black">{booking.email}</TableCell>
+                                          <TableCell className="text-black">{booking.phone}</TableCell>
+                                          <TableCell className="text-black">{booking.tickets}</TableCell>
+                                          <TableCell className="text-black">₹{booking.amount.toLocaleString()}</TableCell>
+                                          <TableCell>
+                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-black ${
+                                              booking.status === 'confirmed'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                              {booking.status}
+                                            </span>
+                                          </TableCell>
+                                          <TableCell className="text-black">{formatDate(booking.booking_date)}</TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                                {totalPages(filteredPrevious) > 1 && (
+                                  <div className="flex justify-end items-center space-x-2 mt-4">
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                      disabled={currentPage === 1}
+                                    >
+                                      <ChevronLeft className="h-4 w-4" />
+                                    </Button>
+                                    <span className="text-sm text-muted-foreground">
+                                      Page {currentPage} of {totalPages(filteredPrevious)}
+                                    </span>
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages(filteredPrevious)))}
+                                      disabled={currentPage === totalPages(filteredPrevious)}
+                                    >
+                                      <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </>
                     )}
                   </CardContent>
@@ -1985,7 +2290,7 @@ const AdminDashboard = () => {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
-                        <span>Host Management</span>
+                        <span className="text-black">Host Management</span>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button>
@@ -2096,11 +2401,11 @@ const AdminDashboard = () => {
               <FadeIn delay={100}>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Host Activity</CardTitle>
+                    <CardTitle className="text-black">Host Activity</CardTitle>
                     <CardDescription>See which host is managing which event, tickets sold, attendees, and revenue.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="rounded-md border text-black overflow-x-auto">
+                    <div className="rounded-md border overflow-x-auto">
                       <Table className="text-black">
                         <TableHeader>
                           <TableRow>

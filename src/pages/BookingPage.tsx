@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,17 @@ import { useQuery } from "@tanstack/react-query";
 import { getEvent } from "@/services/eventService";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import { SendEmailCommand, SESv2Client } from "@aws-sdk/client-sesv2";
+import { generateTicketPDFs } from "@/lib/pdf/generateTicketPDF";
+
+const sesClient = new SESv2Client({ 
+  region: "ap-south-1", 
+  credentials: {
+    accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID,
+    secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY
+  } 
+});
+
 
 const BookingPage = () => {
   const { eventId } = useParams();
@@ -91,6 +102,115 @@ const BookingPage = () => {
     }
   };
 
+  // Function to generate and send email with PDF tickets
+  const sendBookingConfirmationEmail = async (booking: any) => {
+    try {
+      // Generate PDF tickets
+      const ticketData = {
+        eventName: event.title,
+        eventDescription: event.description || '',
+        eventDate: event.date,
+        eventTime: event.time || 'To be announced',
+        eventVenue: event.venue || 'Venue to be announced',
+        eventCity: event.city || '',
+        bookerName: formData.name,
+        ticketNumber: booking.id,
+        ticketHolderName: formData.name, // For single ticket, use booker's name
+        ticketPrice: event.ticket_price,
+        bookingDate: new Date().toISOString(),
+      };
+
+      // If multiple tickets, generate one for each ticket holder
+      const ticketsData = formData.tickets > 1 
+        ? ticketNames.slice(0, formData.tickets).map((name, index) => ({
+            ...ticketData,
+            ticketNumber: `${booking.id}-${index + 1}`,
+            ticketHolderName: name || `Guest ${index + 1}`,
+            ticketPrice: Number(event.ticket_price) / formData.tickets, // Ensure number type
+          }))
+        : [ticketData];
+
+      // Generate PDFs
+      const pdfBlobs = await generateTicketPDFs(ticketsData);
+      
+      // Convert blobs to base64 for email attachment
+      // const attachments = await Promise.all(
+      //   pdfBlobs.map(async (blob, index) => {
+      //     const arrayBuffer = await blob.arrayBuffer();
+      //     const buffer = Buffer.from(arrayBuffer);
+      //     return {
+      //       Filename: `ticket-${ticketsData[index].ticketNumber}.pdf`,
+      //       Content: buffer.toString('base64'),
+      //       ContentType: 'application/pdf',
+      //       ContentDisposition: 'attachment',
+      //     };
+      //   })
+      // );
+
+      // Prepare email parameters
+      const sesParams = {
+        FromEmailAddress: 'Mojo Event <info@motojojo.co>',
+        Destination: {
+          ToAddresses: [formData.email],
+        },
+        Content: {
+          Simple: {
+            Subject: {
+              Data: `Your Booking Confirmation for '${event.title}'`,
+              Charset: 'UTF-8'
+            },
+            Body: {
+              Html: {
+                Data: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
+                  <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="color: #D32F55;">🎉 Booking Confirmed!</h1>
+                  </div>
+                  
+                  <div style="background-color: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #D32F55;">
+                    <h2 style="margin-top: 0; color: #D32F55;">Event Details</h2>
+                    <p><strong>${event.title}</strong></p>
+                    <p>📅 ${new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <p>📍 ${event.venue || 'Venue to be announced'}, ${event.city || ''}</p>
+                    <p>👥 ${formData.tickets} ticket${formData.tickets > 1 ? 's' : ''} (${ticketsData.map(t => t.ticketHolderName).join(', ')})</p>
+                    <p>💰 Total Paid: ₹${totalAmount.toLocaleString('en-IN')}</p>
+                  </div>
+                  
+                  <p>Your tickets are attached to this email as PDFs. You can also view them in your account.</p>
+                  
+                  <div style="margin: 25px 0; text-align: center;">
+                    <p>🔍 <strong>What's next?</strong></p>
+                    <p>Show your ticket PDF at the venue for entry. Each attendee must have their own ticket.</p>
+                  </div>
+                  
+                  <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666; text-align: center;">
+                    <p>Need help? Contact us at support@motojojo.co</p>
+                    <p>© ${new Date().getFullYear()} Mojo Events. All rights reserved.</p>
+                  </div>
+                </div>
+                `,
+                Charset: 'UTF-8'
+              },
+              Text: {
+                Data: `Thank you for your booking!\n\nEvent: ${event.title}\nDate: ${new Date(event.date).toLocaleDateString()}\nVenue: ${event.venue || 'To be announced'}, ${event.city || ''}\nTickets: ${formData.tickets} (${ticketsData.map(t => t.ticketHolderName).join(', ')})\nTotal Paid: ₹${totalAmount.toLocaleString('en-IN')}\n\nYour tickets are attached as PDFs.\n\nThank you for choosing Mojo Events!`,
+                Charset: 'UTF-8'
+              }
+            }
+          }
+        },
+        // Attachments: attachments
+      };
+      
+      // Send email with attachments
+      await sesClient.send(new SendEmailCommand(sesParams));
+      console.log('Email with tickets sent successfully for booking:', booking.id);
+      return true;
+    } catch (error) {
+      console.error('Error sending email with tickets:', error);
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isSignedIn) {
@@ -127,8 +247,8 @@ const BookingPage = () => {
 
     // Razorpay options
     const options = {
-      key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
-      // key: "rzp_test_AIaN0EfXmfZgMk", // Test key for development
+      // key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
+      key: "rzp_test_AIaN0EfXmfZgMk", // Test key for development
       amount: amountInPaise,
       currency: "INR",
       name: event.title,
@@ -155,11 +275,30 @@ const BookingPage = () => {
             })
             .select()
             .single();
+          
           if (error) throw error;
-          toast({ title: "Booking Successful!", description: "Your tickets have been booked and sent to your email." });
+          
+          // Send confirmation email with PDF tickets
+          const emailSent = await sendBookingConfirmationEmail(booking);
+          
+          if (!emailSent) {
+            console.warn('Email sending failed, but booking was successful');
+            // Optionally save this to retry later
+          }
+          
+          toast({ 
+            title: "Booking Successful!", 
+            description: "Your tickets have been booked and sent to your email." 
+          });
+          
           navigate("/thank-you", { state: { bookingId: booking.id } });
         } catch (err: any) {
-          toast({ title: "Booking Failed", description: err.message || "There was an error processing your booking.", variant: "destructive" });
+          console.error('Booking error:', err);
+          toast({ 
+            title: "Booking Failed", 
+            description: err.message || "There was an error processing your booking.", 
+            variant: "destructive" 
+          });
         } finally {
           setIsBooking(false);
         }

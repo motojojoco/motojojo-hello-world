@@ -1,14 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import { SendEmailCommand, SESv2Client } from "@aws-sdk/client-sesv2";
 
-const sesClient = new SESv2Client({ 
-  region: "ap-south-1", 
-  // Use environment variables for credentials instead of hardcoding
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ""
-  } 
-});
+
+const sesClient = new SESv2Client({ region: "ap-south-1", credentials:{
+  accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID,
+  secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY
+} });
 
 export interface Booking {
   id: string;
