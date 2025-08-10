@@ -29,7 +29,7 @@ import { useQuery } from "@tanstack/react-query";
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   subtitle: z.string().optional(),
-  description: z.string().min(1, "Description is required"),
+  description: z.string().optional(),
   long_description: z.string().optional(),
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
@@ -165,7 +165,7 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>Description (Optional)</FormLabel>
                       <FormControl>
                         <Textarea {...field} />
                       </FormControl>
