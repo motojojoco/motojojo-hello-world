@@ -126,7 +126,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             </DropdownMenu>
 
             {/* Premium Button */}
-            <Button className="min-w-0 truncate text-mapcream bg-transparent hover:bg-transparent" onClick={() => navigate("/membership")}>Membership</Button>
+                 {/*        <Button className="min-w-0 truncate text-mapcream bg-transparent hover:bg-transparent" onClick={() => navigate("/membership")}>Membership</Button> */}
 
             {/* Experiences Navigation */}
             <Button variant="ghost" asChild className="min-w-0 truncate text-mapcream">
@@ -235,9 +235,9 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </DropdownMenu>
 
               {/* Premium Button (Mobile) */}
-              <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity w-full" onClick={() => navigate("/membership")}>
+      <Button className="bg-gradient-to-r from-violet to-red hover:opacity-90 transition-opacity w-full" onClick={() => navigate("/membership")}>
                 Membership
-              </Button>
+              </Button>   
               
               <Button variant="ghost" className="w-full" asChild>
                 <Link to="/events">
