@@ -211,20 +211,34 @@ const EventDetail = () => {
                 {/* --- IMPROVED DESCRIPTION SECTION --- */}
                 <div className="mt-8">
                   <h3 className={`text-2xl font-bold mb-3 ${isLocalGathering ? 'text-mapcream' : ''}`}>About The Event</h3>
-                  <div className={`whitespace-pre-line max-w-none text-base leading-relaxed ${isLocalGathering ? 'text-mapcream' : 'text-muted-foreground'}`}>
+                  <div style={{ background: '#FFF9C4', borderRadius: '12px', padding: '18px 20px', marginTop: 8, marginBottom: 8, color: '#111' }}>
+  <div className="whitespace-pre-line max-w-none text-base leading-relaxed" style={{ color: '#111' }} >
                     {shouldTruncate && !isDescriptionExpanded
                       ? `${fullDescription.substring(0, TRUNCATE_LENGTH)}...`
                       : fullDescription
                     }
                   </div>
                   {shouldTruncate && (
-                    <button
-                      onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                      className={`font-semibold mt-3 ${isLocalGathering ? 'text-mapcream hover:text-white underline' : 'text-primary hover:text-primary/80 underline'}`}
-                    >
-                      {isDescriptionExpanded ? 'Show Less' : 'Read More'}
-                    </button>
-                  )}
+    <button
+      onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+      style={{
+        background: '#FFF176',
+        color: '#222',
+        fontWeight: 'bold',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px 20px',
+        marginTop: '16px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        cursor: 'pointer',
+        transition: 'background 0.2s',
+      }}
+      className={isLocalGathering ? 'hover:bg-[#0CA678] hover:text-white' : ''}
+    >
+      {isDescriptionExpanded ? 'Show Less' : 'Read More'}
+    </button>
+  )}
+  </div>
                 </div>
               </FadeIn>
 
@@ -250,8 +264,8 @@ const EventDetail = () => {
             <div className="lg:col-span-1">
               <FadeIn delay={400}>
                 <div className="sticky top-24">
-                  <Card className={`border-none shadow-soft overflow-hidden ${isLocalGathering ? 'bg-[#F7E1B5]' : ''}`}>
-                    <CardContent className="p-6">
+                  <Card className={`border-none shadow-soft overflow-hidden ${isLocalGathering ? 'bg-[#F7E1B5]' : ''}`} style={!isLocalGathering ? { background: '#FFF9C4' } : {}}>
+                    <CardContent className="p-6" style={!isLocalGathering ? { color: '#222' } : {}} >
                       <h3 className={`text-xl font-bold mb-4 ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Event Details</h3>
                       <div className="space-y-4 mb-6">
                         {/* Event details items like Venue, Date, Time, etc. */}
