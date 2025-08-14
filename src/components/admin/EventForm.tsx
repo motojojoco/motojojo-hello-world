@@ -51,6 +51,7 @@ const formSchema = z.object({
   convenience_fee: z.number().min(0, "Convenience fee must be non-negative"),
   subtotal: z.number().min(0, "Subtotal must be non-negative"),
   ticket_price: z.number().min(0, "Ticket price must be non-negative"),
+  location_map_link: z.string().url("Please enter a valid URL").optional(),
 });
 
 type EventFormData = z.infer<typeof formSchema>;
@@ -99,6 +100,7 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
       convenience_fee: initialData?.convenience_fee || 0,
       subtotal: initialData?.subtotal || 0,
       ticket_price: initialData?.ticket_price || 0,
+      location_map_link: initialData?.location_map_link || "",
     },
   });
 
@@ -517,6 +519,20 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                       <FormLabel>Ticket Price</FormLabel>
                       <FormControl>
                         <Input type="number" min={0} step={1} {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Google Maps Location Link */}
+                <FormField
+                  control={form.control}
+                  name="location_map_link"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Google Maps Link</FormLabel>
+                      <FormControl>
+                        <Input type="url" placeholder="https://maps.google.com/..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -1,6 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Event {
+  location_map_link?: string; // Google Maps link for the event location
+  images?: string[];
+  base_price?: number;
+  gst?: number;
+  convenience_fee?: number;
+  subtotal?: number;
+  ticket_price?: number;
+  location_map_link?: string; // Google Maps link for the event location
   id: string;
   title: string;
   subtitle?: string;
@@ -290,7 +298,7 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     address: '', // Default value
     price: data.price,
     image: data.image,
-    images: data.images || [], // <-- add this line
+    images: data.images || undefined,
     gallery: [], // Default value
     featured: false, // Default value
     created_by: '', // Default value
@@ -304,11 +312,12 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     has_discount: data.has_discount ?? false,
     real_price: data.real_price ?? null,
     discounted_price: data.discounted_price ?? null,
-    base_price: data.base_price ?? 0,
-    gst: data.gst ?? 0,
-    convenience_fee: data.convenience_fee ?? 0,
-    subtotal: data.subtotal ?? 0,
-    ticket_price: data.ticket_price ?? 0,
+    base_price: typeof data.base_price === 'number' ? data.base_price : undefined,
+    gst: typeof data.gst === 'number' ? data.gst : undefined,
+    convenience_fee: typeof data.convenience_fee === 'number' ? data.convenience_fee : undefined,
+    subtotal: typeof data.subtotal === 'number' ? data.subtotal : undefined,
+    ticket_price: typeof data.ticket_price === 'number' ? data.ticket_price : undefined,
+    location_map_link: typeof data.location_map_link === 'string' ? data.location_map_link : undefined,
   };
 };
 

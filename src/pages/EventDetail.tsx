@@ -274,6 +274,17 @@ const EventDetail = () => {
                           <div>
                             <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Venue</div>
                             <div className={isLocalGathering ? 'text-[#0CA678]' : 'text-black'}>{event.venue}, {event.city}</div>
+                            {event.location_map_link && (
+                              <a
+                                href={event.location_map_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`inline-block mt-2 px-3 py-1 rounded-md text-sm font-medium ${isLocalGathering ? 'bg-[#0CA678] text-white hover:bg-[#08996c]' : 'bg-violet text-white hover:bg-violet-700'}`}
+                                style={{ textDecoration: 'none' }}
+                              >
+                                View on Google Maps
+                              </a>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-start">
