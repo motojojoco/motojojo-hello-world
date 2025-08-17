@@ -59,7 +59,7 @@ const formSchema = z.object({
 type EventFormData = z.infer<typeof formSchema>;
 
 interface EventFormProps {
-  initialData?: Partial<EventFormData>;
+  initialData?: Partial<EventFormData & { id?: string }>;
   onSubmit: (data: EventFormData) => Promise<void>;
   isEditing?: boolean;
 }
@@ -466,7 +466,18 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                       </FormControl>
                     </FormItem>
                   )}
-                />
+                 />
+                
+                {/* Show invitation form for private events */}
+                {form.watch("is_private") && isEditing && initialData?.id && (
+                  <div className="col-span-2">
+                    <EventInvitationForm 
+                      eventId={initialData.id} 
+                      eventTitle={form.watch("title") || "Untitled Event"}
+                    />
+                  </div>
+                )}
+
                 {form.watch("has_discount") && (
                   <>
                     <FormField
