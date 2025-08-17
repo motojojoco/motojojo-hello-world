@@ -34,6 +34,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Check, UserRound, MapPin, Phone, Mail, Ticket, Clock, CheckCircle, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates, generateTicketsForBooking, resendTicketEmail, markTicketsAsAttended } from "@/services/bookingService";
+import { getEvent, getEventBookings } from "@/services/eventService";
+import { getEventUrl } from "@/lib/eventUtils";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEventOver } from "@/lib/utils";
@@ -558,7 +560,7 @@ const Profile = () => {
                                 {booking.event && (
                                   <Button 
                                     variant="outline"
-                                    onClick={() => navigate(`/event/${booking.event.id}`)}
+                                    onClick={() => navigate(getEventUrl(booking.event))}
                                     className="border-sandstorm text-sandstorm hover:bg-sandstorm/10"
                                   >
                                     View Event

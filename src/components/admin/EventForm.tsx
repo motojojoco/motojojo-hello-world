@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardYellowContainer } from "@/components/ui/card";
 import { 
   Select,
@@ -43,6 +44,7 @@ const formSchema = z.object({
   event_type: z.string().optional(),
   host: z.string().optional(),
   is_published: z.boolean().default(true),
+  is_private: z.boolean().default(false),
   has_discount: z.boolean().default(false),
   real_price: z.number().nullable().optional(),
   discounted_price: z.number().nullable().optional(),
@@ -92,6 +94,7 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
       event_type: initialData?.event_type || "",
       host: initialData?.host || "",
       is_published: initialData?.is_published ?? true,
+      is_private: initialData?.is_private ?? false,
       has_discount: initialData?.has_discount ?? false,
       real_price: initialData?.real_price ?? null,
       discounted_price: initialData?.discounted_price ?? null,
@@ -426,6 +429,41 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                         <input type="checkbox" checked={field.value} onChange={e => field.onChange(e.target.checked)} />
                       </FormControl>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="is_private"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 col-span-2">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Private Event</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          When enabled, only invited users can view this event
+                        </p>
+                      </div>
+                      <FormControl>
+                        <div className={`relative inline-block w-16 h-8 align-middle select-none`}>
+                          <input
+                            type="checkbox"
+                            id="private-toggle"
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                            className={`absolute block w-8 h-8 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-all duration-300 ease-in-out transform ${
+                              field.value 
+                                ? 'right-0 border-yellow-400 translate-x-1/2' 
+                                : 'left-0 border-red-500 -translate-x-1/2'
+                            }`}
+                          />
+                          <div 
+                            className={`toggle-label block w-full h-full rounded-full transition-colors duration-300 ease-in-out ${
+                              field.value ? 'bg-yellow-100' : 'bg-red-100'
+                            }`}
+                          ></div>
+                        </div>
+                      </FormControl>
                     </FormItem>
                   )}
                 />

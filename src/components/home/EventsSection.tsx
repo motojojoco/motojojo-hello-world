@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn } from "@/components/ui/motion";
 import { Calendar, MapPin, Clock, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { getEventUrl } from "@/lib/eventUtils";
 import { getEvents, Event } from "@/services/eventService";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +13,7 @@ import { isEventOver } from "@/lib/utils";
 import { useCartStore } from "@/store/cart-store";
 
 const EventsSection = () => {
+  const navigate = useNavigate();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -196,9 +198,12 @@ const EventsSection = () => {
                         <div className="flex items-center gap-2">
                           <MapPin className="h-4 w-4" />
                           <span>{event.city}, {event.venue}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
+                          <span 
+                            className="font-medium hover:underline cursor-pointer"
+                            onClick={() => navigate(getEventUrl(event))}
+                          >
+                            {event.title}
+                          </span>
                           <span>{formatDate(event.date)}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -211,7 +216,7 @@ const EventsSection = () => {
                       <div className="text-lg font-bold">₹{event.price}</div>
                       <div className="flex gap-2">
                         <Button asChild size="sm">
-                          <Link to={`/event/${event.id}`}>Book Now</Link>
+                          <span onClick={() => navigate(getEventUrl(event))}>Book Now</span>
                         </Button>
                       </div>
                     </CardFooter>

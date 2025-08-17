@@ -50,7 +50,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/events" element={<Events />} />
           <Route path="/previousevents" element={<PreviousEvents />} />
-          <Route path="/event/:id" element={<EventDetail />} />
+          {/* SEO-friendly event URL pattern */}
+          <Route path="/events/:city/:eventName/:eventId" element={<EventDetail />} />
           <Route path="/profile" element={
             <ProtectedRoute>
               <Profile />

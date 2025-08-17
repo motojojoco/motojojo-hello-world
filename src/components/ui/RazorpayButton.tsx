@@ -16,6 +16,7 @@ import { Check, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { getEventUrl } from "@/lib/eventUtils";
 import { ScrollableNumberInput } from "@/components/ui/scrollable-number-input";
 import BookingTicket from "@/components/tickets/BookingTicket";
 import { cn } from "@/lib/utils";
@@ -123,7 +124,10 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
             });
             
             setTimeout(() => {
-              navigate(`/event/${booking.eventId}`);
+              // Get the event details to generate the correct URL
+              // We'll use a temporary object with just the ID, and the actual page will handle the redirect
+              const tempEvent = { id: booking.eventId, title: '', city: '' };
+              navigate(getEventUrl(tempEvent));
             }, 1500);
           } else if (!isRecent) {
             // Clear old pending booking

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
@@ -8,7 +8,10 @@ import { FadeIn } from "@/components/ui/motion";
 import { 
   Card, 
   CardContent, 
-  CardFooter 
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  CardDescription 
 } from "@/components/ui/card";
 import {
   Accordion,
@@ -25,8 +28,12 @@ import {
   Tag, 
   DollarSign,
   AlertCircle,
+  Lock,
+  LogIn,
 } from "lucide-react";
-import { getEvent, getEventsByCategory, Event } from "@/services/eventService";
+import { getEvent, getEventsByCategory, type Event } from "@/services/eventService";
+import { generateSlug } from "@/lib/urlUtils";
+import { getEventUrl } from "@/lib/eventUtils";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { getEventStatus, formatEventStatus } from "@/lib/utils";
@@ -34,6 +41,8 @@ import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 import { getEventTypes } from "@/services/eventTypeService";
 import { useAuth } from "@/hooks/use-auth";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
+import { canViewPrivateEvent } from "@/utils/eventUtils";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 // Swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -42,25 +51,160 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 const EventDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, eventId, city: urlCity, eventName } = useParams<{ 
+    id?: string; 
+    eventId?: string; 
+    city?: string; 
+    eventName?: string 
+  }>();
+  
+  // Use eventId if available (new URL format), otherwise use id (old format)
+  const effectiveEventId = eventId || id;
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [isLocalGathering, setIsLocalGathering] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const { isSignedIn } = useAuth();
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+  // --- ADDED: State for the countdown timer ---
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const { isSignedIn, user } = useAuth();
   
-  // Fetch event details
+  // Check if user has access to a private event
+  const checkEventAccess = useCallback(async (event: Event) => {
+    if (!event) return false;
+    
+    // If event is not private, access is granted
+    if (!event.is_private) return true;
+    
+    // Check if user has access to this private event
+    const hasAccess = await canViewPrivateEvent(event);
+    return hasAccess;
+  }, []);
+
+  // Fetch event details with proper TypeScript types
   const { 
-    data: event, 
+    data: eventData, 
     isLoading: eventLoading, 
-    error: eventError 
-  } = useQuery({
-    queryKey: ['event', id],
-    queryFn: () => getEvent(id || ''),
-    enabled: !!id
+    error: eventError,
+    refetch: refetchEvent
+  } = useQuery<Event | null, Error, Event>({
+    queryKey: ['event', effectiveEventId],
+    queryFn: async () => {
+      if (!effectiveEventId) {
+        throw new Error("Event ID is missing");
+      }
+      const event = await getEvent(effectiveEventId);
+      
+      if (!event) return null;
+      
+      // If we're using the old URL format and have the event data,
+      // redirect to the new URL format
+      if (!eventId) {
+        const newPath = `/events/${generateSlug(event.city)}/${generateSlug(event.title)}/${event.id}`;
+        navigate(newPath, { replace: true });
+        return event;
+      }
+      
+      // If we're using the new URL format but the event name or city doesn't match,
+      // redirect to the correct URL
+      if (generateSlug(event.title) !== eventName || generateSlug(event.city) !== urlCity) {
+        const newPath = `/events/${generateSlug(event.city)}/${generateSlug(event.title)}/${event.id}`;
+        navigate(newPath, { replace: true });
+        return event;
+      }
+      
+      // Check access for private events
+      const accessGranted = await checkEventAccess(event);
+      setHasAccess(accessGranted);
+      
+      // If no access and user is not signed in, show sign in prompt
+      if (!accessGranted && !isSignedIn) {
+        toast({
+          title: "Sign in required",
+          description: "Please sign in to view this private event.",
+          variant: "default",
+          action: (
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/sign-in', { state: { from: window.location.pathname } })}
+              className="ml-2"
+            >
+              Sign In
+            </Button>
+          ),
+        });
+      }
+      
+      return event;
+    },
+    enabled: !!effectiveEventId,
+    onError: (error: Error) => {
+      console.error("Error fetching event:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load event details. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
   
+  // Handle query errors
+  useEffect(() => {
+    if (eventError) {
+      console.error("Error fetching event:", eventError);
+      toast({
+        title: "Error",
+        description: "Failed to load event details. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [eventError, toast]);
+  
+  // Use the event data from the query
+  const event = eventData;
+  
+  // Update access status when event data or auth status changes
+  useEffect(() => {
+    const checkAccess = async () => {
+      if (!event) return;
+      
+      const accessGranted = await checkEventAccess(event);
+      setHasAccess(accessGranted);
+      setIsCheckingAccess(false);
+    };
+    
+    checkAccess();
+  }, [event, isSignedIn, user]);
+  
+  // --- ADDED: useEffect for the countdown timer logic ---
+  useEffect(() => {
+    if (!event?.date) return;
+
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      // Combine date and time for a more accurate countdown
+      const eventDateTime = new Date(`${event.date}T${event.time || '00:00:00'}`).getTime();
+      const distance = eventDateTime - now;
+
+      if (distance > 0) {
+        setCountdown({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        });
+      } else {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        clearInterval(timer);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [event?.date, event?.time]);
+
   // Fetch similar events
   const { 
     data: similarEvents = [], 
@@ -139,13 +283,6 @@ const EventDetail = () => {
   const fullDescription = `${event.description}\n\n${event.long_description || ''}`.trim();
   const TRUNCATE_LENGTH = 350;
   const shouldTruncate = fullDescription.length > TRUNCATE_LENGTH;
-  
-  // Mock data for FAQ and reviews until they are added to the database
-  const faq = [
-    { question: "What should I bring?", answer: "Just yourself and a valid ID. If you have a printed ticket, please bring it along." },
-    { question: "Is there parking available?", answer: "Yes, there is ample parking available at the venue." },
-    { question: "Can I get a refund if I can't attend?", answer: "Refunds are available up to 48 hours before the event. Please contact our support team." }
-  ];
 
   return (
     <div className={`min-h-screen flex flex-col ${isLocalGathering ? '' : ''}`} style={isLocalGathering ? { backgroundColor: '#0CA678' } : {}}>
@@ -212,52 +349,35 @@ const EventDetail = () => {
                 <div className="mt-8">
                   <h3 className={`text-2xl font-bold mb-3 ${isLocalGathering ? 'text-mapcream' : ''}`}>About The Event</h3>
                   <div style={{ background: '#FFF9C4', borderRadius: '12px', padding: '18px 20px', marginTop: 8, marginBottom: 8, color: '#111' }}>
-  <div className="whitespace-pre-line max-w-none text-base leading-relaxed" style={{ color: '#111' }} >
-                    {shouldTruncate && !isDescriptionExpanded
-                      ? `${fullDescription.substring(0, TRUNCATE_LENGTH)}...`
-                      : fullDescription
-                    }
+                    <div className="whitespace-pre-line max-w-none text-base leading-relaxed" style={{ color: '#111' }} >
+                      {shouldTruncate && !isDescriptionExpanded
+                        ? `${fullDescription.substring(0, TRUNCATE_LENGTH)}...`
+                        : fullDescription
+                      }
+                    </div>
+                    {shouldTruncate && (
+                      <button
+                        onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                        style={{
+                          background: '#FFF176',
+                          color: '#222',
+                          fontWeight: 'bold',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '8px 20px',
+                          marginTop: '16px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                        }}
+                        className={isLocalGathering ? 'hover:bg-[#0CA678] hover:text-white' : ''}
+                      >
+                        {isDescriptionExpanded ? 'Show Less' : 'Read More'}
+                      </button>
+                    )}
                   </div>
-                  {shouldTruncate && (
-    <button
-      onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-      style={{
-        background: '#FFF176',
-        color: '#222',
-        fontWeight: 'bold',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '8px 20px',
-        marginTop: '16px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-        cursor: 'pointer',
-        transition: 'background 0.2s',
-      }}
-      className={isLocalGathering ? 'hover:bg-[#0CA678] hover:text-white' : ''}
-    >
-      {isDescriptionExpanded ? 'Show Less' : 'Read More'}
-    </button>
-  )}
-  </div>
                 </div>
               </FadeIn>
-
-              {/* FAQ Section (Commented Out)
-              <FadeIn delay={300}>
-                <h3 className="text-2xl font-bold mb-4 mt-12">Frequently Asked Questions</h3>
-                <Accordion type="single" collapsible className="mb-12">
-                  {faq.map((item, index) => (
-                    <AccordionItem key={index} value={`item-${index}`}>
-                      <AccordionTrigger className="text-left font-medium">
-                        {item.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-muted-foreground">
-                        {item.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </FadeIn> */}
             </div>
             
             {/* Booking Card */}
@@ -274,6 +394,21 @@ const EventDetail = () => {
                           <div>
                             <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Venue</div>
                             <div className={isLocalGathering ? 'text-[#0CA678]' : 'text-black'}>{event.venue}, {event.city}</div>
+                            
+                            {/* --- ADDED: Google Maps Iframe Embed --- */}
+                            <div className="mt-4 w-full h-48 rounded-lg overflow-hidden border border-gray-300">
+                              <iframe
+                                src={`https://maps.google.com/maps?q=${encodeURIComponent(`${event.venue}, ${event.city}`)}&output=embed`}
+                                width="100%"
+                                height="100%"
+                                style={{ border: 0 }}
+                                allowFullScreen
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                title="Event Location Map"
+                              />
+                            </div>
+
                             {event.location_map_link && (
                               <a
                                 href={event.location_map_link}
@@ -331,6 +466,31 @@ const EventDetail = () => {
                         </div>
                       </div>
                     </CardContent>
+
+                    {/* --- ADDED: Countdown Timer UI --- */}
+                    {!isCompleted && (
+                      <div className="px-6 pb-4">
+                        <div className="flex items-center justify-around text-sm p-3 bg-red-50 rounded-lg">
+                          <div className="text-center">
+                            <div className="text-xl font-bold text-red-600">{countdown.days}</div>
+                            <div className="text-red-500 text-xs uppercase">Days</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xl font-bold text-red-600">{countdown.hours}</div>
+                            <div className="text-red-500 text-xs uppercase">Hours</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xl font-bold text-red-600">{countdown.minutes}</div>
+                            <div className="text-red-500 text-xs uppercase">Minutes</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xl font-bold text-red-600">{countdown.seconds}</div>
+                            <div className="text-red-500 text-xs uppercase">Seconds</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     <CardFooter className="px-6 pb-6 pt-0">
                       {isCompleted ? (
                         <div className="w-full text-center">
@@ -413,7 +573,7 @@ const EventDetail = () => {
                         <Button 
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/event/${event.id}`)}
+                          onClick={() => navigate(getEventUrl(event))}
                           className={isLocalGathering ? 'bg-[#F7E1B5] text-[#0CA678] border-[#0CA678] hover:bg-[#e6d7a8]' : ''}
                         >
                           View Details

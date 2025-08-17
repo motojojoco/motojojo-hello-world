@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getEventUrl } from "@/lib/eventUtils";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 
@@ -145,7 +146,12 @@ const Addebazi = () => {
                           </CardContent>
                           <CardFooter className="px-5 pb-5 pt-0 flex justify-between items-center text-[#FFD600]">
                             <div className="text-lg font-bold text-[#FFD600]">₹{event.price}</div>
-                            <Button size="sm" variant="outline" className="bg-[#FFD600] text-[#2196F3] border-none hover:bg-[#ffe066] font-bold" onClick={() => navigate(`/event/${event.id}`)}>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="bg-[#FFD600] text-[#2196F3] border-none hover:bg-[#ffe066] font-bold" 
+                              onClick={() => navigate(getEventUrl(event))}
+                            >
                               View Details
                             </Button>
                           </CardFooter>

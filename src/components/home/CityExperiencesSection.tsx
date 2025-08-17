@@ -1,7 +1,8 @@
 
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { getEventUrl } from "@/lib/eventUtils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ type CityExperiencesSectionProps = {
 };
 
 const CityExperiencesSection = ({ selectedCity, setSelectedCity }: CityExperiencesSectionProps) => {
+  const navigate = useNavigate();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const { data: cities = [] } = useQuery({
@@ -93,7 +95,7 @@ const CityExperiencesSection = ({ selectedCity, setSelectedCity }: CityExperienc
                     </div>
                     <p className="line-clamp-2 mb-4">{event.description}</p>
                     <Button asChild>
-                      <Link to={`/event/${event.id}`}>View Details</Link>
+                      <span onClick={() => navigate(getEventUrl(event))}>View Details</span>
                     </Button>
                   </CardContent>
                 </Card>

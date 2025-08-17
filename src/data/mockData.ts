@@ -54,19 +54,19 @@ export const banners = [
     id: 1,
     title: "Sunburn Festival 2025",
     image: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=2938&auto=format&fit=crop",
-    link: "/event/1"
+    link: "/events/mumbai/sunburn-festival-2025-1"
   },
   {
     id: 2,
     title: "Prithvi Theatre Festival",
     image: "https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?q=80&w=2940&auto=format&fit=crop",
-    link: "/event/3"
+    link: "/events/mumbai/prithvi-theatre-festival-3"
   },
   {
     id: 3,
     title: "Comic Con India",
     image: "https://images.unsplash.com/photo-1608889825105-eebdb9aa6b8d?q=80&w=2880&auto=format&fit=crop",
-    link: "/event/5"
+    link: "/events/delhi/comic-con-india-5"
   }
 ];
 

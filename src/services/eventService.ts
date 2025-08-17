@@ -1,14 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Event {
-  location_map_link?: string; // Google Maps link for the event location
-  images?: string[];
-  base_price?: number;
-  gst?: number;
-  convenience_fee?: number;
-  subtotal?: number;
-  ticket_price?: number;
-  location_map_link?: string; // Google Maps link for the event location
   id: string;
   title: string;
   subtitle?: string;
@@ -23,11 +15,12 @@ export interface Event {
   address: string;
   price: number;
   image: string;
-  images?: string[]; // <-- add this for multi-image support
+  images: string[]; // For multi-image support
   gallery: string[];
   featured: boolean;
   created_by: string;
   is_published: boolean;
+  is_private: boolean; // Field for private events
   created_at: string;
   event_type?: string;
   host?: string;
@@ -40,6 +33,7 @@ export interface Event {
   convenience_fee?: number;
   subtotal?: number;
   ticket_price?: number;
+  location_map_link?: string; // Google Maps link for the event location
 }
 
 export const getAllEvents = async (): Promise<Event[]> => {
@@ -119,14 +113,15 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
     category: event.category,
     venue: event.venue,
     city: event.city,
-    address: '', // Default value for missing field
+    address: event.address || '',
     price: event.price,
     image: event.image,
-    images: event.images || [], // <-- add this line
-    gallery: [], // Default value for missing field
-    featured: false, // Default value for missing field
-    created_by: '', // Default value for missing field
-    is_published: true, // Default value for missing field
+    images: event.images || [],
+    gallery: event.gallery || [],
+    featured: event.featured || false,
+    created_by: event.created_by || '',
+    is_published: event.is_published !== undefined ? event.is_published : true,
+    is_private: event.is_private || false,
     created_at: event.created_at,
     event_type: event.event_type,
     host: event.host || undefined,
@@ -295,14 +290,15 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     category: data.category,
     venue: data.venue,
     city: data.city,
-    address: '', // Default value
+    address: data.address || '',
     price: data.price,
     image: data.image,
     images: data.images || undefined,
-    gallery: [], // Default value
-    featured: false, // Default value
-    created_by: '', // Default value
-    is_published: true, // Default value
+    gallery: data.gallery || [],
+    featured: data.featured || false,
+    created_by: data.created_by || '',
+    is_published: data.is_published !== undefined ? data.is_published : true,
+    is_private: data.is_private || false,
     created_at: data.created_at,
     event_type: data.event_type,
     host: data.host || undefined,

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { getEventUrl } from "@/lib/eventUtils";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -224,7 +225,7 @@ const Events = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar selectedCity="" setSelectedCity={() => {}} />
       
       <main className="flex-grow pt-16 pb-20 md:pb-0">
         <div className="container-padding py-8">
@@ -435,8 +436,12 @@ const Events = () => {
                                 <div className="text-lg font-bold">₹{event.price}</div>
                               )}
                               <div className="flex gap-2">
-                                <Button asChild size="sm">
-                                  <Link to={`/event/${event.id}`}>Book Now</Link>
+                                <Button 
+                                  asChild 
+                                  size="sm" 
+                                  onClick={() => navigate(getEventUrl(event))}
+                                >
+                                  <span>Book Now</span>
                                 </Button>
                               </div>
                             </CardFooter>
