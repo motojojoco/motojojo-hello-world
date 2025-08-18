@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket, Home, Calendar, Heart, Settings, MessageSquare, History, LogOut } from "lucide-react";
+import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket, Home, Calendar, Heart, Settings, MessageSquare, History, LogOut, Lock } from "lucide-react";
 import { cities } from "@/data/mockData";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
@@ -143,6 +143,13 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </Link>
             </Button>
 
+            <Button variant="ghost" asChild className="min-w-0 truncate text-mapcream">
+              <Link to="/inviteonly" className="flex items-center text-mapcream">
+                <Lock className="h-4 w-4 mr-2 text-mapcream" />
+                <span className="truncate text-mapcream">Invite Only</span>
+              </Link>
+            </Button>
+
             {/* Auth Buttons */}
             {!isSignedIn ? (
               <>
@@ -250,6 +257,13 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                 <Link to="/previousevents">
                   <History className="h-4 w-4 mr-2" />
                   Past Experiences
+              </Link>
+              </Button>
+
+              <Button variant="ghost" className="w-full" asChild>
+                <Link to="/inviteonly">
+                  <Lock className="h-4 w-4 mr-2" />
+                  Invite Only
                 </Link>
               </Button>
 

@@ -37,6 +37,7 @@ import WhatsAppButton from "./components/shared/WhatsAppButton";
 import AdminUsers from "./pages/AdminUsers";
 import BookingPage from "./pages/BookingPage";
 import ThankYou from "./pages/ThankYou";
+import InviteOnly from "./pages/InviteOnly";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,11 @@ const App = () => (
           <Route path="/booking-ticket-demo" element={<BookingTicketDemo />} />
           {/* AUTH ROUTE */}
           <Route path="/auth" element={<SignInSignUp />} />
+          <Route path="/inviteonly" element={
+            <ProtectedRoute>
+              <InviteOnly />
+            </ProtectedRoute>
+          } />
           <Route path="/book/:eventId" element={<BookingPage />} />
           <Route path="/thank-you" element={<ThankYou />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

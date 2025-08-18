@@ -40,6 +40,8 @@ export const getAllEvents = async (): Promise<Event[]> => {
   const { data, error } = await supabase
     .from('events')
     .select('*')
+    .eq('is_private', false) // Only get public events
+    .eq('is_published', true)
     .order('date', { ascending: true });
     
   if (error) console.error('Error fetching events:', error);
@@ -55,14 +57,15 @@ export const getAllEvents = async (): Promise<Event[]> => {
     category: event.category,
     venue: event.venue,
     city: event.city,
-    address: '', // Default value
+    address: event.address || '',
     price: event.price,
     image: event.image,
-    images: event.images || [], // <-- add this line
-    gallery: [], // Default value
-    featured: false, // Default value
-    created_by: '', // Default value
-    is_published: true, // Default value
+    images: event.images || [],
+    gallery: [], // Default value since gallery field doesn't exist in DB
+    featured: false, // Default value since featured field doesn't exist in DB
+    created_by: '', // Default value since created_by field doesn't exist in DB
+    is_published: event.is_published !== undefined ? event.is_published : true,
+    is_private: event.is_private || false,
     created_at: event.created_at,
     event_type: event.event_type,
     host: event.host || undefined,
@@ -77,6 +80,7 @@ export const getAllEvents = async (): Promise<Event[]> => {
     convenience_fee: event.convenience_fee ?? 0,
     subtotal: event.subtotal ?? 0,
     ticket_price: event.ticket_price ?? 0,
+    location_map_link: event.location_map_link || undefined,
   }));
 };
 
@@ -84,6 +88,8 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
   let query = supabase
     .from('events')
     .select('*')
+    .eq('is_private', false) // Only get public events
+    .eq('is_published', true)
     .order('date', { ascending: true });
     
   // Apply filters if provided
@@ -117,9 +123,9 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
     price: event.price,
     image: event.image,
     images: event.images || [],
-    gallery: event.gallery || [],
-    featured: event.featured || false,
-    created_by: event.created_by || '',
+    gallery: [], // Default value since gallery field doesn't exist in DB
+    featured: false, // Default value since featured field doesn't exist in DB
+    created_by: '', // Default value since created_by field doesn't exist in DB
     is_published: event.is_published !== undefined ? event.is_published : true,
     is_private: event.is_private || false,
     created_at: event.created_at,
@@ -136,6 +142,7 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
     convenience_fee: event.convenience_fee ?? 0,
     subtotal: event.subtotal ?? 0,
     ticket_price: event.ticket_price ?? 0,
+    location_map_link: event.location_map_link || undefined,
   }));
 };
 
@@ -241,14 +248,15 @@ export const getEventsByCategory = async (categoryId: string): Promise<Event[]> 
     category: event.category,
     venue: event.venue,
     city: event.city,
-    address: '', // Default value
+    address: event.address || '',
     price: event.price,
     image: event.image,
-    images: event.images || [], // <-- add this line
-    gallery: [], // Default value
-    featured: false, // Default value
-    created_by: '', // Default value
-    is_published: true, // Default value
+    images: event.images || [],
+    gallery: [], // Default value since gallery field doesn't exist in DB
+    featured: false, // Default value since featured field doesn't exist in DB
+    created_by: '', // Default value since created_by field doesn't exist in DB
+    is_published: event.is_published !== undefined ? event.is_published : true,
+    is_private: event.is_private || false,
     created_at: event.created_at,
     event_type: event.event_type,
     host: event.host || undefined,
@@ -294,9 +302,9 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     price: data.price,
     image: data.image,
     images: data.images || undefined,
-    gallery: data.gallery || [],
-    featured: data.featured || false,
-    created_by: data.created_by || '',
+    gallery: [], // Default value since gallery field doesn't exist in DB
+    featured: false, // Default value since featured field doesn't exist in DB
+    created_by: '', // Default value since created_by field doesn't exist in DB
     is_published: data.is_published !== undefined ? data.is_published : true,
     is_private: data.is_private || false,
     created_at: data.created_at,
@@ -332,4 +340,94 @@ export const addToCart = (event: Event, quantity: number = 1) => {
     venue: event.venue,
     city: event.city
   };
+};
+
+// Get private events for current user based on invitations
+export const getPrivateEventsForUser = async (): Promise<Event[]> => {
+  try {
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.error('User not authenticated:', userError);
+      return [];
+    }
+
+    // Get user's email from auth user or users table
+    const userEmail = user.email;
+    if (!userEmail) {
+      console.error('User email not found');
+      return [];
+    }
+
+    // Get events user is invited to
+    const { data: invitations, error: invitationsError } = await supabase
+      .from('event_invitations')
+      .select('event_id')
+      .eq('user_email', userEmail)
+      .eq('status', 'pending'); // Include pending invitations
+
+    if (invitationsError) {
+      console.error('Error fetching invitations:', invitationsError);
+      return [];
+    }
+
+    if (!invitations || invitations.length === 0) {
+      return [];
+    }
+
+    // Get the actual events
+    const eventIds = invitations.map(inv => inv.event_id);
+    const { data: events, error: eventsError } = await supabase
+      .from('events')
+      .select('*')
+      .in('id', eventIds)
+      .eq('is_private', true)
+      .eq('is_published', true)
+      .order('date', { ascending: true });
+
+    if (eventsError) {
+      console.error('Error fetching private events:', eventsError);
+      return [];
+    }
+
+    const eventData = events || [];
+    return eventData.map(event => ({
+      id: event.id,
+      title: event.title,
+      subtitle: event.subtitle || undefined,
+      description: event.description,
+      date: event.date,
+      time: event.time,
+      category: event.category,
+      venue: event.venue,
+      city: event.city,
+      address: event.address || '',
+      price: event.price,
+      image: event.image,
+      images: event.images || [],
+      gallery: [], // Default value since gallery field doesn't exist in DB
+      featured: false, // Default value since featured field doesn't exist in DB
+      created_by: '', // Default value since created_by field doesn't exist in DB
+      is_published: event.is_published !== undefined ? event.is_published : true,
+      is_private: event.is_private || false,
+      created_at: event.created_at,
+      event_type: event.event_type,
+      host: event.host || undefined,
+      duration: event.duration || undefined,
+      long_description: event.long_description || null,
+      updated_at: event.updated_at,
+      has_discount: event.has_discount ?? false,
+      real_price: event.real_price ?? null,
+      discounted_price: event.discounted_price ?? null,
+      base_price: event.base_price ?? 0,
+      gst: event.gst ?? 0,
+      convenience_fee: event.convenience_fee ?? 0,
+      subtotal: event.subtotal ?? 0,
+      ticket_price: event.ticket_price ?? 0,
+      location_map_link: event.location_map_link || undefined,
+    }));
+  } catch (error) {
+    console.error('Error in getPrivateEventsForUser:', error);
+    return [];
+  }
 };
