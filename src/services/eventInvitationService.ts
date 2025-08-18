@@ -177,44 +177,50 @@ export const getMyInvitationStatusForEvent = async (
   return (data?.status as any) ?? null;
 };
 
-export type PendingJoinRequest = EventInvitation & {
-  event?: { id: string; title: string; city: string; date: string };
+export interface PendingJoinRequest {
+  id: string;
+  event_id: string;
+  event_title: string;
+  event_date: string;
+  event_city: string;
+  user_email: string;
+  requested_at: string;
 };
 
 // List all pending requests for private, published events (admin view)
-export const getPendingJoinRequests = async (): Promise<
-  PendingJoinRequest[]
-> => {
+export const getPendingJoinRequests = async (): Promise<PendingJoinRequest[]> => {
   const { data, error } = await supabase
     .from("event_invitations")
-    .select("*, event:events(id,title,city,date,is_private,is_published)")
+    .select(
+      `
+      id,
+      event_id,
+      user_email,
+      created_at,
+      event:events(
+        id,
+        title,
+        city,
+        date
+      )
+    `
+    )
     .eq("status", "pending")
-    .order("invited_at", { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Error fetching pending join requests:", error);
-    return [];
+    throw error;
   }
 
-  // Map to typed shape with a simplified event payload
-  return (data || []).map((row: any) => ({
-    id: row.id,
-    event_id: row.event_id,
-    user_email: row.user_email,
-    invited_by: row.invited_by,
-    status: row.status as "pending" | "accepted" | "declined",
-    invited_at: row.invited_at,
-    responded_at: row.responded_at,
-    created_at: row.created_at,
-    updated_at: row.updated_at,
-    event: row.event
-      ? {
-          id: row.event.id,
-          title: row.event.title,
-          city: row.event.city,
-          date: row.event.date,
-        }
-      : undefined,
+  return (data || []).map((invite) => ({
+    id: invite.id,
+    event_id: invite.event_id,
+    event_title: invite.event?.title || "",
+    event_city: invite.event?.city || "",
+    event_date: invite.event?.date || "",
+    user_email: invite.user_email,
+    requested_at: invite.created_at
   }));
 };
 

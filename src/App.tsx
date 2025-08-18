@@ -38,6 +38,7 @@ import AdminUsers from "./pages/AdminUsers";
 import BookingPage from "./pages/BookingPage";
 import ThankYou from "./pages/ThankYou";
 import InviteOnly from "./pages/InviteOnly";
+import JoinRequests from "./pages/admin/JoinRequests";
 
 const queryClient = new QueryClient();
 
@@ -72,9 +73,26 @@ const App = () => (
               </ProtectedRoute>
             }
           />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin" element={
+            <ProtectedRoute adminOnly>
+              <Admin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute adminOnly>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/join-requests" element={
+            <ProtectedRoute adminOnly>
+              <JoinRequests />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/users" element={
+            <ProtectedRoute adminOnly>
+              <AdminUsers />
+            </ProtectedRoute>
+          } />
           <Route path="/host/login" element={<HostLogin />} />
           <Route path="/host/dashboard" element={<HostDashboard />} />
           <Route path="/host/invitation" element={<HostInvitation />} />
