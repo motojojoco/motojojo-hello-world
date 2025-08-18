@@ -52,17 +52,26 @@ const App = () => (
           <Route path="/events" element={<Events />} />
           <Route path="/previousevents" element={<PreviousEvents />} />
           {/* SEO-friendly event URL pattern */}
-          <Route path="/events/:city/:eventName/:eventId" element={<EventDetail />} />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } />
-          <Route path="/cart" element={
-            <ProtectedRoute>
-              <Cart />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="/events/:city/:eventName/:eventId"
+            element={<EventDetail />}
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
@@ -84,7 +93,10 @@ const App = () => (
           <Route path="/pardah-gathering" element={<PardahGathering />} />
           <Route path="/ghumakari-kalakar" element={<GhumakariKalakar />} />
           {/* Ticket preview route with booking ID */}
-          <Route path="/ticket-preview/:bookingId" element={<TicketPreview />} />
+          <Route
+            path="/ticket-preview/:bookingId"
+            element={<TicketPreview />}
+          />
           {/* QR code scan route with ticket ID */}
           <Route path="/ticket/:ticketId" element={<TicketPreview />} />
           {/* Demo ticket preview route */}
@@ -93,11 +105,7 @@ const App = () => (
           <Route path="/booking-ticket-demo" element={<BookingTicketDemo />} />
           {/* AUTH ROUTE */}
           <Route path="/auth" element={<SignInSignUp />} />
-          <Route path="/inviteonly" element={
-            <ProtectedRoute>
-              <InviteOnly />
-            </ProtectedRoute>
-          } />
+          <Route path="/inviteonly" element={<InviteOnly tag="inviteonly" />} />
           <Route path="/book/:eventId" element={<BookingPage />} />
           <Route path="/thank-you" element={<ThankYou />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

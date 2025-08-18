@@ -38,16 +38,16 @@ export interface Event {
 
 export const getAllEvents = async (): Promise<Event[]> => {
   const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('is_private', false) // Only get public events
-    .eq('is_published', true)
-    .order('date', { ascending: true });
-    
-  if (error) console.error('Error fetching events:', error);
-  
+    .from("events")
+    .select("*")
+    .eq("is_private", false) // Only get public events
+    .eq("is_published", true)
+    .order("date", { ascending: true });
+
+  if (error) console.error("Error fetching events:", error);
+
   const events = data || [];
-  return events.map(event => ({
+  return events.map((event) => ({
     id: event.id,
     title: event.title,
     subtitle: event.subtitle || undefined,
@@ -57,13 +57,13 @@ export const getAllEvents = async (): Promise<Event[]> => {
     category: event.category,
     venue: event.venue,
     city: event.city,
-    address: event.address || '',
+    address: event.address || "",
     price: event.price,
     image: event.image,
     images: event.images || [],
     gallery: [], // Default value since gallery field doesn't exist in DB
     featured: false, // Default value since featured field doesn't exist in DB
-    created_by: '', // Default value since created_by field doesn't exist in DB
+    created_by: "", // Default value since created_by field doesn't exist in DB
     is_published: event.is_published !== undefined ? event.is_published : true,
     is_private: event.is_private || false,
     created_at: event.created_at,
@@ -84,32 +84,21 @@ export const getAllEvents = async (): Promise<Event[]> => {
   }));
 };
 
-export const getEvents = async (filters?: { city?: string; eventType?: string }): Promise<Event[]> => {
-  let query = supabase
-    .from('events')
-    .select('*')
-    .eq('is_private', false) // Only get public events
-    .eq('is_published', true)
-    .order('date', { ascending: true });
-    
-  // Apply filters if provided
-  if (filters) {
-    if (filters.city) {
-      query = query.eq('city', filters.city);
-    }
-    
-    if (filters.eventType) {
-      query = query.eq('event_type', filters.eventType);
-    }
+// Get all private, published events (for public listing on InviteOnly page)
+export const getAllPrivateEvents = async (): Promise<Event[]> => {
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .eq("is_private", true)
+    .eq("is_published", true)
+    .order("date", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching private events:", error);
   }
-  
-  const { data, error } = await query;
-    
-  if (error) console.error("Error fetching events:", error);
-  
-  // Transform data to match the Event interface
+
   const events = data || [];
-  return events.map(event => ({
+  return events.map((event) => ({
     id: event.id,
     title: event.title,
     subtitle: event.subtitle || undefined,
@@ -119,13 +108,78 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
     category: event.category,
     venue: event.venue,
     city: event.city,
-    address: event.address || '',
+    address: event.address || "",
+    price: event.price,
+    image: event.image,
+    images: event.images || [],
+    gallery: [],
+    featured: false,
+    created_by: "",
+    is_published: event.is_published !== undefined ? event.is_published : true,
+    is_private: event.is_private || true,
+    created_at: event.created_at,
+    event_type: event.event_type,
+    host: event.host || undefined,
+    duration: event.duration || undefined,
+    long_description: event.long_description || null,
+    updated_at: event.updated_at,
+    has_discount: event.has_discount ?? false,
+    real_price: event.real_price ?? null,
+    discounted_price: event.discounted_price ?? null,
+    base_price: event.base_price ?? 0,
+    gst: event.gst ?? 0,
+    convenience_fee: event.convenience_fee ?? 0,
+    subtotal: event.subtotal ?? 0,
+    ticket_price: event.ticket_price ?? 0,
+    location_map_link: event.location_map_link || undefined,
+  }));
+};
+
+export const getEvents = async (filters?: {
+  city?: string;
+  eventType?: string;
+}): Promise<Event[]> => {
+  let query = supabase
+    .from("events")
+    .select("*")
+    .eq("is_private", false) // Only get public events
+    .eq("is_published", true)
+    .order("date", { ascending: true });
+
+  // Apply filters if provided
+  if (filters) {
+    if (filters.city) {
+      query = query.eq("city", filters.city);
+    }
+
+    if (filters.eventType) {
+      query = query.eq("event_type", filters.eventType);
+    }
+  }
+
+  const { data, error } = await query;
+
+  if (error) console.error("Error fetching events:", error);
+
+  // Transform data to match the Event interface
+  const events = data || [];
+  return events.map((event) => ({
+    id: event.id,
+    title: event.title,
+    subtitle: event.subtitle || undefined,
+    description: event.description,
+    date: event.date,
+    time: event.time,
+    category: event.category,
+    venue: event.venue,
+    city: event.city,
+    address: event.address || "",
     price: event.price,
     image: event.image,
     images: event.images || [],
     gallery: [], // Default value since gallery field doesn't exist in DB
     featured: false, // Default value since featured field doesn't exist in DB
-    created_by: '', // Default value since created_by field doesn't exist in DB
+    created_by: "", // Default value since created_by field doesn't exist in DB
     is_published: event.is_published !== undefined ? event.is_published : true,
     is_private: event.is_private || false,
     created_at: event.created_at,
@@ -149,31 +203,29 @@ export const getEvents = async (filters?: { city?: string; eventType?: string })
 // Get unique cities from events
 export const getEventCities = async (): Promise<string[]> => {
   const { data, error } = await supabase
-    .from('events')
-    .select('city')
-    .order('city');
-    
+    .from("events")
+    .select("city")
+    .order("city");
+
   if (error) {
     console.error("Error fetching event cities:", error);
     return [];
   }
-  
+
   // Extract unique cities
-  const cities = new Set(data.map(item => item.city));
+  const cities = new Set(data.map((item) => item.city));
   return Array.from(cities);
 };
 
 // Get unique event dates for filtering
 export const getEventDates = async (): Promise<string[]> => {
-  const { data, error } = await supabase
-    .from('events')
-    .select('date');
+  const { data, error } = await supabase.from("events").select("date");
   if (error) {
     console.error("Error fetching event dates:", error);
     return [];
   }
   // Extract unique dates
-  const dates = new Set(data.map(item => item.date));
+  const dates = new Set(data.map((item) => item.date));
   return Array.from(dates).sort();
 };
 
@@ -195,9 +247,9 @@ export const getEventsByType = async (eventType: string): Promise<Event[]> => {
 //     .select('*')
 //     .order('date', { ascending: true })
 //     .limit(3); // Limiting to 3 events as featured
-    
+
 //   if (error) console.error("Error fetching featured events:", error);
-  
+
 //   const events = data || [];
 //   return events.map(event => ({
 //     id: event.id,
@@ -228,17 +280,20 @@ export const getEventsByType = async (eventType: string): Promise<Event[]> => {
 //   }));
 // };
 
-export const getEventsByCategory = async (categoryId: string): Promise<Event[]> => {
+export const getEventsByCategory = async (
+  categoryId: string
+): Promise<Event[]> => {
   const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('category', categoryId)
-    .order('date', { ascending: true });
-    
-  if (error) console.error(`Error fetching events for category ${categoryId}:`, error);
-  
+    .from("events")
+    .select("*")
+    .eq("category", categoryId)
+    .order("date", { ascending: true });
+
+  if (error)
+    console.error(`Error fetching events for category ${categoryId}:`, error);
+
   const events = data || [];
-  return events.map(event => ({
+  return events.map((event) => ({
     id: event.id,
     title: event.title,
     subtitle: event.subtitle || undefined,
@@ -248,13 +303,13 @@ export const getEventsByCategory = async (categoryId: string): Promise<Event[]> 
     category: event.category,
     venue: event.venue,
     city: event.city,
-    address: event.address || '',
+    address: event.address || "",
     price: event.price,
     image: event.image,
     images: event.images || [],
     gallery: [], // Default value since gallery field doesn't exist in DB
     featured: false, // Default value since featured field doesn't exist in DB
-    created_by: '', // Default value since created_by field doesn't exist in DB
+    created_by: "", // Default value since created_by field doesn't exist in DB
     is_published: event.is_published !== undefined ? event.is_published : true,
     is_private: event.is_private || false,
     created_at: event.created_at,
@@ -276,18 +331,18 @@ export const getEventsByCategory = async (categoryId: string): Promise<Event[]> 
 
 export const getEvent = async (id: string): Promise<Event | null> => {
   const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('id', id)
+    .from("events")
+    .select("*")
+    .eq("id", id)
     .single();
-    
+
   if (error) {
     console.error(`Error fetching event ${id}:`, error);
     return null;
   }
-  
+
   if (!data) return null;
-  
+
   return {
     id: data.id,
     title: data.title,
@@ -298,13 +353,13 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     category: data.category,
     venue: data.venue,
     city: data.city,
-    address: data.address || '',
+    address: data.address || "",
     price: data.price,
     image: data.image,
     images: data.images || undefined,
     gallery: [], // Default value since gallery field doesn't exist in DB
     featured: false, // Default value since featured field doesn't exist in DB
-    created_by: '', // Default value since created_by field doesn't exist in DB
+    created_by: "", // Default value since created_by field doesn't exist in DB
     is_published: data.is_published !== undefined ? data.is_published : true,
     is_private: data.is_private || false,
     created_at: data.created_at,
@@ -316,12 +371,20 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     has_discount: data.has_discount ?? false,
     real_price: data.real_price ?? null,
     discounted_price: data.discounted_price ?? null,
-    base_price: typeof data.base_price === 'number' ? data.base_price : undefined,
-    gst: typeof data.gst === 'number' ? data.gst : undefined,
-    convenience_fee: typeof data.convenience_fee === 'number' ? data.convenience_fee : undefined,
-    subtotal: typeof data.subtotal === 'number' ? data.subtotal : undefined,
-    ticket_price: typeof data.ticket_price === 'number' ? data.ticket_price : undefined,
-    location_map_link: typeof data.location_map_link === 'string' ? data.location_map_link : undefined,
+    base_price:
+      typeof data.base_price === "number" ? data.base_price : undefined,
+    gst: typeof data.gst === "number" ? data.gst : undefined,
+    convenience_fee:
+      typeof data.convenience_fee === "number"
+        ? data.convenience_fee
+        : undefined,
+    subtotal: typeof data.subtotal === "number" ? data.subtotal : undefined,
+    ticket_price:
+      typeof data.ticket_price === "number" ? data.ticket_price : undefined,
+    location_map_link:
+      typeof data.location_map_link === "string"
+        ? data.location_map_link
+        : undefined,
   };
 };
 
@@ -338,7 +401,7 @@ export const addToCart = (event: Event, quantity: number = 1) => {
     price: event.price,
     date: event.date,
     venue: event.venue,
-    city: event.city
+    city: event.city,
   };
 };
 
@@ -346,28 +409,31 @@ export const addToCart = (event: Event, quantity: number = 1) => {
 export const getPrivateEventsForUser = async (): Promise<Event[]> => {
   try {
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
     if (userError || !user) {
-      console.error('User not authenticated:', userError);
+      console.error("User not authenticated:", userError);
       return [];
     }
 
     // Get user's email from auth user or users table
     const userEmail = user.email;
     if (!userEmail) {
-      console.error('User email not found');
+      console.error("User email not found");
       return [];
     }
 
     // Get events user is invited to
     const { data: invitations, error: invitationsError } = await supabase
-      .from('event_invitations')
-      .select('event_id')
-      .eq('user_email', userEmail)
-      .eq('status', 'pending'); // Include pending invitations
+      .from("event_invitations")
+      .select("event_id")
+      .eq("user_email", userEmail)
+      .eq("status", "pending"); // Include pending invitations
 
     if (invitationsError) {
-      console.error('Error fetching invitations:', invitationsError);
+      console.error("Error fetching invitations:", invitationsError);
       return [];
     }
 
@@ -376,22 +442,22 @@ export const getPrivateEventsForUser = async (): Promise<Event[]> => {
     }
 
     // Get the actual events
-    const eventIds = invitations.map(inv => inv.event_id);
+    const eventIds = invitations.map((inv) => inv.event_id);
     const { data: events, error: eventsError } = await supabase
-      .from('events')
-      .select('*')
-      .in('id', eventIds)
-      .eq('is_private', true)
-      .eq('is_published', true)
-      .order('date', { ascending: true });
+      .from("events")
+      .select("*")
+      .in("id", eventIds)
+      .eq("is_private", true)
+      .eq("is_published", true)
+      .order("date", { ascending: true });
 
     if (eventsError) {
-      console.error('Error fetching private events:', eventsError);
+      console.error("Error fetching private events:", eventsError);
       return [];
     }
 
     const eventData = events || [];
-    return eventData.map(event => ({
+    return eventData.map((event) => ({
       id: event.id,
       title: event.title,
       subtitle: event.subtitle || undefined,
@@ -401,14 +467,15 @@ export const getPrivateEventsForUser = async (): Promise<Event[]> => {
       category: event.category,
       venue: event.venue,
       city: event.city,
-      address: event.address || '',
+      address: event.address || "",
       price: event.price,
       image: event.image,
       images: event.images || [],
       gallery: [], // Default value since gallery field doesn't exist in DB
       featured: false, // Default value since featured field doesn't exist in DB
-      created_by: '', // Default value since created_by field doesn't exist in DB
-      is_published: event.is_published !== undefined ? event.is_published : true,
+      created_by: "", // Default value since created_by field doesn't exist in DB
+      is_published:
+        event.is_published !== undefined ? event.is_published : true,
       is_private: event.is_private || false,
       created_at: event.created_at,
       event_type: event.event_type,
@@ -427,7 +494,7 @@ export const getPrivateEventsForUser = async (): Promise<Event[]> => {
       location_map_link: event.location_map_link || undefined,
     }));
   } catch (error) {
-    console.error('Error in getPrivateEventsForUser:', error);
+    console.error("Error in getPrivateEventsForUser:", error);
     return [];
   }
 };

@@ -143,13 +143,6 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </Link>
             </Button>
 
-            <Button variant="ghost" asChild className="min-w-0 truncate text-mapcream">
-              <Link to="/inviteonly" className="flex items-center text-mapcream">
-                <Lock className="h-4 w-4 mr-2 text-mapcream" />
-                <span className="truncate text-mapcream">Invite Only</span>
-              </Link>
-            </Button>
-
             {/* Auth Buttons */}
             {!isSignedIn ? (
               <>
@@ -261,7 +254,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </Button>
 
               <Button variant="ghost" className="w-full" asChild>
-                <Link to="/inviteonly">
+                <Link to="/inviteonly?tag=inviteonly">
                   <Lock className="h-4 w-4 mr-2" />
                   Invite Only
                 </Link>
