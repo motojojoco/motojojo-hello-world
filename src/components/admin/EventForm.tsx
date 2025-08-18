@@ -468,15 +468,14 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                   )}
                  />
                 
-                {/* Show invitation form for private events */}
-                {form.watch("is_private") && isEditing && initialData?.id && (
-                  <div className="col-span-2">
-                    <EventInvitationForm 
-                      eventId={initialData.id} 
-                      eventTitle={form.watch("title") || "Untitled Event"}
-                    />
-                  </div>
-                )}
+                 {/* Show invitation form for private events */}
+                 {form.watch("is_private") && isEditing && initialData?.id && (
+                   <div className="col-span-2">
+                     <div className="text-center text-muted-foreground">
+                       Invitation management will be available after event creation.
+                     </div>
+                   </div>
+                 )}
 
                 {form.watch("has_discount") && (
                   <>

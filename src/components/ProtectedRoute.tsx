@@ -22,10 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly, ho
       toast({
         title: "Authentication Required",
         description: "Please sign in to access this page.",
-        action: {
-          label: "Sign In / Sign Up",
-          onClick: () => navigate(`/auth?redirect=${encodeURIComponent(currentPath)}`)
-        }
+        variant: "destructive"
       });
       navigate(`/auth?redirect=${encodeURIComponent(currentPath)}`);
     } else if (isLoaded && adminOnly && !isAdmin) {

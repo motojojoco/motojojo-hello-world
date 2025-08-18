@@ -13,6 +13,8 @@ interface Experience {
   name: string;
   description: string;
   image: string;
+  venue?: string;
+  city?: string;
 }
 
 const ExperiencesSection = () => {
@@ -157,13 +159,9 @@ const ExperiencesSection = () => {
                     />
                   </div>
                   <CardContent className="p-5 text-black">
-                    {experience.location || experience.city ? (
-                      <div className="text-black mb-1 text-base font-medium">
-                        {experience.location ? experience.location : ''}
-                        {experience.location && experience.city ? ', ' : ''}
-                        {experience.city ? experience.city : ''}
-                      </div>
-                    ) : null}
+                    <div className="text-black mb-1 text-base font-medium">
+                      {experience.venue || experience.city || "Location TBA"}
+                    </div>
                     <h3 className="text-lg font-bold mb-2">{experience.name}</h3>
                     <p className="text-sm">{experience.description}</p>
                   </CardContent>

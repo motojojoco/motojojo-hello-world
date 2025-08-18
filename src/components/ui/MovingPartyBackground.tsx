@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getFeaturedEvents } from "@/services/eventService";
+// import { getFeaturedEvents } from "@/services/eventService";
 
 // SVG pattern for 90s background
 const patternSvg =

@@ -1,76 +1,76 @@
 
-// import { useState } from "react";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent } from "@/components/ui/card";
-// import { useToast } from "@/hooks/use-toast";
-// import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ArtistFormProps {
   onCreated?: () => void;
 }
 
 const ArtistForm = ({ onCreated }: ArtistFormProps) => {
-  // const { toast } = useToast();
-  // const [name, setName] = useState("");
-  // const [profile, setProfile] = useState("");
-  // const [genre, setGenre] = useState("");
-  // const [image, setImage] = useState("");
-  // const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const [name, setName] = useState("");
+  const [profile, setProfile] = useState("");
+  const [genre, setGenre] = useState("");
+  const [image, setImage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-  //   if (!name || !profile || !genre) {
-  //     toast({
-  //       title: "Missing Fields",
-  //       description: "Please fill out all required fields.",
-  //       variant: "destructive",
-  //     });
-  //     return;
-  //   }
+    if (!name || !profile || !genre) {
+      toast({
+        title: "Missing Fields",
+        description: "Please fill out all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
     
-  //   setLoading(true);
+    setLoading(true);
     
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from("artists")
-  //       .insert([{ 
-  //         name, 
-  //         profile, 
-  //         genre, 
-  //         image: image || null 
-  //       }])
-  //       .select();
+    try {
+      const { data, error } = await supabase
+        .from("artists")
+        .insert([{ 
+          name, 
+          profile, 
+          genre, 
+          image: image || null 
+        }])
+        .select();
         
-  //     if (error) throw error;
+      if (error) throw error;
       
-  //     toast({
-  //       title: "Artist Added",
-  //       description: `${name} was added successfully to featured artists.`,
-  //     });
+      toast({
+        title: "Artist Added",
+        description: `${name} was added successfully to featured artists.`,
+      });
       
-  //     // Reset form
-  //     setName("");
-  //     setProfile("");
-  //     setGenre("");
-  //     setImage("");
+      // Reset form
+      setName("");
+      setProfile("");
+      setGenre("");
+      setImage("");
       
-  //     // Call callback if provided
-  //     if (onCreated) onCreated();
+      // Call callback if provided
+      if (onCreated) onCreated();
       
-  //   } catch (error: any) {
-  //     console.error("Error creating artist:", error);
-  //     toast({
-  //       title: "Error",
-  //       description: `Failed to create artist: ${error.message}`,
-  //       variant: "destructive",
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+    } catch (error: any) {
+      console.error("Error creating artist:", error);
+      toast({
+        title: "Error",
+        description: `Failed to create artist: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card>
