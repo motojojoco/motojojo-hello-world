@@ -28,6 +28,8 @@ import Response from "./pages/Response";
 import SignInSignUp from "./pages/SignInSignUp";
 import Contact from "./pages/Contact";
 import Help from "./pages/Help";
+import { SubscriptionProvider } from "./contexts/SubscriptionContext";
+import { useSubscriptionStatus } from "./hooks/useSubscriptionStatus";
 import LocalGathering from "./pages/LocalGathering";
 import Addebazi from "./pages/Addebazi";
 import KitchenGathering from "./pages/KitchenGathering";
@@ -42,97 +44,57 @@ import JoinRequests from "./pages/admin/JoinRequests";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/previousevents" element={<PreviousEvents />} />
-          {/* SEO-friendly event URL pattern */}
-          <Route
-            path="/events/:city/:eventName/:eventId"
-            element={<EventDetail />}
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/cart"
-            element={
-              <ProtectedRoute>
-                <Cart />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/admin" element={
-            <ProtectedRoute adminOnly>
-              <Admin />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/dashboard" element={
-            <ProtectedRoute adminOnly>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/join-requests" element={
-            <ProtectedRoute adminOnly>
-              <JoinRequests />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/users" element={
-            <ProtectedRoute adminOnly>
-              <AdminUsers />
-            </ProtectedRoute>
-          } />
-          <Route path="/host/login" element={<HostLogin />} />
-          <Route path="/host/dashboard" element={<HostDashboard />} />
-          <Route path="/host/invitation" element={<HostInvitation />} />
-          <Route path="/explorepremium" element={<ExplorePremium />} />
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/membership" element={<Membership />} />
-          <Route path="/mjmember" element={<MjMember />} />
-          <Route path="/jojogang" element={<JoJoGang />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/response" element={<Response />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/local-gathering" element={<LocalGathering />} />
-          <Route path="/addebazi" element={<Addebazi />} />
-          <Route path="/kitchen-gathering" element={<KitchenGathering />} />
-          <Route path="/pardah-gathering" element={<PardahGathering />} />
-          <Route path="/ghumakari-kalakar" element={<GhumakariKalakar />} />
-          {/* Ticket preview route with booking ID */}
-          <Route
-            path="/ticket-preview/:bookingId"
-            element={<TicketPreview />}
-          />
-          {/* QR code scan route with ticket ID */}
-          <Route path="/ticket/:ticketId" element={<TicketPreview />} />
-          {/* Demo ticket preview route */}
-          <Route path="/ticket-preview" element={<TicketPreview />} />
-          {/* Booking ticket demo route */}
-          <Route path="/booking-ticket-demo" element={<BookingTicketDemo />} />
-          {/* AUTH ROUTE */}
-          <Route path="/auth" element={<SignInSignUp />} />
-          <Route path="/inviteonly" element={<InviteOnly tag="inviteonly" />} />
-          <Route path="/book/:eventId" element={<BookingPage />} />
-          <Route path="/thank-you" element={<ThankYou />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <WhatsAppButton />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <SubscriptionProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/previousevents" element={<PreviousEvents />} />
+              {/* SEO-friendly event URL pattern */}
+              <Route
+                path="/events/:city/:eventName/:eventId"
+                element={<EventDetail />}
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cart"
+                element={
+                  <ProtectedRoute>
+                    <Cart />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Demo ticket preview route */}
+              <Route path="/ticket-preview" element={<TicketPreview />} />
+              {/* Booking ticket demo route */}
+              <Route path="/booking-ticket-demo" element={<BookingTicketDemo />} />
+              {/* AUTH ROUTE */}
+              <Route path="/auth" element={<SignInSignUp />} />
+              <Route path="/inviteonly" element={<InviteOnly tag="inviteonly" />} />
+              <Route path="/book/:eventId" element={<BookingPage />} />
+              <Route path="/thank-you" element={<ThankYou />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <WhatsAppButton />
+          </BrowserRouter>
+        </SubscriptionProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
